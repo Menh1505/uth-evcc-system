@@ -51,7 +51,7 @@ public class DatabaseService {
      * Create a sample user
      */
     public User createSampleUser() {
-        User user = new User("admin@evcc.com", "0123456789", "hashedPassword123", UserStatus.ACTIVE);
+        User user = new User("admin", "0123456789", "hashedPassword123", UserStatus.ACTIVE);
         return userRepository.save(user);
     }
 
@@ -63,31 +63,31 @@ public class DatabaseService {
     }
 
     /**
-     * Find user by email
+     * Find user by username
      */
-    public Optional<User> findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public Optional<User> findUserByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     /**
      * Create a new user
      */
-    public User createUser(String email, String phone, String passwordHash) {
-        if (userRepository.existsByEmail(email)) {
-            throw new RuntimeException("Email already exists: " + email);
+    public User createUser(String username, String phone, String passwordHash) {
+        if (userRepository.existsByUsername(username)) {
+            throw new RuntimeException("Username already exists: " + username);
         }
         if (phone != null && userRepository.existsByPhone(phone)) {
             throw new RuntimeException("Phone already exists: " + phone);
         }
 
-        User user = new User(email, phone, passwordHash);
+        User user = new User(username, phone, passwordHash);
         return userRepository.save(user);
     }
 
     /**
      * Update user
      */
-    public User updateUser(UUID id, String email, String phone, String passwordHash, UserStatus status) {
+    public User updateUser(UUID id, String username, String phone, String passwordHash, UserStatus status) {
         Optional<User> userOpt = userRepository.findById(id);
         if (userOpt.isEmpty()) {
             throw new RuntimeException("User not found with id: " + id);
@@ -95,9 +95,9 @@ public class DatabaseService {
 
         User user = userOpt.get();
 
-        // Check if email is taken by another user
-        if (!user.getEmail().equals(email) && userRepository.existsByEmail(email)) {
-            throw new RuntimeException("Email already exists: " + email);
+        // Check if username is taken by another user
+        if (!user.getUsername().equals(username) && userRepository.existsByUsername(username)) {
+            throw new RuntimeException("Username already exists: " + username);
         }
 
         // Check if phone is taken by another user
@@ -105,7 +105,7 @@ public class DatabaseService {
             throw new RuntimeException("Phone already exists: " + phone);
         }
 
-        user.setEmail(email);
+        user.setUsername(username);
         user.setPhone(phone);
         if (passwordHash != null) {
             user.setPasswordHash(passwordHash);

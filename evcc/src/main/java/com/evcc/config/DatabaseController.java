@@ -69,11 +69,11 @@ public class DatabaseController {
     }
 
     /**
-     * Get user by email
+     * Get user by username
      */
-    @GetMapping("/users/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
-        Optional<User> user = databaseService.findUserByEmail(email);
+    @GetMapping("/users/{username}")
+    public ResponseEntity<User> getUserBy(@PathVariable String username) {
+        Optional<User> user = databaseService.findUserByUsername(username);
         return user.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
@@ -83,16 +83,16 @@ public class DatabaseController {
     @PostMapping("/users")
     public ResponseEntity<Object> createUser(@RequestBody Map<String, String> userRequest) {
         try {
-            String email = userRequest.get("email");
+            String username = userRequest.get("username");
             String phone = userRequest.get("phone");
             String passwordHash = userRequest.get("passwordHash");
 
-            if (email == null || passwordHash == null) {
+            if (username == null || passwordHash == null) {
                 return ResponseEntity.badRequest().body(Map.of(
-                        "error", "Email and passwordHash are required"));
+                        "error", "Username and passwordHash are required"));
             }
 
-            User user = databaseService.createUser(email, phone, passwordHash);
+            User user = databaseService.createUser(username, phone, passwordHash);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -108,7 +108,7 @@ public class DatabaseController {
             @PathVariable UUID id,
             @RequestBody Map<String, String> userRequest) {
         try {
-            String email = userRequest.get("email");
+            String username = userRequest.get("username");
             String phone = userRequest.get("phone");
             String passwordHash = userRequest.get("passwordHash");
             String statusStr = userRequest.get("status");
@@ -123,7 +123,7 @@ public class DatabaseController {
                 }
             }
 
-            User user = databaseService.updateUser(id, email, phone, passwordHash, status);
+            User user = databaseService.updateUser(id, username, phone, passwordHash, status);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(

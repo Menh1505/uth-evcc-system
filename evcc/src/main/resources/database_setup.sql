@@ -15,23 +15,25 @@
 
 /*
 CREATE TABLE IF NOT EXISTS users (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(255) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    full_name VARCHAR(255),
+    phone VARCHAR(20) UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
+CREATE INDEX IF NOT EXISTS idx_users_status ON users(status);
 CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);
 
 -- Insert sample data
-INSERT INTO users (username, email, full_name) VALUES 
-    ('admin', 'admin@evcc.com', 'System Administrator'),
-    ('user1', 'user1@evcc.com', 'Test User 1'),
-    ('user2', 'user2@evcc.com', 'Test User 2')
+INSERT INTO users (username, phone, password_hash, status) VALUES 
+    ('admin', '0123456789', 'hashedPassword123', 'ACTIVE'),
+    ('user1', '0987654321', 'hashedPassword456', 'ACTIVE'),
+    ('user2', '0555666777', 'hashedPassword789', 'PENDING')
 ON CONFLICT (username) DO NOTHING;
 */

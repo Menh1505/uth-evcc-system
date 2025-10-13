@@ -17,9 +17,9 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<User, UUID> {
 
     /**
-     * Find user by email
+     * Find user by username
      */
-    Optional<User> findByEmail(String email);
+    Optional<User> findByUsername(String username);
 
     /**
      * Find user by phone
@@ -32,14 +32,14 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByStatus(UserStatus status);
 
     /**
-     * Find users by email containing (case-insensitive)
+     * Find users by username containing (case-insensitive)
      */
-    List<User> findByEmailContainingIgnoreCase(String email);
+    List<User> findByUsernameContainingIgnoreCase(String username);
 
     /**
-     * Check if email exists
+     * Check if username exists
      */
-    boolean existsByEmail(String email);
+    boolean existsByUsername(String username);
 
     /**
      * Check if phone exists
@@ -47,10 +47,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByPhone(String phone);
 
     /**
-     * Custom query to find users by partial email
+     * Custom query to find users by partial username
      */
-    @Query("SELECT u FROM User u WHERE u.email LIKE %:email%")
-    List<User> findByEmailContaining(@Param("email") String email);
+    @Query("SELECT u FROM User u WHERE u.username LIKE %:username%")
+    List<User> findByUsernameContaining(@Param("username") String username);
 
     /**
      * Find active users
