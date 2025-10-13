@@ -1,10 +1,8 @@
 package com.evcc.group.entity;
 
 public enum GroupRole {
-    OWNER("Owner"),
-    ADMIN("Administrator"), 
-    MEMBER("Member"),
-    VIEWER("Viewer");
+    CO_OWNER("CoOwner"),
+    GROUP_ADMIN("GroupAdmin");
     
     private final String displayName;
     

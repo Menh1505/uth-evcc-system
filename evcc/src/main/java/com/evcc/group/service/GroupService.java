@@ -1,18 +1,19 @@
 package com.evcc.group.service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.evcc.group.entity.Group;
 import com.evcc.group.entity.GroupRole;
 import com.evcc.group.entity.Membership;
 import com.evcc.group.entity.MembershipStatus;
 import com.evcc.group.repository.GroupRepository;
 import com.evcc.group.repository.MembershipRepository;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 
 
@@ -67,7 +68,7 @@ public class GroupService {
         Group group = createGroup(name, description, contractId);
         
         // Add owner membership
-        Membership membership = new Membership(group.getId(), ownerId, GroupRole.OWNER);
+        Membership membership = new Membership(group.getId(), ownerId, GroupRole.CO_OWNER);
         membershipRepository.save(membership);
         
         return group;
