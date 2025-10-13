@@ -19,9 +19,17 @@ public class Payment {
     private YearMonth period;
 
     @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "amount", column = @Column(name = "amount_due")),
+        @AttributeOverride(name = "currency", column = @Column(name = "currency_due"))
+    })
     private Money amountDue;
 
     @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "amount", column = @Column(name = "amount_paid")),
+        @AttributeOverride(name = "currency", column = @Column(name = "currency_paid"))
+    })
     private Money amountPaid;
 
     @Enumerated(EnumType.STRING)
