@@ -1,6 +1,7 @@
 package com.evcc.evcc.controller;
 
 import com.evcc.evcc.entity.User;
+import com.evcc.evcc.entity.UserStatus;
 import com.evcc.evcc.service.DatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/database")
@@ -65,11 +67,11 @@ public class DatabaseController {
     }
 
     /**
-     * Get user by username
+     * Get user by email
      */
-    @GetMapping("/users/{username}")
-    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
-        Optional<User> user = databaseService.findUserByUsername(username);
+    @GetMapping("/users/{email}")
+    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+        Optional<User> user = databaseService.findUserByEmail(email);
         return user.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
@@ -79,16 +81,16 @@ public class DatabaseController {
     @PostMapping("/users")
     public ResponseEntity<Object> createUser(@RequestBody Map<String, String> userRequest) {
         try {
-            String username = userRequest.get("username");
             String email = userRequest.get("email");
-            String fullName = userRequest.get("fullName");
+            String phone = userRequest.get("phone");
+            String passwordHash = userRequest.get("passwordHash");
 
-            if (username == null || email == null) {
+            if (email == null || passwordHash == null) {
                 return ResponseEntity.badRequest().body(Map.of(
-                        "error", "Username and email are required"));
+                        "error", "Email and passwordHash are required"));
             }
 
-            User user = databaseService.createUser(username, email, fullName);
+            User user = databaseService.createUser(email, phone, passwordHash);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -101,14 +103,25 @@ public class DatabaseController {
      */
     @PutMapping("/users/{id}")
     public ResponseEntity<Object> updateUser(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody Map<String, String> userRequest) {
         try {
-            String username = userRequest.get("username");
             String email = userRequest.get("email");
-            String fullName = userRequest.get("fullName");
+            String phone = userRequest.get("phone");
+            String passwordHash = userRequest.get("passwordHash");
+            String statusStr = userRequest.get("status");
 
-            User user = databaseService.updateUser(id, username, email, fullName);
+            UserStatus status = null;
+            if (statusStr != null) {
+                try {
+                    status = UserStatus.valueOf(statusStr.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.badRequest().body(Map.of(
+                            "error", "Invalid status: " + statusStr));
+                }
+            }
+
+            User user = databaseService.updateUser(id, email, phone, passwordHash, status);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -120,12 +133,12 @@ public class DatabaseController {
      * Delete user
      */
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable UUID id) {
         boolean deleted = databaseService.deleteUser(id);
         if (deleted) {
             return ResponseEntity.ok(Map.of(
                     "message", "User deleted successfully",
-                    "id", id));
+                    "id", id.toString()));
         } else {
             return ResponseEntity.notFound().build();
         }
