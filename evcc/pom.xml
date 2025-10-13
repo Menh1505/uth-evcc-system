@@ -12,7 +12,7 @@
 	<artifactId>evcc</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>evcc</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Phần mềm quản lý đồng sở hữu - chia sẻ chi phí xe điện</description>
 	<url/>
 	<licenses>
 		<license/>
