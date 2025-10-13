@@ -2,11 +2,8 @@ package com.evcc.group.entity;
 
 public enum MembershipStatus {
     ACTIVE("Active"),
-    INACTIVE("Inactive"),
-    PENDING("Pending"),
     LEFT("Left"),
-    KICKED("Kicked"),
-    BANNED("Banned");
+    KICKED("Kicked");
     
     private final String displayName;
     

@@ -87,7 +87,7 @@ public class MembershipService {
             membership.setStatus(status);
             
             // Set leftAt when status changes to LEFT, KICKED, or BANNED
-            if (status == MembershipStatus.LEFT || status == MembershipStatus.KICKED || status == MembershipStatus.BANNED) {
+            if (status == MembershipStatus.LEFT || status == MembershipStatus.KICKED) {
                 membership.setLeftAt(LocalDateTime.now());
             } else if (status == MembershipStatus.ACTIVE && membership.getLeftAt() != null) {
                 // Clear leftAt when reactivating
