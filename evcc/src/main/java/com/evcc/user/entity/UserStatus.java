@@ -2,10 +2,8 @@ package com.evcc.user.entity;
 
 public enum UserStatus {
     ACTIVE("Active"),
-    INACTIVE("Inactive"),
     PENDING("Pending"),
-    SUSPENDED("Suspended"),
-    DELETED("Deleted");
+    SUSPENDED("Suspended");
 
     private final String displayName;
 
