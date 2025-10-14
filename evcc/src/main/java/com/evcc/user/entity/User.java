@@ -14,7 +14,7 @@ public class User {
     private UUID id;
 
     @Column(nullable = false, unique = true)
-    private String email;
+    private String username;
 
     @Column(nullable = true, unique = true)
     private String phone;
@@ -40,15 +40,15 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public User(String email, String phone, String passwordHash) {
+    public User(String username, String phone, String passwordHash) {
         this();
-        this.email = email;
+        this.username = username;
         this.phone = phone;
         this.passwordHash = passwordHash;
     }
 
-    public User(String email, String phone, String passwordHash, UserStatus status) {
-        this(email, phone, passwordHash);
+    public User(String username, String phone, String passwordHash, UserStatus status) {
+        this(username, phone, passwordHash);
         this.status = status;
     }
 
@@ -61,12 +61,12 @@ public class User {
         this.id = id;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPhone() {
@@ -118,7 +118,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
                 ", phone='" + phone + '\'' +
                 ", status=" + status +
                 ", createdAt=" + createdAt +

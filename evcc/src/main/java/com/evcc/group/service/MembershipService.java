@@ -1,17 +1,19 @@
 package com.evcc.group.service;
 
-import com.evcc.group.entity.GroupRole;
-import com.evcc.group.entity.Membership;
-import com.evcc.group.entity.MembershipStatus;
-import com.evcc.group.repository.MembershipRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.evcc.group.entity.GroupRole;
+import com.evcc.group.entity.Membership;
+import com.evcc.group.entity.MembershipStatus;
+import com.evcc.group.repository.MembershipRepository;
 
 
 
@@ -85,7 +87,7 @@ public class MembershipService {
             membership.setStatus(status);
             
             // Set leftAt when status changes to LEFT, KICKED, or BANNED
-            if (status == MembershipStatus.LEFT || status == MembershipStatus.KICKED || status == MembershipStatus.BANNED) {
+            if (status == MembershipStatus.LEFT || status == MembershipStatus.KICKED) {
                 membership.setLeftAt(LocalDateTime.now());
             } else if (status == MembershipStatus.ACTIVE && membership.getLeftAt() != null) {
                 // Clear leftAt when reactivating
@@ -185,7 +187,7 @@ public class MembershipService {
      * Get group owners
      */
     public List<Membership> getGroupOwners(UUID groupId) {
-        return membershipRepository.findByGroupIdAndRole(groupId, GroupRole.OWNER);
+        return membershipRepository.findByGroupIdAndRole(groupId, GroupRole.CO_OWNER);
     }
 
     /**
