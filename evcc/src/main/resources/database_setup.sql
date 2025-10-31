@@ -37,3 +37,19 @@ INSERT INTO users (username, phone, password_hash, status) VALUES
     ('user2', '0555666777', 'hashedPassword789', 'PENDING')
 ON CONFLICT (username) DO NOTHING;
 */
+
+/*CREATE TABLE document_upload (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  owner_id BIGINT NOT NULL,
+  doc_type VARCHAR(100) NOT NULL,
+  original_filename VARCHAR(512),
+  storage_path VARCHAR(1024),
+  mime_type VARCHAR(255),
+  size BIGINT,
+  status VARCHAR(20),
+  submitted_at TIMESTAMP,
+  reviewed_by BIGINT,
+  reviewed_at TIMESTAMP,
+  review_note VARCHAR(2000)
+);
+*/
