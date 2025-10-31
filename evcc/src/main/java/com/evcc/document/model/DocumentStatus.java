@@ -1,5 +1,7 @@
 package com.evcc.document.model;
 
-public class DocumentStatus {
-
+public enum DocumentStatus {
+    PENDING,
+    APPROVED,
+    REJECTED;
 }
