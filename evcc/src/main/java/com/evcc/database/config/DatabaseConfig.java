@@ -5,6 +5,8 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +20,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
  */
 @Configuration
 public class DatabaseConfig {
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseConfig.class);
 
     @Value("${spring.datasource.url}")
     private String databaseUrl;
@@ -54,7 +57,7 @@ public class DatabaseConfig {
         try (Connection connection = dataSource().getConnection()) {
             return connection.isValid(5); // 5 second timeout
         } catch (SQLException e) {
-            System.err.println("Database connection failed: " + e.getMessage());
+            logger.error("Database connection failed: {}", e.getMessage());
             return false;
         }
     }
