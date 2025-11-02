@@ -110,18 +110,12 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
-<<<<<<< HEAD
-    
-    public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-=======
     public Set<Role> getRoles() {
         return roles;
     }
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
->>>>>>> origin/main
     }
 
     @Override
