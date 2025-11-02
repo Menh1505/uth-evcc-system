@@ -1,8 +1,10 @@
-package com.evcc.config;
+package com.evcc.database.config;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+
 import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,9 +12,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-
-
-
+/**
+ * Database configuration class
+ * Manages database connection, DataSource và JdbcTemplate beans
+ */
 @Configuration
 public class DatabaseConfig {
 
