@@ -51,6 +51,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/database/**").permitAll() // Allow database management
+                .requestMatchers("/api/groups/**").authenticated() // Require authentication for group management
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider(passwordEncoder()))

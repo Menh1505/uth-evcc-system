@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -48,6 +51,14 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles;
+
+    /**
+     * Quan hệ OneToMany với GroupMembership
+     * Một User có thể tham gia nhiều nhóm thông qua GroupMembership
+     */
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore // Tránh infinite loop khi serialize JSON
+    private Set<com.evcc.group.entity.GroupMembership> memberships;
 
     // Bắt buộc theo JPA: no-arg constructor public/protected
     protected User() {}
@@ -116,6 +127,14 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public Set<com.evcc.group.entity.GroupMembership> getMemberships() {
+        return memberships;
+    }
+
+    public void setMemberships(Set<com.evcc.group.entity.GroupMembership> memberships) {
+        this.memberships = memberships;
     }
 
     @Override
