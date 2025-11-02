@@ -1,4 +1,4 @@
-package com.evcc.common.service;
+package com.evcc.database.service;
 
 import java.util.List;
 import java.util.Optional;
@@ -7,13 +7,14 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import com.evcc.config.DatabaseConfig;
+import com.evcc.database.config.DatabaseConfig;
 import com.evcc.user.entity.User;
 import com.evcc.user.repository.UserRepository;
 
-
-
-
+/**
+ * Database service class
+ * Centralized database operations cho toàn bộ application
+ */
 @Service
 public class DatabaseService {
 
@@ -130,6 +131,34 @@ public class DatabaseService {
             return "Number of tables in public schema: " + count;
         } catch (Exception e) {
             return "Error executing test query: " + e.getMessage();
+        }
+    }
+
+    /**
+     * Execute health check for database
+     */
+    public boolean isHealthy() {
+        try {
+            jdbcTemplate.queryForObject("SELECT 1", Integer.class);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Get database statistics
+     */
+    public String getDatabaseStats() {
+        try {
+            Integer tableCount = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public'",
+                    Integer.class);
+            Long userCount = getTotalUsers();
+            
+            return String.format("Tables: %d, Users: %d", tableCount, userCount);
+        } catch (Exception e) {
+            return "Error getting database stats: " + e.getMessage();
         }
     }
 }
