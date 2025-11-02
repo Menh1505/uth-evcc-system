@@ -40,7 +40,7 @@ public class ContractService {
         
         // Giả sử chúng ta có hàm lấy mẫu và điền form
         // String content = fillTemplate(request.getTemplateId(), request.getFormData());
-        String content = "Đây là nội dung hợp đồng được tạo từ form: " + request.getFormData().toString();
+        String content = "Đây là nội dung hợp đồng được tạo từ form : " + request.getFormData().toString();
 
         String contentHash = generateSHA256(content);
 
@@ -69,7 +69,7 @@ public class ContractService {
         
         // (Kiểm tra xem creator có phải là người tạo hợp đồng không)
         if (!contract.getCreator().getId().equals(creator.getId())) {
-             throw new SecurityException("Bạn không có quyền sửa hợp đồng này.");
+             throw new SecurityException("Bạn không có quyền sửa hợp đồng này .");
         }
 
         ContractParticipant participant = ContractParticipant.builder()
