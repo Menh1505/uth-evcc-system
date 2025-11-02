@@ -15,28 +15,34 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "contract_participants")
+@Table(
+    name = "contract_participants",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_contract_user", columnNames = {"contract_id", "user_id"})
+    },
+    indexes = {
+        @Index(name = "idx_contract_participants_contract", columnList = "contract_id"),
+        @Index(name = "idx_contract_participants_user", columnList = "user_id")
+    }
+)
 public class ContractParticipant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Hợp đồng liên quan
+    // Hợp đồng liên quan (bắt buộc)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contract_id", nullable = false)
     private Contract contract;
 
-    // Thông tin người được mời (theo yêu cầu của bạn)
-    @Column(nullable = false)
-    private String inviteeName; // Tên
+    // Tên hiển thị tại thời điểm mời (bắt buộc)
+    @Column(name = "invitee_name", nullable = false)
+    private String inviteeName;
 
-    @Column(nullable = false, unique = true)
-    private String inviteePhone; // Số điện thoại
-
-    // Tài khoản User liên kết (sẽ được gán khi họ đăng nhập và xác thực)
+    // Người dùng được mời (bắt buộc) - mời bằng userId
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(nullable = false)
