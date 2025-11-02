@@ -1,18 +1,22 @@
 package com.evcc.user.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.evcc.user.entity.Role;
 import com.evcc.user.repository.RoleRepository;
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 
 
 
 @Service
 public class RoleService {
-    @Autowired
-    private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
+
+    public RoleService(RoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
 
     public List<Role> getAllRoles() {
         return roleRepository.findAll();

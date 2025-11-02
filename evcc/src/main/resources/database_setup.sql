@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(255) NOT NULL UNIQUE,
     phone VARCHAR(20) UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -31,7 +31,7 @@ CREATE INDEX IF NOT EXISTS idx_users_status ON users(status);
 CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);
 
 -- Insert sample data
-INSERT INTO users (username, phone, password_hash, status) VALUES 
+INSERT INTO users (username, phone, password, status) VALUES 
     ('admin', '0123456789', 'hashedPassword123', 'ACTIVE'),
     ('user1', '0987654321', 'hashedPassword456', 'ACTIVE'),
     ('user2', '0555666777', 'hashedPassword789', 'PENDING')

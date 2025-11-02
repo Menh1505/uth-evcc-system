@@ -1,7 +1,5 @@
 package com.evcc.common.service;
 
-import com.evcc.common.service.DatabaseService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -10,8 +8,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class DatabaseInitializer implements CommandLineRunner {
 
-    @Autowired
-    private DatabaseService databaseService;
+    private final DatabaseService databaseService;
+
+    public DatabaseInitializer(DatabaseService databaseService) {
+        this.databaseService = databaseService;
+    }
 
     @Override
     public void run(String... args) throws Exception {
