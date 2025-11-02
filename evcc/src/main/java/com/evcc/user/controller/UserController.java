@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.evcc.user.dto.UpdateUserProfileRequest;
 import com.evcc.user.dto.UserProfileResponse;
+import com.evcc.user.dto.UserStatsResponse;
 import com.evcc.user.entity.User;
 import com.evcc.user.repository.UserRepository;
 import com.evcc.user.service.UserService;
@@ -79,9 +80,42 @@ public class UserController {
      */
     @PutMapping("/{userId}/verify")
     public ResponseEntity<UserProfileResponse> verifyUser(@PathVariable UUID userId) {
-        // TODO: Kiểm tra quyền admin ở đây
-        UserProfileResponse verifiedUser = userService.verifyUser(userId);
+        UUID adminId = getCurrentUserId();
+        UserProfileResponse verifiedUser = userService.verifyUser(userId, adminId);
         return ResponseEntity.ok(verifiedUser);
+    }
+
+    /**
+     * Lấy danh sách user chưa xác minh (chỉ admin)
+     * GET /api/users/unverified
+     */
+    @GetMapping("/unverified")
+    public ResponseEntity<List<UserProfileResponse>> getUnverifiedUsers() {
+        UUID adminId = getCurrentUserId();
+        List<UserProfileResponse> unverifiedUsers = userService.getUnverifiedUsers(adminId);
+        return ResponseEntity.ok(unverifiedUsers);
+    }
+
+    /**
+     * Lấy thông tin profile của user khác (chỉ admin)
+     * GET /api/users/{userId}/profile
+     */
+    @GetMapping("/{userId}/profile")
+    public ResponseEntity<UserProfileResponse> getUserProfile(@PathVariable UUID userId) {
+        UUID adminId = getCurrentUserId();
+        UserProfileResponse profile = userService.getUserProfileByAdmin(userId, adminId);
+        return ResponseEntity.ok(profile);
+    }
+
+    /**
+     * Lấy thống kê user (chỉ admin)
+     * GET /api/users/stats
+     */
+    @GetMapping("/stats")
+    public ResponseEntity<UserStatsResponse> getUserStats() {
+        UUID adminId = getCurrentUserId();
+        UserStatsResponse stats = userService.getUserStats(adminId);
+        return ResponseEntity.ok(stats);
     }
 
     /**

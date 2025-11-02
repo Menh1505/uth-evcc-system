@@ -29,6 +29,8 @@ API quản lý thông tin profile người dùng với các trường bổ sung:
 - **Giá trị mặc định**: `false`
 - **Nullable**: Không (bắt buộc)
 - **Database column**: `is_verified`
+- **Quyền hạn**: **Chỉ có ADMIN mới có thể thay đổi trường này**
+- **Điều kiện xác minh**: User phải có đầy đủ `citizenId` và `driverLicense` trước khi được xác minh
 
 ## API Endpoints
 
@@ -138,6 +140,7 @@ Authorization: Bearer <ADMIN_JWT_TOKEN>
 - Mặc định là `false` khi tạo tài khoản
 - Chỉ admin mới có quyền set thành `true`
 - Không thể tự cập nhật trường này qua API profile
+- **Điều kiện để được xác minh**: User phải có đầy đủ `citizenId` và `driverLicense`
 
 ## Error Responses
 
@@ -214,6 +217,27 @@ curl -X PUT http://localhost:8080/api/users/USER_UUID/verify \
   -H "Authorization: Bearer ADMIN_JWT_TOKEN"
 ```
 
+### 5. Lấy danh sách user chưa xác minh (Admin)
+
+```bash
+curl -X GET http://localhost:8080/api/users/unverified \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+### 6. Lấy thông tin user khác (Admin)
+
+```bash
+curl -X GET http://localhost:8080/api/users/USER_UUID/profile \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
+### 7. Lấy thống kê user (Admin)
+
+```bash
+curl -X GET http://localhost:8080/api/users/stats \
+  -H "Authorization: Bearer ADMIN_JWT_TOKEN"
+```
+
 ## Database Migration
 
 Khi chạy ứng dụng, Hibernate sẽ tự động tạo các cột mới:
@@ -240,9 +264,44 @@ CREATE INDEX idx_users_is_verified ON users(is_verified);
 
 4. **Báo cáo và thống kê**: Có thể thống kê số lượng user đã xác minh vs chưa xác minh.
 
+## Business Logic - Quy trình xác minh User
+
+### 1. User cập nhật thông tin cá nhân
+
+- User đăng nhập và cập nhật `citizenId` và `driverLicense` qua `/api/users/profile`
+- Hệ thống **không cho phép** user tự set `isVerified = true`
+
+### 2. Admin xem danh sách user cần xác minh
+
+- Admin gọi `/api/users/unverified` để xem danh sách user chưa xác minh
+- Admin có thể xem thống kê qua `/api/users/stats`
+
+### 3. Admin kiểm tra và xác minh
+
+- Admin gọi `/api/users/{userId}/profile` để xem chi tiết thông tin user
+- **Điều kiện bắt buộc**: User phải có đầy đủ `citizenId` và `driverLicense`
+- Admin gọi `/api/users/{userId}/verify` để xác minh user
+- Nếu thiếu thông tin, hệ thống sẽ trả về lỗi 400 Bad Request
+
+### 4. Kiểm tra quyền Admin
+
+- Hệ thống tự động kiểm tra user có role `ADMIN` hay không
+- Nếu không phải admin, trả về lỗi 403 Forbidden
+
+## Admin Endpoints Summary
+
+| Endpoint                      | Method | Mô tả                        | Yêu cầu                               |
+| ----------------------------- | ------ | ---------------------------- | ------------------------------------- |
+| `/api/users/unverified`       | GET    | Danh sách user chưa xác minh | Role ADMIN                            |
+| `/api/users/{userId}/profile` | GET    | Xem profile user khác        | Role ADMIN                            |
+| `/api/users/{userId}/verify`  | PUT    | Xác minh user                | Role ADMIN + User có đầy đủ thông tin |
+| `/api/users/stats`            | GET    | Thống kê user                | Role ADMIN                            |
+
 ## Lưu ý bảo mật
 
 1. **Không trả về password**: DTO response không bao gồm password.
 2. **JWT Authentication**: Tất cả endpoints đều yêu cầu JWT token hợp lệ.
 3. **User isolation**: User chỉ có thể xem/cập nhật profile của chính mình.
 4. **Admin verification**: Chỉ admin mới có quyền xác minh tài khoản.
+5. **Role-based access**: Hệ thống kiểm tra role `ADMIN` trong database trước khi cho phép thực hiện các action admin.
+6. **Data validation**: Kiểm tra đầy đủ thông tin trước khi cho phép xác minh.
