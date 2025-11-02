@@ -23,11 +23,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByUsername(String username);
 
     /**
-     * Find user by phone
-     */
-    Optional<User> findByPhone(String phone);
-
-    /**
      * Find users by username containing (case-insensitive)
      */
     List<User> findByUsernameContainingIgnoreCase(String username);
@@ -38,21 +33,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByUsername(String username);
 
     /**
-     * Check if phone exists
-     */
-    boolean existsByPhone(String phone);
-
-    /**
      * Custom query to find users by partial username
      */
     @Query("SELECT u FROM User u WHERE u.username LIKE %:username%")
     List<User> findByUsernameContaining(@Param("username") String username);
-
-    /**
-     * Find active users
-     */
-    @Query("SELECT u FROM User u WHERE u.status = 'ACTIVE'")
-    List<User> findActiveUsers();
 
     /**
      * Native SQL query example
