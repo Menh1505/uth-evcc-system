@@ -1,19 +1,23 @@
 package com.evcc.vehicle.service;
 
-import com.evcc.vehicle.entity.Usage;
-import com.evcc.vehicle.repository.UsageRepository;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
+
+import com.evcc.vehicle.entity.Usage;
+import com.evcc.vehicle.repository.UsageRepository;
 
 
 
 
 @Service
 public class UsageService {
-    @Autowired
-    private UsageRepository usageRepository;
+    private final UsageRepository usageRepository;
+
+    public UsageService(UsageRepository usageRepository) {
+        this.usageRepository = usageRepository;
+    }
 
     public List<Usage> getAllUsages() {
         return usageRepository.findAll();

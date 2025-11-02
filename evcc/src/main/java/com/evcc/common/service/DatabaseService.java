@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +17,15 @@ import com.evcc.user.repository.UserRepository;
 @Service
 public class DatabaseService {
 
-    @Autowired
-    private DatabaseConfig databaseConfig;
+    private final DatabaseConfig databaseConfig;
+    private final JdbcTemplate jdbcTemplate;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    private UserRepository userRepository;
+    public DatabaseService(DatabaseConfig databaseConfig, JdbcTemplate jdbcTemplate, UserRepository userRepository) {
+        this.databaseConfig = databaseConfig;
+        this.jdbcTemplate = jdbcTemplate;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Test database connection

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,8 +25,11 @@ import com.evcc.user.entity.User;
 @RequestMapping("/api/database")
 public class DatabaseController {
 
-    @Autowired
-    private DatabaseService databaseService;
+    private final DatabaseService databaseService;
+
+    public DatabaseController(DatabaseService databaseService) {
+        this.databaseService = databaseService;
+    }
 
     /**
      * Test database connection
