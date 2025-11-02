@@ -24,14 +24,27 @@ public class JwtUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("${app.jwtSecret:mySecretKey}")
+    @Value("${jwt.secret:evcc-secret-key-for-jwt-token-generation-must-be-at-least-256-bits-long-to-meet-security-requirements}")
     private String jwtSecret;
 
-    @Value("${app.jwtExpirationMs:86400000}") // 24 hours
+    @Value("${jwt.expiration:86400000}") // 24 hours
     private int jwtExpirationMs;
+    
+    private SecretKey signingKey;
 
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        if (signingKey == null) {
+            // Ensure the key is at least 256 bits (32 bytes) for HS512
+            byte[] keyBytes = jwtSecret.getBytes();
+            if (keyBytes.length < 32) {
+                logger.warn("JWT secret key is too short ({} bits), using a secure generated key instead", keyBytes.length * 8);
+                signingKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+            } else {
+                logger.info("Using provided JWT secret key ({} bits)", keyBytes.length * 8);
+                signingKey = Keys.hmacShaKeyFor(keyBytes);
+            }
+        }
+        return signingKey;
     }
 
     public String generateJwtToken(Authentication authentication) {
