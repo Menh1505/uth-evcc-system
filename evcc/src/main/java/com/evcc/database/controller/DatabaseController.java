@@ -1,4 +1,4 @@
-package com.evcc.config;
+package com.evcc.database.controller;
 
 import java.util.List;
 import java.util.Map;
@@ -15,12 +15,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.evcc.common.service.DatabaseService;
+import com.evcc.database.service.DatabaseService;
 import com.evcc.user.entity.User;
 
-
-
-
+/**
+ * Database management REST API Controller
+ * Centralized database operations endpoints
+ */
 @RestController
 @RequestMapping("/api/database")
 public class DatabaseController {
@@ -29,6 +30,18 @@ public class DatabaseController {
 
     public DatabaseController(DatabaseService databaseService) {
         this.databaseService = databaseService;
+    }
+
+    /**
+     * Health check endpoint
+     */
+    @GetMapping("/health")
+    public ResponseEntity<Map<String, Object>> healthCheck() {
+        boolean isHealthy = databaseService.isHealthy();
+        return ResponseEntity.ok(Map.of(
+                "status", isHealthy ? "UP" : "DOWN",
+                "database", databaseService.testConnection() ? "CONNECTED" : "DISCONNECTED",
+                "timestamp", System.currentTimeMillis()));
     }
 
     /**
@@ -46,14 +59,15 @@ public class DatabaseController {
     }
 
     /**
-     * Get database info
+     * Get database info and statistics
      */
     @GetMapping("/info")
     public ResponseEntity<Map<String, Object>> getDatabaseInfo() {
         return ResponseEntity.ok(Map.of(
                 "connection_info", databaseService.getConnectionInfo(),
                 "total_users", databaseService.getTotalUsers(),
-                "test_query_result", databaseService.executeTestQuery()));
+                "test_query_result", databaseService.executeTestQuery(),
+                "stats", databaseService.getDatabaseStats()));
     }
 
     /**
@@ -152,5 +166,16 @@ public class DatabaseController {
     public ResponseEntity<Map<String, Long>> getUserCount() {
         long count = databaseService.getTotalUsers();
         return ResponseEntity.ok(Map.of("total_users", count));
+    }
+
+    /**
+     * Get database statistics
+     */
+    @GetMapping("/stats")
+    public ResponseEntity<Map<String, Object>> getDatabaseStats() {
+        return ResponseEntity.ok(Map.of(
+                "stats", databaseService.getDatabaseStats(),
+                "health", databaseService.isHealthy(),
+                "connection", databaseService.testConnection()));
     }
 }

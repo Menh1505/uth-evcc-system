@@ -1,10 +1,12 @@
-package com.evcc.common.service;
+package com.evcc.database.service;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-
-
+/**
+ * Database initializer component
+ * Runs database checks and setup when application starts
+ */
 @Component
 public class DatabaseInitializer implements CommandLineRunner {
 
@@ -16,14 +18,14 @@ public class DatabaseInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("=== Database Connection Test ===");
+        System.out.println("=== Database Module Initialization ===");
 
         // Test connection
         boolean isConnected = databaseService.testConnection();
         if (isConnected) {
             System.out.println("✅ Database connection successful!");
             System.out.println("📊 " + databaseService.getConnectionInfo());
-            System.out.println("📈 Total users in database: " + databaseService.getTotalUsers());
+            System.out.println("📈 Database stats: " + databaseService.getDatabaseStats());
             System.out.println("🔍 " + databaseService.executeTestQuery());
         } else {
             System.out.println("❌ Database connection failed!");
@@ -34,8 +36,10 @@ public class DatabaseInitializer implements CommandLineRunner {
         }
 
         System.out.println("=== Database API Endpoints ===");
+        System.out.println("🏥 Health check: GET http://localhost:8080/api/database/health");
         System.out.println("🌐 Test connection: GET http://localhost:8080/api/database/test-connection");
         System.out.println("📊 Database info: GET http://localhost:8080/api/database/info");
+        System.out.println("📈 Database stats: GET http://localhost:8080/api/database/stats");
         System.out.println("👥 All users: GET http://localhost:8080/api/database/users");
         System.out.println("➕ Create user: POST http://localhost:8080/api/database/users");
         System.out.println("================================");
