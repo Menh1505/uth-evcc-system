@@ -1,32 +1,45 @@
 package com.evcc.vehicle.controller;
 
-import com.evcc.vehicle.entity.Vehicle;
+import com.evcc.vehicle.dto.VehicleCreateRequest;
+import com.evcc.vehicle.dto.VehicleResponse;
 import com.evcc.vehicle.service.VehicleService;
-import java.util.List;
-import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/vehicles")
+@RequestMapping("/api/v1/vehicles")
 public class VehicleController {
-    private final VehicleService vehicleService;
 
-    public VehicleController(VehicleService vehicleService) {
-        this.vehicleService = vehicleService;
+    @Autowired
+    private VehicleService vehicleService;
+
+    /**
+     * API tạo xe mới
+     * (Sau này sẽ thêm @PreAuthorize("hasRole('ADMIN')")
+     */
+    @PostMapping("/")
+    public ResponseEntity<VehicleResponse> createVehicle(@RequestBody VehicleCreateRequest request) {
+        VehicleResponse newVehicle = vehicleService.createVehicle(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newVehicle);
     }
 
-    @GetMapping
-    public List<Vehicle> getAllVehicles() {
-        return vehicleService.getAllVehicles();
-    }
-
-    @PostMapping
-    public Vehicle saveVehicle(@RequestBody Vehicle vehicle) {
-        return vehicleService.saveVehicle(vehicle);
-    }
-
+    /**
+     * API lấy thông tin chi tiết 1 xe
+     */
     @GetMapping("/{id}")
-    public Vehicle getVehicleById(@PathVariable UUID id) {
-        return vehicleService.getVehicleById(id);
+    public ResponseEntity<VehicleResponse> getVehicleById(@PathVariable Long id) {
+        return ResponseEntity.ok(vehicleService.getVehicleById(id));
+    }
+
+    /**
+     * API lấy danh sách tất cả xe
+     */
+    @GetMapping("/")
+    public ResponseEntity<List<VehicleResponse>> getAllVehicles() {
+        return ResponseEntity.ok(vehicleService.getAllVehicles());
     }
 }
