@@ -25,4 +25,20 @@ public class RoleService {
     public Role saveRole(Role role) {
         return roleRepository.save(role);
     }
+
+    public Role findById(Long id) {
+        return roleRepository.findById(id).orElse(null);
+    }
+
+    public Role findByName(String name) {
+        return roleRepository.findByName(name).orElse(null);
+    }
+
+    public boolean existsByName(String name) {
+        return roleRepository.existsByName(name);
+    }
+
+    public void deleteRole(Long id) {
+        roleRepository.deleteById(id);
+    }
 }
