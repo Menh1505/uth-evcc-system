@@ -1,15 +1,23 @@
 package com.evcc.config;
 
-import com.evcc.common.service.DatabaseService;
-import com.evcc.user.entity.User;
-import com.evcc.user.entity.UserStatus;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.evcc.common.service.DatabaseService;
+import com.evcc.user.entity.User;
 
 
 
@@ -85,14 +93,14 @@ public class DatabaseController {
         try {
             String username = userRequest.get("username");
             String phone = userRequest.get("phone");
-            String passwordHash = userRequest.get("passwordHash");
+            String password = userRequest.get("password");
 
-            if (username == null || passwordHash == null) {
+            if (username == null || password == null) {
                 return ResponseEntity.badRequest().body(Map.of(
-                        "error", "Username and passwordHash are required"));
+                        "error", "Username and password are required"));
             }
 
-            User user = databaseService.createUser(username, phone, passwordHash);
+            User user = databaseService.createUser(username, phone, password);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -110,20 +118,9 @@ public class DatabaseController {
         try {
             String username = userRequest.get("username");
             String phone = userRequest.get("phone");
-            String passwordHash = userRequest.get("passwordHash");
-            String statusStr = userRequest.get("status");
+            String password = userRequest.get("password");
 
-            UserStatus status = null;
-            if (statusStr != null) {
-                try {
-                    status = UserStatus.valueOf(statusStr.toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    return ResponseEntity.badRequest().body(Map.of(
-                            "error", "Invalid status: " + statusStr));
-                }
-            }
-
-            User user = databaseService.updateUser(id, username, phone, passwordHash, status);
+            User user = databaseService.updateUser(id, username, phone, password);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(

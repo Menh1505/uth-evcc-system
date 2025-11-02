@@ -24,8 +24,8 @@ public class User {
     @Column(nullable = false, unique = true, length = 100)
     private String username;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
-    private String passwordHash;
+    @Column(name = "password", nullable = false, length = 255)
+    private String password;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -36,9 +36,9 @@ public class User {
     // Bắt buộc theo JPA: no-arg constructor public/protected
     protected User() {}
 
-    public User(String username, String passwordHash) {
+    public User(String username, String password) {
         this.username = username;
-        this.passwordHash = passwordHash;
+        this.password = password;
     }
 
     @PrePersist
@@ -70,12 +70,12 @@ public class User {
         this.username = username;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getpassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setpassword(String password) {
+        this.password = password;
     }
 
     public LocalDateTime getCreatedAt() {
