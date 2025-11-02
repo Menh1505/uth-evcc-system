@@ -1,14 +1,15 @@
 package com.evcc.user.repository;
 
-import com.evcc.user.entity.User;
-import com.evcc.user.entity.UserStatus;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import com.evcc.user.entity.User;
 
 
 
@@ -25,11 +26,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      * Find user by phone
      */
     Optional<User> findByPhone(String phone);
-
-    /**
-     * Find users by status
-     */
-    List<User> findByStatus(UserStatus status);
 
     /**
      * Find users by username containing (case-insensitive)
@@ -63,9 +59,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      */
     @Query(value = "SELECT * FROM users WHERE created_at >= CURRENT_DATE", nativeQuery = true)
     List<User> findUsersCreatedToday();
-
-    /**
-     * Count users by status
-     */
-    long countByStatus(UserStatus status);
 }

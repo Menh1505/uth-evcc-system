@@ -1,15 +1,15 @@
 package com.evcc.common.service;
 
-import com.evcc.config.DatabaseConfig;
-import com.evcc.user.entity.User;
-import com.evcc.user.entity.UserStatus;
-import com.evcc.user.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+
+import com.evcc.config.DatabaseConfig;
+import com.evcc.user.entity.User;
+import com.evcc.user.repository.UserRepository;
 
 
 
@@ -17,14 +17,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class DatabaseService {
 
-    @Autowired
-    private DatabaseConfig databaseConfig;
+    private final DatabaseConfig databaseConfig;
+    private final JdbcTemplate jdbcTemplate;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    private UserRepository userRepository;
+    public DatabaseService(DatabaseConfig databaseConfig, JdbcTemplate jdbcTemplate, UserRepository userRepository) {
+        this.databaseConfig = databaseConfig;
+        this.jdbcTemplate = jdbcTemplate;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Test database connection
@@ -51,7 +52,7 @@ public class DatabaseService {
      * Create a sample user
      */
     public User createSampleUser() {
-        User user = new User("admin", "0123456789", "hashedPassword123", UserStatus.ACTIVE);
+        User user = new User("admin", "0123456789");
         return userRepository.save(user);
     }
 
@@ -72,22 +73,19 @@ public class DatabaseService {
     /**
      * Create a new user
      */
-    public User createUser(String username, String phone, String passwordHash) {
+    public User createUser(String username, String phone, String password) {
         if (userRepository.existsByUsername(username)) {
             throw new RuntimeException("Username already exists: " + username);
         }
-        if (phone != null && userRepository.existsByPhone(phone)) {
-            throw new RuntimeException("Phone already exists: " + phone);
-        }
 
-        User user = new User(username, phone, passwordHash);
+        User user = new User(username, password);
         return userRepository.save(user);
     }
 
     /**
      * Update user
      */
-    public User updateUser(UUID id, String username, String phone, String passwordHash, UserStatus status) {
+    public User updateUser(UUID id, String username, String phone, String password) {
         Optional<User> userOpt = userRepository.findById(id);
         if (userOpt.isEmpty()) {
             throw new RuntimeException("User not found with id: " + id);
@@ -98,20 +96,6 @@ public class DatabaseService {
         // Check if username is taken by another user
         if (!user.getUsername().equals(username) && userRepository.existsByUsername(username)) {
             throw new RuntimeException("Username already exists: " + username);
-        }
-
-        // Check if phone is taken by another user
-        if (phone != null && !phone.equals(user.getPhone()) && userRepository.existsByPhone(phone)) {
-            throw new RuntimeException("Phone already exists: " + phone);
-        }
-
-        user.setUsername(username);
-        user.setPhone(phone);
-        if (passwordHash != null) {
-            user.setPasswordHash(passwordHash);
-        }
-        if (status != null) {
-            user.setStatus(status);
         }
 
         return userRepository.save(user);

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +21,13 @@ import com.evcc.group.repository.MembershipRepository;
 @Transactional
 public class GroupService {
 
-    @Autowired
-    private GroupRepository groupRepository;
+    private final GroupRepository groupRepository;
+    private final MembershipRepository membershipRepository;
 
-    @Autowired
-    private MembershipRepository membershipRepository;
+    public GroupService(GroupRepository groupRepository, MembershipRepository membershipRepository) {
+        this.groupRepository = groupRepository;
+        this.membershipRepository = membershipRepository;
+    }
 
     /**
      * Get all groups
