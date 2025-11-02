@@ -29,7 +29,7 @@ public class LocalStorageService implements StorageService {
             Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
             return destination.toString();
         } catch (IOException e) {
-            throw new RuntimeException("Lỗi khi lưu file: " + e.getMessage(), e);
+            throw new RuntimeException("Loi khi luu file: " + e.getMessage(), e);
         }
     }
 }
