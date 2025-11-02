@@ -33,7 +33,7 @@ public class RoleService {
     public Role findByName(String name) {
         return roleRepository.findByName(name).orElse(null);
     }
-
+    
     public boolean existsByName(String name) {
         return roleRepository.existsByName(name);
     }

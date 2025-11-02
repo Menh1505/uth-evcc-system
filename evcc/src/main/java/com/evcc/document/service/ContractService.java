@@ -92,7 +92,7 @@ public class ContractService {
         // Tạo participant: gán user & tên hiển thị tại thời điểm mời
         String displayName = (request.getName() != null && !request.getName().isBlank())
                 ? request.getName()
-                : (invitee.getFullName() != null ? invitee.getFullName() : invitee.getUsername());
+                : invitee.getUsername();
 
         ContractParticipant participant = ContractParticipant.builder()
                 .contract(contract)
