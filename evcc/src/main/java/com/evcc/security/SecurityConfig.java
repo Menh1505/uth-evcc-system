@@ -52,6 +52,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/database/**").permitAll() // Allow database management
                 .requestMatchers("/api/groups/**").authenticated() // Require authentication for group management
+                .requestMatchers("/api/users/**").authenticated() // Require authentication for user profile management
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider(passwordEncoder()))

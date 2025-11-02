@@ -43,4 +43,24 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      */
     @Query(value = "SELECT * FROM users WHERE created_at >= CURRENT_DATE", nativeQuery = true)
     List<User> findUsersCreatedToday();
+
+    /**
+     * Find users that are not verified
+     */
+    List<User> findByIsVerifiedFalse();
+
+    /**
+     * Find users that are verified
+     */
+    List<User> findByIsVerifiedTrue();
+
+    /**
+     * Count unverified users
+     */
+    long countByIsVerifiedFalse();
+
+    /**
+     * Count verified users
+     */
+    long countByIsVerifiedTrue();
 }

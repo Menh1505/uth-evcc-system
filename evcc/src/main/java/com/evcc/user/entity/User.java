@@ -34,6 +34,24 @@ public class User {
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
+    /**
+     * Số căn cước công dân
+     */
+    @Column(name = "citizen_id", length = 20)
+    private String citizenId;
+
+    /**
+     * Số bằng lái xe
+     */
+    @Column(name = "driver_license", length = 20)
+    private String driverLicense;
+
+    /**
+     * Trạng thái xác minh tài khoản
+     */
+    @Column(name = "is_verified", nullable = false)
+    private Boolean isVerified = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -66,6 +84,15 @@ public class User {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+        this.isVerified = false; // Mặc định chưa xác minh
+    }
+
+    public User(String username, String password, String citizenId, String driverLicense) {
+        this.username = username;
+        this.password = password;
+        this.citizenId = citizenId;
+        this.driverLicense = driverLicense;
+        this.isVerified = false; // Mặc định chưa xác minh
     }
 
     @PrePersist
@@ -129,6 +156,30 @@ public class User {
         this.roles = roles;
     }
 
+    public String getCitizenId() {
+        return citizenId;
+    }
+
+    public void setCitizenId(String citizenId) {
+        this.citizenId = citizenId;
+    }
+
+    public String getDriverLicense() {
+        return driverLicense;
+    }
+
+    public void setDriverLicense(String driverLicense) {
+        this.driverLicense = driverLicense;
+    }
+
+    public Boolean getIsVerified() {
+        return isVerified;
+    }
+
+    public void setIsVerified(Boolean isVerified) {
+        this.isVerified = isVerified;
+    }
+
     public Set<com.evcc.group.entity.GroupMembership> getMemberships() {
         return memberships;
     }
@@ -142,6 +193,9 @@ public class User {
         return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
+                ", citizenId='" + citizenId + '\'' +
+                ", driverLicense='" + driverLicense + '\'' +
+                ", isVerified=" + isVerified +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
