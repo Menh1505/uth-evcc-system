@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ParticipantInviteRequest {
-    private String inviteeName;
-    private String inviteePhone;
+    private String name; 
+    private Long userId;
     // ... các thông tin khác
 }

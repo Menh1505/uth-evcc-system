@@ -1,54 +1,62 @@
-'use client'; // Bắt buộc dùng 'use client' vì có hook (useState, useContext)
+'use client'; 
 
-import { createContext, useContext, useState, ReactNode } from 'react';
-import { useRouter } from 'next/navigation'; // Dùng 'next/navigation' cho App Router
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react'; // <-- THÊM useEffect
+import { useRouter } from 'next/navigation';
 
-// Định nghĩa 'User' trông như thế nào
+// Định nghĩa 'User'
 interface User {
     username: string;
     email: string;
-    role: 'ADMIN' | 'CO_OWNER'; // Chỉ còn ADMIN và CO_OWNER
+    role: 'ADMIN' | 'CO_OWNER'; 
 }
 
-// Định nghĩa 'AuthContext' sẽ cung cấp những gì
+// Định nghĩa 'AuthContext'
 interface AuthContextType {
-    user: User | null;         // Thông tin user, null nếu chưa đăng nhập
-    login: (user: User, token: string) => void; // Hàm để đăng nhập
-    logout: () => void;        // Hàm để đăng xuất
-    isAuthenticated: boolean;  // Trạng thái đăng nhập
-    isAdmin: boolean;          // Có phải Admin không?
+    user: User | null;
+    login: (user: User, token: string) => void;
+    logout: () => void;
+    isAuthenticated: boolean;
+    isAdmin: boolean;
+    isLoading: boolean; // <-- THÊM isLoading
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Đây là 'Nhà cung cấp' (Provider) sẽ bọc toàn bộ ứng dụng
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true); // <-- THÊM state loading
     const router = useRouter();
 
-    // Hàm đăng nhập
+    // *** PHẦN NÂNG CẤP ***
+    // Tự động tải user từ localStorage khi F5 (chỉ chạy 1 lần)
+    useEffect(() => {
+        const storedToken = localStorage.getItem('jwt_token');
+        const storedUser = localStorage.getItem('user_info');
+
+        if (storedToken && storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+        setIsLoading(false); // Báo là đã load xong
+    }, []); // Mảng rỗng [] nghĩa là chỉ chạy 1 lần khi mount
+
+    // Hàm đăng nhập (giữ nguyên)
     const login = (userData: User, token: string) => {
         setUser(userData);
-        // Lưu token vào localStorage để 'nhớ' đăng nhập
         localStorage.setItem('jwt_token', token);
-        // Lưu thông tin user để hiển thị (chào user A)
         localStorage.setItem('user_info', JSON.stringify(userData));
         
-        // Điều hướng dựa trên vai trò
         if (userData.role === 'ADMIN') {
-            router.push('/(protected)/admin'); // Chuyển đến trang Admin
+            router.push('/(protected)/admin');
         } else {
-            router.push('/(protected)'); // Trang home chung cho CO_OWNER
+            router.push('/(protected)'); 
         }
     };
 
-    // Hàm đăng xuất
+    // Hàm đăng xuất (giữ nguyên)
     const logout = () => {
         setUser(null);
-        // Xóa khỏi localStorage
         localStorage.removeItem('jwt_token');
         localStorage.removeItem('user_info');
-        // Về trang đăng nhập
         router.push('/(auth)/login');
     };
 
@@ -60,7 +68,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         isAuthenticated,
-        isAdmin // Bỏ isStaff
+        isAdmin,
+        isLoading // <-- Cung cấp isLoading
     };
 
     return (
@@ -70,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 }
 
-// Đây là 'Hook' tùy chỉnh để các component con có thể lấy dữ liệu
+// Hook (giữ nguyên)
 export function useAuth() {
     const context = useContext(AuthContext);
     if (context === undefined) {
