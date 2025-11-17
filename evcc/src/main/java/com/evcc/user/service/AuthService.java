@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,13 +33,16 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthService(UserRepository userRepository, RoleRepository roleRepository, 
-                      AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
+                      AuthenticationManager authenticationManager, JwtUtils jwtUtils,
+                      PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -69,8 +73,8 @@ public class AuthService {
             // Get or create USER role first
             Role userRole = getOrCreateUserRole();
             
-            // Create new user
-            User newUser = new User(request.getUsername(), request.getPassword());
+            // Create new user with encoded password
+            User newUser = new User(request.getUsername(), passwordEncoder.encode(request.getPassword()));
             
             // Set default role USER
             Set<Role> roles = new HashSet<>();
@@ -103,6 +107,7 @@ public class AuthService {
     /**
      * Đăng nhập với username và password
      */
+    @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
         logger.info("Attempting login for user: {}", request.getUsername());
         
@@ -126,8 +131,8 @@ public class AuthService {
             // Generate JWT token
             String jwt = jwtUtils.generateJwtToken(authentication);
             
-            // Get user details
-            User user = userRepository.findByUsername(request.getUsername())
+            // Get user details with roles eagerly fetched
+            User user = userRepository.findByUsernameWithRoles(request.getUsername())
                 .orElseThrow(() -> new IllegalStateException("User not found after successful authentication"));
             
             // Convert roles to string set for response
@@ -197,9 +202,9 @@ public class AuthService {
     }
 
     /**
-     * Get user by username
+     * Get user by username with roles eagerly loaded
      */
     public Optional<User> getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsernameWithRoles(username);
     }
 }
