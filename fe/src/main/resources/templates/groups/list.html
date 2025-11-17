@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Nhóm của tôi - EVCC System</title>
+
+    <link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div th:replace="~{fragments/navbar :: mainNavbar}"></div>
+
+    <div class="container mt-3">
+        <h2 class="mb-0">
+            <i class="fas fa-object-group me-2"></i>Nhóm của tôi
+        </h2>
+        <p class="text-muted">Tạo và quản lý các nhóm chia sẻ chi phí.</p>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}">OK</div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}">ERR</div>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="fas fa-plus-circle me-1"></i> Tạo nhóm mới
+            </div>
+            <div class="card-body">
+                <form th:action="@{/groups/create}" method="post" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="name" class="form-label">Tên nhóm</label>
+                        <input type="text" id="name" name="name" class="form-control" maxlength="255" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="description" class="form-label">Mô tả</label>
+                        <input type="text" id="description" name="description" class="form-control" maxlength="1000">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save me-1"></i> Tạo nhóm
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list me-1"></i> Danh sách nhóm
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tên nhóm</th>
+                                <th>Mô tả</th>
+                                <th>Thành viên</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${groups == null or #lists.isEmpty(groups)}">
+                                <td colspan="4" class="text-center text-muted py-3">
+                                    Bạn chưa tham gia nhóm nào.
+                                </td>
+                            </tr>
+                            <tr th:each="g : ${groups}">
+                                <td th:text="${g.name}">Nhóm A</td>
+                                <td th:text="${g.description}">Mô tả</td>
+                                <td th:text="${g.memberCount}">0</td>
+                                <td class="text-end">
+                                    <a th:href="@{'/groups/' + ${g.id}}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye me-1"></i> Chi tiết
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+</body>
+
+</html>
+

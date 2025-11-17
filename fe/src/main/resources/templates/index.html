@@ -14,12 +14,8 @@
             background-color: #f8f9fa;
         }
 
-        .navbar-brand {
-            font-weight: bold;
-        }
-
         .hero-section {
-            background: linear-gradient(135deg, #007bff, #0056b3);
+            background: linear-gradient(135deg, #007bff, #00b4d8);
             color: white;
             padding: 80px 0;
         }
@@ -38,37 +34,36 @@
 
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">EVCC System</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/dashboard">Dashboard</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <div th:replace="~{fragments/navbar :: mainNavbar}"></div>
 
     <!-- Hero Section -->
     <section class="hero-section text-center">
         <div class="container">
-            <h1 class="display-4" th:text="${message}">Welcome to EVCC Management System</h1>
-            <p class="lead">Quản lý hệ thống sạc xe điện hiệu quả và thông minh</p>
-            <a href="/dashboard" class="btn btn-light btn-lg">Vào Dashboard</a>
+            <h1 class="display-4 mb-3" th:text="${message}">Welcome to EVCC Management System</h1>
+            <p class="lead mb-4">Quản lý hệ thống sạc xe điện và tài khoản người dùng một cách đơn giản.</p>
+
+            <div th:if="${session.currentUser == null}">
+                <a href="/auth/login" class="btn btn-light btn-lg me-2">Đăng nhập</a>
+                <a href="/auth/register" class="btn btn-outline-light btn-lg">Đăng ký</a>
+            </div>
+            <div th:if="${session.currentUser != null}">
+                <a href="/user/profile" class="btn btn-light btn-lg me-2">
+                    Xem hồ sơ của tôi
+                </a>
+                <a th:if="${#lists.contains(session.currentUser.roles, 'ADMIN')}"
+                   href="/dashboard" class="btn btn-outline-light btn-lg">
+                    Vào trang quản trị
+                </a>
+            </div>
         </div>
     </section>
 
     <!-- Features Section -->
     <section class="py-5">
         <div class="container">
+            <div th:if="${successMessage}" class="alert alert-success text-center mb-4" role="alert">
+                <span th:text="${successMessage}"></span>
+            </div>
             <div class="row text-center">
                 <div class="col-lg-4 mb-4">
                     <div class="card h-100">

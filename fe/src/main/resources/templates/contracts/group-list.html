@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Hợp đồng của nhóm - EVCC System</title>
+
+    <link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div th:replace="~{fragments/navbar :: mainNavbar}"></div>
+
+    <div class="container mt-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+                <h2 class="mb-0">
+                    <i class="fas fa-file-contract me-2"></i>Hợp đồng của nhóm
+                </h2>
+                <p class="text-muted mb-0">Danh sách hợp đồng thuộc nhóm ID
+                    <span th:text="${groupId}">1</span>.
+                </p>
+            </div>
+            <div>
+                <a th:href="@{/contracts}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i> Về trang hợp đồng
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Số hợp đồng</th>
+                                <th>Tiêu đề</th>
+                                <th>Xe</th>
+                                <th>Giá</th>
+                                <th>Ngày ký</th>
+                                <th>Trạng thái</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${contracts == null or #lists.isEmpty(contracts)}">
+                                <td colspan="7" class="text-center text-muted py-3">
+                                    Nhóm chưa có hợp đồng nào.
+                                </td>
+                            </tr>
+                            <tr th:each="c : ${contracts}">
+                                <td th:text="${c.contractNumber}">CT-001</td>
+                                <td th:text="${c.title}">Hợp đồng</td>
+                                <td th:text="${c.vehicleName != null ? c.vehicleName : '-'}">Xe</td>
+                                <td th:text="${#numbers.formatInteger(c.agreedPrice, 0, 'POINT')}">0</td>
+                                <td th:text="${c.signingDate}">2024-01-01</td>
+                                <td>
+                                    <span class="badge bg-secondary" th:text="${c.status}">DRAFT</span>
+                                </td>
+                                <td class="text-end">
+                                    <a th:href="@{'/contracts/' + ${c.id}}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye me-1"></i> Chi tiết
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+</body>
+
+</html>
+

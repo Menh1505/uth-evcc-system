@@ -204,7 +204,7 @@ curl -X GET http://localhost:8080/api/users/profile \
 curl -X PUT http://localhost:8080/api/users/profile \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{
+  -d '{ 
     "citizenId": "123456789012",
     "driverLicense": "B2123456789"
   }'

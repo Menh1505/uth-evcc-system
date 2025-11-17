@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Chi tiết hợp đồng - EVCC System</title>
+
+    <link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div th:replace="~{fragments/navbar :: mainNavbar}"></div>
+
+    <div class="container mt-3" th:if="${contract != null}">
+        <h2 class="mb-0">
+            <i class="fas fa-file-contract me-2"></i>
+            <span th:text="${contract.title}">Hợp đồng</span>
+        </h2>
+        <p class="text-muted mb-2">
+            Số hợp đồng:
+            <span th:text="${contract.contractNumber}">CT-001</span>
+        </p>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}">OK</div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}">ERR</div>
+
+        <div class="row">
+            <div class="col-lg-4 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle me-1"></i> Thông tin hợp đồng
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-1"><strong>Nhóm:</strong>
+                            <span th:text="${contract.group != null ? contract.group.name : '-'}">Nhóm</span>
+                        </p>
+                        <p class="mb-1"><strong>Giá thỏa thuận:</strong>
+                            <span th:text="${#numbers.formatInteger(contract.agreedPrice, 0, 'POINT')}">0</span> VND
+                        </p>
+                        <p class="mb-1"><strong>Trạng thái:</strong>
+                            <span class="badge bg-secondary" th:text="${contract.status}">DRAFT</span>
+                        </p>
+                        <p class="mb-1"><strong>Ngày ký:</strong>
+                            <span th:text="${contract.signingDate}">-</span>
+                        </p>
+                        <p class="mb-1"><strong>Hiệu lực:</strong>
+                            <span th:text="${contract.effectiveDate}">-</span>
+                            -
+                            <span th:text="${contract.expiryDate}">-</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <i class="fas fa-user-friends me-1"></i> Quyền sở hữu
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Tỉ lệ (%)</th>
+                                        <th>Đã góp (VND)</th>
+                                        <th>Trạng thái thanh toán</th>
+                                        <th>Đủ điều kiện sử dụng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${contract.ownerships == null or #lists.isEmpty(contract.ownerships)}">
+                                        <td colspan="5" class="text-center text-muted py-3">
+                                            Chưa có thông tin sở hữu.
+                                        </td>
+                                    </tr>
+                                    <tr th:each="o : ${contract.ownerships}">
+                                        <td th:text="${o.user != null ? o.user.username : 'N/A'}">user</td>
+                                        <td th:text="${o.ownershipPercentage}">0</td>
+                                        <td th:text="${#numbers.formatInteger(o.contributionAmount, 0, 'POINT')}">0</td>
+                                        <td th:text="${o.paymentStatus}">PENDING</td>
+                                        <td>
+                                            <span class="badge bg-success" th:if="${o.usageEligible}">Có</span>
+                                            <span class="badge bg-secondary" th:if="${!o.usageEligible}">Không</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header">
+                        <i class="fas fa-align-left me-1"></i> Điều khoản & ghi chú
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Điều khoản:</strong></p>
+                        <p th:text="${contract.termsAndConditions}">-</p>
+                        <p class="mb-1"><strong>Ghi chú:</strong></p>
+                        <p th:text="${contract.notes}">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+</body>
+
+</html>
+

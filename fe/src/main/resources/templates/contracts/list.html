@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Hợp đồng của tôi - EVCC System</title>
+
+    <link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div th:replace="~{fragments/navbar :: mainNavbar}"></div>
+
+    <div class="container mt-3">
+        <h2 class="mb-0">
+            <i class="fas fa-file-contract me-2"></i>Hợp đồng mua xe
+        </h2>
+        <p class="text-muted">Tạo hợp đồng mới cho nhóm của bạn hoặc xem các hợp đồng hiện có.</p>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}">OK</div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}">ERR</div>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="fas fa-plus-circle me-1"></i> Tạo hợp đồng mới
+            </div>
+            <div class="card-body">
+                <form th:action="@{/contracts/create}" method="post" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="title" class="form-label">Tiêu đề hợp đồng</label>
+                        <input type="text" id="title" name="title" class="form-control" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="groupId" class="form-label">Nhóm</label>
+                        <select id="groupId" name="groupId" class="form-select" required>
+                            <option value="" selected disabled>Chọn nhóm</option>
+                            <option th:each="g : ${groups}"
+                                    th:value="${g.id}"
+                                    th:text="${g.name}">Nhóm A</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="agreedPrice" class="form-label">Giá thỏa thuận (VND)</label>
+                        <input type="number" min="0" step="1000" id="agreedPrice" name="agreedPrice"
+                               class="form-control" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="signingDate" class="form-label">Ngày ký</label>
+                        <input type="date" id="signingDate" name="signingDate" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="effectiveDate" class="form-label">Ngày hiệu lực</label>
+                        <input type="date" id="effectiveDate" name="effectiveDate" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="expiryDate" class="form-label">Ngày hết hạn</label>
+                        <input type="date" id="expiryDate" name="expiryDate" class="form-control">
+                    </div>
+
+                    <div class="col-md-12">
+                        <label for="description" class="form-label">Mô tả</label>
+                        <textarea id="description" name="description" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label for="termsAndConditions" class="form-label">Điều khoản & điều kiện</label>
+                        <textarea id="termsAndConditions" name="termsAndConditions"
+                                  class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label for="notes" class="form-label">Ghi chú</label>
+                        <textarea id="notes" name="notes" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <div class="col-md-12">
+                        <hr>
+                        <h5><i class="fas fa-user-friends me-1"></i> Quyền sở hữu (tổng = 100%)</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 30%">User ID (UUID)</th>
+                                        <th style="width: 20%">Tỉ lệ (%)</th>
+                                        <th style="width: 25%">Đóng góp (VND)</th>
+                                        <th>Ghi chú</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" name="ownerUserId" class="form-control"
+                                                   placeholder="uuid-user-1"></td>
+                                        <td><input type="number" name="ownerPercentage" class="form-control"
+                                                   step="0.01" min="0.01" max="100"></td>
+                                        <td><input type="number" name="ownerContribution" class="form-control"
+                                                   step="1000" min="0"></td>
+                                        <td><input type="text" name="ownerNotes" class="form-control"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" name="ownerUserId" class="form-control"
+                                                   placeholder="uuid-user-2"></td>
+                                        <td><input type="number" name="ownerPercentage" class="form-control"
+                                                   step="0.01" min="0.01" max="100"></td>
+                                        <td><input type="number" name="ownerContribution" class="form-control"
+                                                   step="1000" min="0"></td>
+                                        <td><input type="text" name="ownerNotes" class="form-control"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" name="ownerUserId" class="form-control"
+                                                   placeholder="uuid-user-3"></td>
+                                        <td><input type="number" name="ownerPercentage" class="form-control"
+                                                   step="0.01" min="0.01" max="100"></td>
+                                        <td><input type="number" name="ownerContribution" class="form-control"
+                                                   step="1000" min="0"></td>
+                                        <td><input type="text" name="ownerNotes" class="form-control"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <small class="text-muted">
+                                Để trống dòng nào thì hệ thống bỏ qua dòng đó. Tổng tỉ lệ sở hữu của các dòng có user phải bằng 100%.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Tạo hợp đồng
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+</body>
+
+</html>
