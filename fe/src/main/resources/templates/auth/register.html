@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Đăng ký - EVCC System</title>
+
+    <!-- Bootstrap CSS -->
+    <link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .register-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .register-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .register-header {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .register-body {
+            padding: 40px 30px;
+        }
+
+        .form-floating {
+            margin-bottom: 20px;
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+
+        .text-muted a {
+            color: #6c757d;
+            text-decoration: none;
+        }
+
+        .text-muted a:hover {
+            color: #007bff;
+        }
+
+        .api-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 1000;
+        }
+
+        .api-status.connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .api-status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- API Status Indicator -->
+    <div id="apiStatus" class="api-status">
+        <i class="fas fa-circle"></i> Kiểm tra kết nối...
+    </div>
+
+    <div class="container">
+        <div class="register-container">
+            <div class="register-card">
+                <div class="register-header">
+                    <h2 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Đăng Ký
+                    </h2>
+                    <p class="mb-0 mt-2">Tạo tài khoản EVCC System</p>
+                </div>
+
+                <div class="register-body">
+                    <!-- Success Message -->
+                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <span th:text="${successMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <span th:text="${errorMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <!-- Registration Form -->
+                    <form th:action="@{/auth/register}" method="post" th:object="${userRegisterRequest}">
+
+                        <!-- Username Field -->
+                        <div class="form-floating">
+                            <input type="text" th:field="*{username}" class="form-control"
+                                th:classappend="${#fields.hasErrors('username')} ? 'is-invalid' : ''" id="username"
+                                placeholder="Tên đăng nhập" required>
+                            <label for="username">
+                                <i class="fas fa-user me-2"></i>Tên đăng nhập
+                            </label>
+                            <div th:if="${#fields.hasErrors('username')}" class="invalid-feedback">
+                                <span th:errors="*{username}"></span>
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-floating">
+                            <input type="password" th:field="*{password}" class="form-control"
+                                th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''" id="password"
+                                placeholder="Mật khẩu" required>
+                            <label for="password">
+                                <i class="fas fa-lock me-2"></i>Mật khẩu
+                            </label>
+                            <div th:if="${#fields.hasErrors('password')}" class="invalid-feedback">
+                                <span th:errors="*{password}"></span>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-register">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Đăng Ký
+                        </button>
+                    </form>
+
+                    <!-- Links -->
+                    <div class="text-center mt-4">
+                        <p class="text-muted mb-0">
+                            Đã có tài khoản?
+                            <a href="/auth/login" class="fw-bold">Đăng nhập ngay</a>
+                        </p>
+                        <p class="text-muted mt-2">
+                            <a href="/" class="fw-bold">
+                                <i class="fas fa-home me-1"></i>Về trang chủ
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+
+    <!-- API Status Check Script -->
+    <script>
+        // Kiểm tra trạng thái API
+        async function checkApiStatus() {
+            try {
+                const response = await fetch('/auth/api/status');
+                const statusDiv = document.getElementById('apiStatus');
+
+                if (response.ok) {
+                    statusDiv.innerHTML = '<i class="fas fa-circle"></i> API Connected';
+                    statusDiv.className = 'api-status connected';
+                } else {
+                    statusDiv.innerHTML = '<i class="fas fa-circle"></i> API Disconnected';
+                    statusDiv.className = 'api-status disconnected';
+                }
+            } catch (error) {
+                const statusDiv = document.getElementById('apiStatus');
+                statusDiv.innerHTML = '<i class="fas fa-circle"></i> API Disconnected';
+                statusDiv.className = 'api-status disconnected';
+            }
+        }
+
+        // Kiểm tra khi trang load
+        document.addEventListener('DOMContentLoaded', function () {
+            checkApiStatus();
+
+            // Kiểm tra lại mỗi 30 giây
+            setInterval(checkApiStatus, 30000);
+        });
+
+        // Xử lý form submission với loading state
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...';
+            submitButton.disabled = true;
+
+            // Reset sau 5 giây nếu không redirect
+            setTimeout(() => {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }, 5000);
+        });
+    </script>
+</body>
+
+</html>
