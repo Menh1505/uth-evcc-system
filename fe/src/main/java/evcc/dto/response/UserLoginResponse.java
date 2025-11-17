@@ -9,6 +9,7 @@ public class UserLoginResponse {
     private String userId;
     private String username;
     private List<String> roles;
+    private String token;
     
     public UserLoginResponse() {}
     
@@ -18,6 +19,11 @@ public class UserLoginResponse {
         this.userId = userId;
         this.username = username;
         this.roles = roles;
+    }
+    
+    public UserLoginResponse(boolean success, String message, String userId, String username, List<String> roles, String token) {
+        this(success, message, userId, username, roles);
+        this.token = token;
     }
     
     public boolean isSuccess() {
@@ -60,6 +66,14 @@ public class UserLoginResponse {
         this.roles = roles;
     }
     
+    public String getToken() {
+        return token;
+    }
+    
+    public void setToken(String token) {
+        this.token = token;
+    }
+    
     @Override
     public String toString() {
         return "UserLoginResponse{" +
@@ -68,6 +82,7 @@ public class UserLoginResponse {
                 ", userId='" + userId + '\'' +
                 ", username='" + username + '\'' +
                 ", roles=" + roles +
+                ", token='" + token + '\'' +
                 '}';
     }
 }

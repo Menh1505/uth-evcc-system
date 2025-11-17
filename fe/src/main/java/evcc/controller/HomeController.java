@@ -21,4 +21,4 @@ public class HomeController {
         model.addAttribute("title", "Dashboard - EVCC System");
         return "dashboard";
     }
-}
+} 

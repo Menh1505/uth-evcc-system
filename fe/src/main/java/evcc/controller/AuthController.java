@@ -22,6 +22,8 @@ import evcc.exception.ApiException;
 import evcc.service.UserService;
 import jakarta.validation.Valid;
 
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
@@ -134,7 +136,8 @@ public class AuthController {
     public String loginUser(@Valid @ModelAttribute UserLoginRequest request,
                            BindingResult bindingResult,
                            Model model,
-                           RedirectAttributes redirectAttributes) {
+                           RedirectAttributes redirectAttributes,
+                           HttpSession session) {
         
         logger.info("Nhận request đăng nhập: {}", request);
         
@@ -149,14 +152,14 @@ public class AuthController {
             UserLoginResponse response = userService.loginUser(request);
             
             if (response.isSuccess()) {
+                // Lưu thông tin user vào session để dùng cho navbar / profile
+                session.setAttribute("currentUser", response);
+                
                 redirectAttributes.addFlashAttribute("successMessage", 
                     "Đăng nhập thành công! Chào mừng " + response.getUsername());
                 logger.info("Đăng nhập thành công cho user: {}", response.getUsername());
-                
-                // TODO: Lưu thông tin user vào session
-                // session.setAttribute("user", response);
-                
-                return "redirect:/dashboard";
+                                
+                return "redirect:/";
             } else {
                 model.addAttribute("errorMessage", response.getMessage());
                 model.addAttribute("title", "Đăng nhập - EVCC System");
@@ -204,6 +207,18 @@ public class AuthController {
                 return ResponseEntity.status(500).body(errorResponse);
             }
         }
+    }
+    
+    /**
+     * Đăng xuất user: xóa session và quay về trang đăng nhập
+     */
+    @PostMapping("/logout")
+    public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
+        if (session != null) {
+            session.invalidate();
+        }
+        redirectAttributes.addFlashAttribute("successMessage", "Bạn đã đăng xuất khỏi hệ thống.");
+        return "redirect:/auth/login";
     }
     
     /**
