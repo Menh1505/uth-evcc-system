@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,13 +33,16 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthService(UserRepository userRepository, RoleRepository roleRepository, 
-                      AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
+                      AuthenticationManager authenticationManager, JwtUtils jwtUtils,
+                      PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -69,8 +73,8 @@ public class AuthService {
             // Get or create USER role first
             Role userRole = getOrCreateUserRole();
             
-            // Create new user
-            User newUser = new User(request.getUsername(), request.getPassword());
+            // Create new user with encoded password
+            User newUser = new User(request.getUsername(), passwordEncoder.encode(request.getPassword()));
             
             // Set default role USER
             Set<Role> roles = new HashSet<>();
