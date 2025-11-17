@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Dashboard - EVCC System</title>
+
+    <!-- Bootstrap CSS -->
+    <link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            background-color: #343a40;
+            min-height: calc(100vh - 56px);
+        }
+
+        .sidebar .nav-link {
+            color: #adb5bd;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: #fff;
+            background-color: #495057;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .stat-card.success {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+        }
+
+        .stat-card.danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">EVCC System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/dashboard">Dashboard</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#overview">
+                                <i class="fas fa-tachometer-alt"></i> Tổng quan
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#stations">
+                                <i class="fas fa-charging-station"></i> Trạm sạc
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#users">
+                                <i class="fas fa-users"></i> Người dùng
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#reports">
+                                <i class="fas fa-chart-bar"></i> Báo cáo
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#settings">
+                                <i class="fas fa-cog"></i> Cài đặt
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Dashboard</h1>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card stat-card mb-4">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Trạm sạc hoạt động
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold">24</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-charging-station fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card stat-card success mb-4">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Lượt sạc hôm nay</div>
+                                        <div class="h5 mb-0 font-weight-bold">152</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-bolt fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card stat-card warning mb-4">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Người dùng đang hoạt
+                                            động</div>
+                                        <div class="h5 mb-0 font-weight-bold">89</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-users fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card stat-card danger mb-4">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Doanh thu hôm nay
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold">5.2M VND</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-dollar-sign fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts and Tables -->
+                <div class="row">
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-chart-area me-1"></i>
+                                Biểu đồ sử dụng theo giờ
+                            </div>
+                            <div class="card-body">
+                                <canvas id="usageChart" width="100%" height="40"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-chart-pie me-1"></i>
+                                Phân bố trạng thái trạm
+                            </div>
+                            <div class="card-body">
+                                <canvas id="statusChart" width="100%" height="50"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Table -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-table me-1"></i>
+                        Hoạt động gần đây
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Trạm</th>
+                                    <th>Người dùng</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>10:30 AM</td>
+                                    <td>Station 01</td>
+                                    <td>Nguyễn Văn A</td>
+                                    <td><span class="badge bg-success">Hoàn thành</span></td>
+                                    <td><button class="btn btn-sm btn-outline-primary">Xem</button></td>
+                                </tr>
+                                <tr>
+                                    <td>10:15 AM</td>
+                                    <td>Station 03</td>
+                                    <td>Trần Thị B</td>
+                                    <td><span class="badge bg-warning">Đang sạc</span></td>
+                                    <td><button class="btn btn-sm btn-outline-primary">Xem</button></td>
+                                </tr>
+                                <tr>
+                                    <td>09:45 AM</td>
+                                    <td>Station 02</td>
+                                    <td>Lê Văn C</td>
+                                    <td><span class="badge bg-success">Hoàn thành</span></td>
+                                    <td><button class="btn btn-sm btn-outline-primary">Xem</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/webjars/jquery/3.7.1/jquery.min.js}"></script>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Usage Chart
+        var ctx = document.getElementById('usageChart').getContext('2d');
+        var usageChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['6:00', '8:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'],
+                datasets: [{
+                    label: 'Lượt sạc',
+                    data: [12, 19, 25, 30, 28, 35, 40, 32],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Status Chart
+        var ctx2 = document.getElementById('statusChart').getContext('2d');
+        var statusChart = new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Hoạt động', 'Bảo trì', 'Offline'],
+                datasets: [{
+                    data: [24, 3, 1],
+                    backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+</body>
+
+</html>
