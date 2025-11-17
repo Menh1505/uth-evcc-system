@@ -8,7 +8,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class RestTemplateConfig {
     
-    @Value("${evcc.api.base-url:http://localhost:8081}")
+    @Value("${evcc.api.base-url:http://localhost:3000}")
     private String baseUrl;
     
     @Bean
