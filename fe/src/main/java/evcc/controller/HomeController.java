@@ -21,10 +21,4 @@ public class HomeController {
         model.addAttribute("title", "Dashboard - EVCC System");
         return "dashboard";
     }
-    
-    @GetMapping("/login")
-    public String login(Model model) {
-        model.addAttribute("title", "Đăng nhập - EVCC System");
-        return "auth/login";
-    }
 }

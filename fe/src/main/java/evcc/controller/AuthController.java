@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import evcc.dto.request.UserLoginRequest;
 import evcc.dto.request.UserRegisterRequest;
+import evcc.dto.response.UserLoginResponse;
 import evcc.dto.response.UserRegisterResponse;
 import evcc.exception.ApiException;
 import evcc.service.UserService;
@@ -108,6 +110,95 @@ public class AuthController {
             );
             
             if (e.getStatusCode() == 400 || e.getStatusCode() == 409) {
+                return ResponseEntity.badRequest().body(errorResponse);
+            } else {
+                return ResponseEntity.status(500).body(errorResponse);
+            }
+        }
+    }
+    
+    /**
+     * Hiển thị trang đăng nhập
+     */
+    @GetMapping("/login")
+    public String showLoginForm(Model model) {
+        model.addAttribute("userLoginRequest", new UserLoginRequest());
+        model.addAttribute("title", "Đăng nhập - EVCC System");
+        return "auth/login";
+    }
+    
+    /**
+     * Xử lý đăng nhập user
+     */
+    @PostMapping("/login")
+    public String loginUser(@Valid @ModelAttribute UserLoginRequest request,
+                           BindingResult bindingResult,
+                           Model model,
+                           RedirectAttributes redirectAttributes) {
+        
+        logger.info("Nhận request đăng nhập: {}", request);
+        
+        // Kiểm tra validation
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("title", "Đăng nhập - EVCC System");
+            return "auth/login";
+        }
+        
+        try {
+            // Gọi API đăng nhập
+            UserLoginResponse response = userService.loginUser(request);
+            
+            if (response.isSuccess()) {
+                redirectAttributes.addFlashAttribute("successMessage", 
+                    "Đăng nhập thành công! Chào mừng " + response.getUsername());
+                logger.info("Đăng nhập thành công cho user: {}", response.getUsername());
+                
+                // TODO: Lưu thông tin user vào session
+                // session.setAttribute("user", response);
+                
+                return "redirect:/dashboard";
+            } else {
+                model.addAttribute("errorMessage", response.getMessage());
+                model.addAttribute("title", "Đăng nhập - EVCC System");
+                return "auth/login";
+            }
+            
+        } catch (ApiException e) {
+            logger.error("Lỗi API khi đăng nhập: {}", e.getMessage());
+            model.addAttribute("errorMessage", e.getErrorMessage());
+            model.addAttribute("title", "Đăng nhập - EVCC System");
+            return "auth/login";
+        }
+    }
+    
+    /**
+     * API endpoint để đăng nhập (cho AJAX calls)
+     */
+    @PostMapping("/api/login")
+    @ResponseBody
+    public ResponseEntity<UserLoginResponse> loginUserApi(@Valid @RequestBody UserLoginRequest request) {
+        
+        logger.info("API call đăng nhập user: {}", request);
+        
+        try {
+            UserLoginResponse response = userService.loginUser(request);
+            
+            if (response.isSuccess()) {
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(401).body(response);
+            }
+            
+        } catch (ApiException e) {
+            logger.error("Lỗi API khi đăng nhập qua API: {}", e.getMessage());
+            
+            UserLoginResponse errorResponse = new UserLoginResponse(
+                false, e.getErrorMessage(), null, null, null
+            );
+            
+            if (e.getStatusCode() == 401) {
+                return ResponseEntity.status(401).body(errorResponse);
+            } else if (e.getStatusCode() == 400) {
                 return ResponseEntity.badRequest().body(errorResponse);
             } else {
                 return ResponseEntity.status(500).body(errorResponse);
