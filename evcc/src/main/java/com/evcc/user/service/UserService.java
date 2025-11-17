@@ -25,8 +25,34 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    /** Lấy tất cả user dạng entity (dùng nội bộ / database tool) */
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    /** Lấy tất cả user dưới dạng DTO (chỉ admin dùng cho API /api/users) */
+    public List<UserProfileResponse> getAllUserProfiles(UUID adminId) {
+        checkAdminPermission(adminId);
+
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(user -> {
+                    Set<String> roleNames = user.getRoles() != null ?
+                            user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()) :
+                            Set.of();
+
+                    return UserProfileResponse.builder()
+                            .id(user.getId())
+                            .username(user.getUsername())
+                            .citizenId(user.getCitizenId())
+                            .driverLicense(user.getDriverLicense())
+                            .isVerified(user.getIsVerified())
+                            .roles(roleNames)
+                            .createdAt(user.getCreatedAt())
+                            .updatedAt(user.getUpdatedAt())
+                            .build();
+                })
+                .toList();
     }
 
     public User saveUser(User user) {
@@ -64,8 +90,24 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy user với ID: " + userId));
 
-        if (request.getCitizenId() != null) user.setCitizenId(request.getCitizenId());
-        if (request.getDriverLicense() != null) user.setDriverLicense(request.getDriverLicense());
+        boolean changed = false;
+
+        if (request.getCitizenId() != null &&
+                !request.getCitizenId().equals(user.getCitizenId())) {
+            user.setCitizenId(request.getCitizenId());
+            changed = true;
+        }
+        if (request.getDriverLicense() != null &&
+                !request.getDriverLicense().equals(user.getDriverLicense())) {
+            user.setDriverLicense(request.getDriverLicense());
+            changed = true;
+        }
+
+        // Nếu thông tin định danh thay đổi sau khi đã được xác minh,
+        // yêu cầu xác minh lại
+        if (changed && Boolean.TRUE.equals(user.getIsVerified())) {
+            user.setIsVerified(false);
+        }
 
         User savedUser = userRepository.save(user);
         return getUserProfile(savedUser.getId());
@@ -96,6 +138,9 @@ public class UserService {
 
         List<User> unverifiedUsers = userRepository.findByIsVerifiedFalse();
         return unverifiedUsers.stream()
+                // Không đưa admin vào danh sách cần xác minh
+                .filter(user -> user.getRoles() == null ||
+                        user.getRoles().stream().noneMatch(role -> "ADMIN".equals(role.getName())))
                 .map(user -> {
                     Set<String> roleNames = user.getRoles() != null ?
                             user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()) :
