@@ -55,29 +55,12 @@
 
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">EVCC System</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/dashboard">Dashboard</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <div th:replace="~{fragments/navbar :: mainNavbar}"></div>
 
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+            <!-- Sidebar chỉ dành cho ADMIN, có thể tinh gọn sau -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar" th:if="${session.currentUser != null and session.currentUser.roles != null and session.currentUser.roles.contains('ADMIN')}">
                 <div class="position-sticky pt-3">
                     <ul class="nav flex-column">
                         <li class="nav-item">
@@ -86,23 +69,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#stations">
-                                <i class="fas fa-charging-station"></i> Trạm sạc
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#users">
+                            <a class="nav-link" th:href="@{/admin/users}">
                                 <i class="fas fa-users"></i> Người dùng
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#reports">
                                 <i class="fas fa-chart-bar"></i> Báo cáo
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#settings">
-                                <i class="fas fa-cog"></i> Cài đặt
                             </a>
                         </li>
                     </ul>

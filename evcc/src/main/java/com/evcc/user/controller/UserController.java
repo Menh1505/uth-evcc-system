@@ -35,11 +35,13 @@ public class UserController {
     }
 
     /**
-     * Lấy danh sách tất cả users (có thể cần authorization admin)
+     * Lấy danh sách tất cả users (chỉ admin)
      */
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<UserProfileResponse>> getAllUsers() {
+        UUID adminId = getCurrentUserId();
+        List<UserProfileResponse> users = userService.getAllUserProfiles(adminId);
+        return ResponseEntity.ok(users);
     }
 
     /**

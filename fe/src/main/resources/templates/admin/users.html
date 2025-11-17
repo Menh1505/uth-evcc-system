@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Quản trị người dùng - EVCC System</title>
+
+    <link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .stat-card {
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/navbar :: mainNavbar}"></div>
+
+    <div class="container-fluid mt-3">
+        <div class="row mb-3">
+            <div class="col-12">
+                <h2 class="mb-0">
+                    <i class="fas fa-users-cog me-2"></i>Quản trị người dùng
+                </h2>
+                <p class="text-muted mb-0">Xem và xác minh thông tin tài khoản người dùng.</p>
+
+                <div th:if="${successMessage}" class="alert alert-success mt-2 mb-0" role="alert"
+                     th:text="${successMessage}">Thao tác thành công</div>
+                <div th:if="${errorMessage}" class="alert alert-danger mt-2 mb-0" role="alert"
+                     th:text="${errorMessage}">Có lỗi xảy ra</div>
+            </div>
+        </div>
+
+        <div class="row mb-3" th:if="${stats != null}">
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Tổng số user</h6>
+                        <h3 th:text="${stats.totalUsers}">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Đã xác minh</h6>
+                        <h3 th:text="${stats.verifiedUsers}">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Chưa xác minh</h6>
+                        <h3 th:text="${stats.unverifiedUsers}">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Đủ thông tin (CCCD + BLX)</h6>
+                        <h3 th:text="${stats.usersWithCompleteInfo}">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-7 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-user-clock me-1"></i> User chưa xác minh</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>CCCD</th>
+                                        <th>Bằng lái</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${unverifiedUsers == null or #lists.isEmpty(unverifiedUsers)}">
+                                        <td colspan="5" class="text-center text-muted py-3">
+                                            Không có user cần xác minh.
+                                        </td>
+                                    </tr>
+                                    <tr th:each="u : ${unverifiedUsers}">
+                                        <td th:text="${u.username}">user1</td>
+                                        <td th:text="${u.citizenId != null ? u.citizenId : '-'}">-</td>
+                                        <td th:text="${u.driverLicense != null ? u.driverLicense : '-'}">-</td>
+                                        <td>
+                                            <span class="badge bg-warning text-dark"
+                                                  th:if="${u.citizenId == null or u.driverLicense == null}">
+                                                Thiếu thông tin
+                                            </span>
+                                            <span class="badge bg-secondary"
+                                                  th:if="${u.citizenId != null and u.driverLicense != null}">
+                                                Chờ xác minh
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <form th:action="@{'/admin/users/' + ${u.id} + '/verify'}" method="post"
+                                                  class="d-inline">
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-success"
+                                                        th:disabled="${u.citizenId == null or u.driverLicense == null}">
+                                                    <i class="fas fa-check me-1"></i> Xác minh
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-3" th:if="${contractUser != null}">
+                    <div class="card-header">
+                        <i class="fas fa-file-signature me-1"></i> Hợp đồng xác minh (ảo)
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-2">Admin chịu trách nhiệm: <strong th:text="${contractAdmin}">admin</strong></p>
+                        <div class="table-responsive">
+                            <table class="table table-bordered mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">User ID</th>
+                                        <td th:text="${contractUser.id}">id</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Username</th>
+                                        <td th:text="${contractUser.username}">user</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">CCCD</th>
+                                        <td th:text="${contractUser.citizenId}">cccd</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Bằng lái</th>
+                                        <td th:text="${contractUser.driverLicense}">blx</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Trạng thái sau xác minh</th>
+                                        <td>
+                                            <span class="badge bg-success">ĐÃ XÁC MINH</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Thời gian cập nhật</th>
+                                        <td th:text="${contractUser.updatedAt}">time</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <i class="fas fa-users me-1"></i> Tất cả người dùng
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>CCCD</th>
+                                        <th>Bằng lái</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${allUsers == null or #lists.isEmpty(allUsers)}">
+                                        <td colspan="4" class="text-center text-muted py-3">
+                                            Chưa có người dùng trong hệ thống.
+                                        </td>
+                                    </tr>
+                                    <tr th:each="u : ${allUsers}">
+                                        <td th:text="${u.username}">user</td>
+                                        <td th:text="${u.citizenId != null ? u.citizenId : '-'}">-</td>
+                                        <td th:text="${u.driverLicense != null ? u.driverLicense : '-'}">-</td>
+                                        <td>
+                                            <span class="badge bg-success" th:if="${u.isVerified}">Đã xác minh</span>
+                                            <span class="badge bg-secondary" th:if="${!u.isVerified}">Chưa xác minh</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/webjars/jquery/3.7.1/jquery.min.js}"></script>
+</body>
+
+</html>
