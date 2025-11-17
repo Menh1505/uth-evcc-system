@@ -23,6 +23,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByUsername(String username);
 
     /**
+     * Find user by username with roles eagerly fetched
+     * Giải quyết LazyInitializationException khi access roles
+     */
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.username = :username")
+    Optional<User> findByUsernameWithRoles(@Param("username") String username);
+
+    /**
      * Find users by username containing (case-insensitive)
      */
     List<User> findByUsernameContainingIgnoreCase(String username);

@@ -107,6 +107,7 @@ public class AuthService {
     /**
      * Đăng nhập với username và password
      */
+    @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
         logger.info("Attempting login for user: {}", request.getUsername());
         
@@ -130,8 +131,8 @@ public class AuthService {
             // Generate JWT token
             String jwt = jwtUtils.generateJwtToken(authentication);
             
-            // Get user details
-            User user = userRepository.findByUsername(request.getUsername())
+            // Get user details with roles eagerly fetched
+            User user = userRepository.findByUsernameWithRoles(request.getUsername())
                 .orElseThrow(() -> new IllegalStateException("User not found after successful authentication"));
             
             // Convert roles to string set for response
@@ -201,9 +202,9 @@ public class AuthService {
     }
 
     /**
-     * Get user by username
+     * Get user by username with roles eagerly loaded
      */
     public Optional<User> getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsernameWithRoles(username);
     }
 }
