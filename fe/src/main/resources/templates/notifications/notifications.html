@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Thông báo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            padding: 20px 0;
+        }
+        .notifications-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .notifications-header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .notification-tabs {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .nav-tabs .nav-link {
+            color: #666;
+            border: none;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -3px;
+        }
+        .nav-tabs .nav-link.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+            background: none;
+        }
+        .notification-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #007bff;
+            transition: box-shadow 0.3s ease;
+        }
+        .notification-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .notification-item.unread {
+            background-color: #f0f8ff;
+            border-left-color: #dc3545;
+        }
+        .notification-item.success {
+            border-left-color: #28a745;
+        }
+        .notification-item.warning {
+            border-left-color: #ffc107;
+        }
+        .notification-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+        .notification-item-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+        .notification-item-meta {
+            font-size: 12px;
+            color: #999;
+        }
+        .notification-item-content {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 8px 0;
+        }
+        .notification-item-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .notification-item-actions .btn {
+            font-size: 12px;
+            padding: 4px 12px;
+        }
+        .badge-unread {
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .sidebar-filters {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        .filter-group {
+            margin-bottom: 20px;
+        }
+        .filter-group-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .filter-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .filter-item input {
+            margin-right: 8px;
+        }
+        .filter-item label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+        }
+        .clear-filters {
+            width: 100%;
+            margin-top: 15px;
+        }
+        @media (max-width: 768px) {
+            .sidebar-filters {
+                position: static;
+                margin-bottom: 20px;
+            }
+            .notifications-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav th:replace="fragments/navbar :: navbar"></nav>
+
+    <div class="notifications-wrapper">
+        <!-- Header -->
+        <div class="notifications-header">
+            <div>
+                <h1>🔔 Thông báo</h1>
+                <p class="text-muted mb-0">Quản lý tất cả thông báo của bạn</p>
+            </div>
+            <div>
+                <span class="badge-unread">5</span>
+                <small class="text-muted">thông báo chưa đọc</small>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Sidebar Filters -->
+            <div class="col-lg-3">
+                <div class="sidebar-filters">
+                    <div class="filter-group">
+                        <div class="filter-group-title">Loại thông báo</div>
+                        <div class="filter-item">
+                            <input type="checkbox" id="filter-all" checked>
+                            <label for="filter-all">Tất cả</label>
+                        </div>
+                        <div class="filter-item">
+                            <input type="checkbox" id="filter-group" checked>
+                            <label for="filter-group">Hội nhóm</label>
+                        </div>
+                        <div class="filter-item">
+                            <input type="checkbox" id="filter-contract" checked>
+                            <label for="filter-contract">Hợp đồng</label>
+                        </div>
+                        <div class="filter-item">
+                            <input type="checkbox" id="filter-system" checked>
+                            <label for="filter-system">Hệ thống</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-group-title">Trạng thái</div>
+                        <div class="filter-item">
+                            <input type="checkbox" id="filter-unread" checked>
+                            <label for="filter-unread">Chưa đọc</label>
+                        </div>
+                        <div class="filter-item">
+                            <input type="checkbox" id="filter-read" checked>
+                            <label for="filter-read">Đã đọc</label>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-outline-danger clear-filters">Xóa bộ lọc</button>
+                </div>
+            </div>
+
+            <!-- Notifications Content -->
+            <div class="col-lg-9">
+                <!-- Tabs -->
+                <div class="notification-tabs">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
+                                Tất cả
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="unread-tab" data-bs-toggle="tab" data-bs-target="#unread" type="button" role="tab">
+                                Chưa đọc <span class="badge bg-danger ms-2">5</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="archived-tab" data-bs-toggle="tab" data-bs-target="#archived" type="button" role="tab">
+                                Đã lưu trữ
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- All Notifications -->
+                    <div class="tab-pane fade show active" id="all" role="tabpanel">
+                        <!-- Notification 1 -->
+                        <div class="notification-item unread">
+                            <div class="notification-item-header">
+                                <div>
+                                    <div class="notification-item-title">🔴 Cuộc họp hội nhóm khẩn cấp</div>
+                                    <div class="notification-item-meta">2 giờ trước • Hội nhóm EV Charging</div>
+                                </div>
+                                <div class="badge-unread" title="Chưa đọc">●</div>
+                            </div>
+                            <div class="notification-item-content">
+                                Sẽ có cuộc họp khẩn cấp của hội nhóm vào hôm nay lúc 15:00 tại phòng họp chính.
+                            </div>
+                            <div class="notification-item-actions">
+                                <button class="btn btn-sm btn-primary">Xác nhận</button>
+                                <button class="btn btn-sm btn-outline-secondary">Đánh dấu đã đọc</button>
+                                <button class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </div>
+                        </div>
+
+                        <!-- Notification 2 -->
+                        <div class="notification-item success">
+                            <div class="notification-item-header">
+                                <div>
+                                    <div class="notification-item-title">✅ Hợp đồng mới được phê duyệt</div>
+                                    <div class="notification-item-meta">1 ngày trước • Hợp đồng</div>
+                                </div>
+                            </div>
+                            <div class="notification-item-content">
+                                Hợp đồng số HD-2025-001 đã được tất cả thành viên phê duyệt và có hiệu lực từ ngày 22/11/2025.
+                            </div>
+                            <div class="notification-item-actions">
+                                <button class="btn btn-sm btn-info">Xem chi tiết</button>
+                                <button class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </div>
+                        </div>
+
+                        <!-- Notification 3 -->
+                        <div class="notification-item warning">
+                            <div class="notification-item-header">
+                                <div>
+                                    <div class="notification-item-title">⚠️ Yêu cầu cập nhật hồ sơ</div>
+                                    <div class="notification-item-meta">3 ngày trước • Hệ thống</div>
+                                </div>
+                            </div>
+                            <div class="notification-item-content">
+                                Vui lòng cập nhật thông tin cá nhân bao gồm số điện thoại, địa chỉ và CCCD để hoàn thành hồ sơ.
+                            </div>
+                            <div class="notification-item-actions">
+                                <button class="btn btn-sm btn-warning">Cập nhật ngay</button>
+                                <button class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </div>
+                        </div>
+
+                        <!-- Notification 4 -->
+                        <div class="notification-item">
+                            <div class="notification-item-header">
+                                <div>
+                                    <div class="notification-item-title">💰 Báo cáo chi phí tháng 11</div>
+                                    <div class="notification-item-meta">1 tuần trước • Hội nhóm</div>
+                                </div>
+                            </div>
+                            <div class="notification-item-content">
+                                Báo cáo chi phí bảo trì và vận hành cho tháng 11 đã được công bố. Tổng chi phí: 5,000,000 VND.
+                            </div>
+                            <div class="notification-item-actions">
+                                <button class="btn btn-sm btn-info">Xem báo cáo</button>
+                                <button class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </div>
+                        </div>
+
+                        <!-- Notification 5 -->
+                        <div class="notification-item">
+                            <div class="notification-item-header">
+                                <div>
+                                    <div class="notification-item-title">📋 Cập nhật chính sách hội nhóm</div>
+                                    <div class="notification-item-meta">2 tuần trước • Hội nhóm</div>
+                                </div>
+                            </div>
+                            <div class="notification-item-content">
+                                Chính sách mới về phí quản lý hàng tháng đã được cập nhật. Vui lòng đọc kỹ trước khi đồng ý.
+                            </div>
+                            <div class="notification-item-actions">
+                                <button class="btn btn-sm btn-info">Xem chi tiết</button>
+                                <button class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unread Notifications -->
+                    <div class="tab-pane fade" id="unread" role="tabpanel">
+                        <div class="notification-item unread">
+                            <div class="notification-item-header">
+                                <div>
+                                    <div class="notification-item-title">🔴 Cuộc họp hội nhóm khẩn cấp</div>
+                                    <div class="notification-item-meta">2 giờ trước • Hội nhóm EV Charging</div>
+                                </div>
+                                <div class="badge-unread" title="Chưa đọc">●</div>
+                            </div>
+                            <div class="notification-item-content">
+                                Sẽ có cuộc họp khẩn cấp của hội nhóm vào hôm nay lúc 15:00 tại phòng họp chính.
+                            </div>
+                            <div class="notification-item-actions">
+                                <button class="btn btn-sm btn-primary">Xác nhận</button>
+                                <button class="btn btn-sm btn-outline-secondary">Đánh dấu đã đọc</button>
+                                <button class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Archived Notifications -->
+                    <div class="tab-pane fade" id="archived" role="tabpanel">
+                        <p class="text-muted text-center py-5">Không có thông báo nào được lưu trữ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center py-4 mt-5 text-muted">
+        <p>&copy; 2025 EVCC System. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Clear filters functionality
+        document.querySelector('.clear-filters').addEventListener('click', function() {
+            document.querySelectorAll('.filter-item input').forEach(checkbox => {
+                checkbox.checked = true;
+            });
+        });
+    </script>
+</body>
+</html>

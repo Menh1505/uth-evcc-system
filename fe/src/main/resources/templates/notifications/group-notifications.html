@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Thông báo nhóm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            padding: 20px 0;
+        }
+        .notification-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .notification-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            padding: 20px;
+            border-left: 5px solid #007bff;
+        }
+        .notification-card.urgent {
+            border-left-color: #dc3545;
+        }
+        .notification-card.success {
+            border-left-color: #28a745;
+        }
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .notification-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .notification-group {
+            display: inline-block;
+            background-color: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #495057;
+        }
+        .notification-time {
+            font-size: 12px;
+            color: #999;
+        }
+        .notification-body {
+            color: #666;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        .notification-action {
+            margin-top: 10px;
+        }
+        .notification-action .btn {
+            margin-right: 10px;
+        }
+        .filter-section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav th:replace="fragments/navbar :: navbar"></nav>
+
+    <div class="notification-container">
+        <!-- Header -->
+        <div class="mb-4">
+            <h1>📢 Thông báo hội nhóm</h1>
+            <p class="text-muted">Quản lý và theo dõi tất cả thông báo từ các hội nhóm của bạn</p>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" id="searchNotification" placeholder="Tìm kiếm thông báo...">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="filterGroup">
+                        <option value="">-- Tất cả nhóm --</option>
+                        <option value="group1">Nhóm 1</option>
+                        <option value="group2">Nhóm 2</option>
+                        <option value="group3">Nhóm 3</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="filterStatus">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        <option value="unread">Chưa đọc</option>
+                        <option value="read">Đã đọc</option>
+                        <option value="archived">Đã lưu trữ</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications List -->
+        <div id="notificationsList">
+            <!-- Sample Notification 1 -->
+            <div class="notification-card urgent">
+                <div class="notification-header">
+                    <div>
+                        <div class="notification-title">🔴 Cuộc họp hội nhóm khẩn cấp</div>
+                        <span class="notification-group">Nhóm EV Charging</span>
+                    </div>
+                    <div class="notification-time">2 giờ trước</div>
+                </div>
+                <div class="notification-body">
+                    Sẽ có cuộc họp khẩn cấp của hội nhóm vào hôm nay lúc 15:00 tại phòng họp chính. 
+                    Vui lòng chuẩn bị các tài liệu liên quan về việc duy trì máy sạc điện.
+                </div>
+                <div class="notification-action">
+                    <button class="btn btn-sm btn-primary">Xác nhận tham dự</button>
+                    <button class="btn btn-sm btn-outline-secondary">Bỏ qua</button>
+                </div>
+            </div>
+
+            <!-- Sample Notification 2 -->
+            <div class="notification-card success">
+                <div class="notification-header">
+                    <div>
+                        <div class="notification-title">✅ Hợp đồng mới được phê duyệt</div>
+                        <span class="notification-group">Nhóm Quản lý Xe</span>
+                    </div>
+                    <div class="notification-time">1 ngày trước</div>
+                </div>
+                <div class="notification-body">
+                    Hợp đồng số HD-2025-001 đã được tất cả thành viên nhóm phê duyệt. 
+                    Bây giờ hợp đồng có hiệu lực từ ngày 22/11/2025.
+                </div>
+                <div class="notification-action">
+                    <button class="btn btn-sm btn-info">Xem chi tiết</button>
+                    <button class="btn btn-sm btn-outline-secondary">Đã xem</button>
+                </div>
+            </div>
+
+            <!-- Sample Notification 3 -->
+            <div class="notification-card">
+                <div class="notification-header">
+                    <div>
+                        <div class="notification-title">📝 Yêu cầu cập nhật thông tin thành viên</div>
+                        <span class="notification-group">Quản lý Nhóm</span>
+                    </div>
+                    <div class="notification-time">3 ngày trước</div>
+                </div>
+                <div class="notification-body">
+                    Hãy cập nhật thông tin cá nhân của bạn trên hệ thống bao gồm: 
+                    số điện thoại, địa chỉ, và số CCCD. Đây là thông tin bắt buộc cho các thành viên nhóm.
+                </div>
+                <div class="notification-action">
+                    <button class="btn btn-sm btn-warning">Cập nhật ngay</button>
+                    <button class="btn btn-sm btn-outline-secondary">Để sau</button>
+                </div>
+            </div>
+
+            <!-- Sample Notification 4 -->
+            <div class="notification-card">
+                <div class="notification-header">
+                    <div>
+                        <div class="notification-title">💰 Báo cáo chi phí hàng tháng</div>
+                        <span class="notification-group">Nhóm EV Charging</span>
+                    </div>
+                    <div class="notification-time">1 tuần trước</div>
+                </div>
+                <div class="notification-body">
+                    Báo cáo chi phí bảo trì và vận hành cho tháng 11 đã được công bố. 
+                    Tổng chi phí: 5,000,000 VND. Vui lòng kiểm tra chi tiết tại phần báo cáo chi phí.
+                </div>
+                <div class="notification-action">
+                    <button class="btn btn-sm btn-info">Xem báo cáo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State (hidden by default) -->
+        <div id="emptyState" style="display: none;">
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <h5>Không có thông báo nào</h5>
+                <p class="text-muted">Bạn đã xem hết tất cả thông báo từ các nhóm của mình</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center py-4 mt-5 text-muted">
+        <p>&copy; 2025 EVCC System. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Filter functionality
+        document.getElementById('searchNotification').addEventListener('keyup', filterNotifications);
+        document.getElementById('filterGroup').addEventListener('change', filterNotifications);
+        document.getElementById('filterStatus').addEventListener('change', filterNotifications);
+
+        function filterNotifications() {
+            const searchTerm = document.getElementById('searchNotification').value.toLowerCase();
+            const selectedGroup = document.getElementById('filterGroup').value;
+            const selectedStatus = document.getElementById('filterStatus').value;
+
+            const notifications = document.querySelectorAll('.notification-card');
+            let visibleCount = 0;
+
+            notifications.forEach(notification => {
+                const text = notification.textContent.toLowerCase();
+                const groupTag = notification.querySelector('.notification-group')?.textContent || '';
+                
+                const matchesSearch = text.includes(searchTerm);
+                const matchesGroup = !selectedGroup || groupTag.includes(selectedGroup);
+                const matchesStatus = !selectedStatus; // Add status filter logic as needed
+
+                if (matchesSearch && matchesGroup && matchesStatus) {
+                    notification.style.display = '';
+                    visibleCount++;
+                } else {
+                    notification.style.display = 'none';
+                }
+            });
+
+            // Show empty state if no notifications match
+            document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>

@@ -155,7 +155,7 @@
                                 th:classappend="${#fields.hasErrors('username')} ? 'is-invalid' : ''" id="username"
                                 placeholder="Tên đăng nhập" required>
                             <label for="username">
-                                <i class="fas fa-user me-2"></i>Tên đăng nhập
+                                <i class="fas fa-user me-2"></i>Tên đăng nhập dể nhập họ tên
                             </label>
                             <div th:if="${#fields.hasErrors('username')}" class="invalid-feedback">
                                 <span th:errors="*{username}"></span>
@@ -168,7 +168,7 @@
                                 th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''" id="password"
                                 placeholder="Mật khẩu" required>
                             <label for="password">
-                                <i class="fas fa-lock me-2"></i>Mật khẩu
+                                <i class="fas fa-lock me-2"></i>Mật khẩu để đăng nhập
                             </label>
                             <i class="fas fa-eye password-toggle" onclick="togglePassword()"></i>
                             <div th:if="${#fields.hasErrors('password')}" class="invalid-feedback">
@@ -180,7 +180,7 @@
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="rememberMe">
                             <label class="form-check-label" for="rememberMe">
-                                Ghi nhớ đăng nhập
+                                Ghi nhớ đăng nhập, lưu vào dữ liệu
                             </label>
                         </div>
 

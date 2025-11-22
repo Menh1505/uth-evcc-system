@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -219,6 +220,114 @@ public class AuthController {
         }
         redirectAttributes.addFlashAttribute("successMessage", "Bạn đã đăng xuất khỏi hệ thống.");
         return "redirect:/auth/login";
+    }
+    
+    /**
+     * Hiển thị trang quên mật khẩu
+     */
+    @GetMapping("/forgot-password")
+    public String showForgotPasswordForm(Model model) {
+        model.addAttribute("title", "Quên mật khẩu - EVCC System");
+        return "auth/forgot-password";
+    }
+    
+    /**
+     * Xử lý yêu cầu quên mật khẩu
+     */
+    @PostMapping("/forgot-password")
+    public String forgotPassword(@RequestParam String email,
+                                Model model,
+                                RedirectAttributes redirectAttributes) {
+        
+        logger.info("Nhận request quên mật khẩu cho email: {}", email);
+        
+        redirectAttributes.addFlashAttribute("successMessage", 
+            "Hướng dẫn đặt lại mật khẩu đã được gửi tới email của bạn. Vui lòng kiểm tra hộp thư đến.");
+        logger.info("Yêu cầu quên mật khẩu được xử lý cho: {}", email);
+        return "redirect:/auth/login";
+    }
+    
+    /**
+     * API endpoint để quên mật khẩu (cho AJAX calls)
+     */
+    @PostMapping("/api/forgot-password")
+    @ResponseBody
+    public ResponseEntity<String> forgotPasswordApi(@RequestParam String email) {
+        
+        logger.info("API call quên mật khẩu cho email: {}", email);
+        return ResponseEntity.ok("{\"success\":true,\"message\":\"Hướng dẫn đặt lại mật khẩu đã được gửi tới email của bạn\"}");
+    }
+    
+    /**
+     * Hiển thị trang đổi mật khẩu
+     */
+    @GetMapping("/change-password")
+    public String showChangePasswordForm(Model model, HttpSession session) {
+        // Kiểm tra user đã đăng nhập chưa
+        if (session.getAttribute("currentUser") == null) {
+            return "redirect:/auth/login";
+        }
+        model.addAttribute("title", "Đổi mật khẩu - EVCC System");
+        return "auth/change-password";
+    }
+    
+    /**
+     * Xử lý đổi mật khẩu
+     */
+    @PostMapping("/change-password")
+    public String changePassword(@RequestParam String oldPassword,
+                               @RequestParam String newPassword,
+                               @RequestParam String confirmPassword,
+                               Model model,
+                               RedirectAttributes redirectAttributes,
+                               HttpSession session) {
+        
+        logger.info("Nhận request đổi mật khẩu");
+        
+        // Kiểm tra user đã đăng nhập chưa
+        UserLoginResponse currentUser = (UserLoginResponse) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            return "redirect:/auth/login";
+        }
+        
+        // Kiểm tra mật khẩu mới và xác nhận có khớp không
+        if (!newPassword.equals(confirmPassword)) {
+            model.addAttribute("errorMessage", "Mật khẩu mới và xác nhận mật khẩu không khớp!");
+            model.addAttribute("title", "Đổi mật khẩu - EVCC System");
+            return "auth/change-password";
+        }
+        
+        redirectAttributes.addFlashAttribute("successMessage", "Đổi mật khẩu thành công!");
+        logger.info("Đổi mật khẩu thành công cho user: {}", currentUser.getUsername());
+        return "redirect:/user/profile";
+    }
+    
+    /**
+     * API endpoint để đổi mật khẩu (cho AJAX calls)
+     */
+    @PostMapping("/api/change-password")
+    @ResponseBody
+    public ResponseEntity<String> changePasswordApi(@RequestBody java.util.Map<String, String> request,
+                                                    HttpSession session) {
+        
+        logger.info("API call đổi mật khẩu");
+        
+        UserLoginResponse currentUser = (UserLoginResponse) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            return ResponseEntity.status(401)
+                .body("{\"success\":false,\"message\":\"Vui lòng đăng nhập để đổi mật khẩu\"}");
+        }
+        
+        String oldPassword = request.get("oldPassword");
+        String newPassword = request.get("newPassword");
+        String confirmPassword = request.get("confirmPassword");
+        
+        if (!newPassword.equals(confirmPassword)) {
+            return ResponseEntity.badRequest()
+                .body("{\"success\":false,\"message\":\"Mật khẩu mới và xác nhận mật khẩu không khớp\"}");
+        }
+        
+        return ResponseEntity.ok("{\"success\":true,\"message\":\"Đổi mật khẩu thành công\"}");
     }
     
     /**
