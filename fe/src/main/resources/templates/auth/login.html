@@ -11,107 +11,114 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-        }
+   <style>
+    body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #007bff 0%, #00b4d8 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        .login-container {
-            max-width: 400px;
-            margin: 0 auto;
-        }
 
-        .login-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
+    .login-container {
+        max-width: 400px;
+        margin: 0 auto;
+    }
 
-        .login-header {
-            background: linear-gradient(135deg, #28a745, #1e7e34);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
+    .login-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
 
-        .login-body {
-            padding: 40px 30px;
-        }
 
-        .form-floating {
-            margin-bottom: 20px;
-        }
+    .login-header {
+        background: linear-gradient(135deg, #007bff, #00b4d8);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
 
-        .btn-login {
-            background: linear-gradient(135deg, #28a745, #1e7e34);
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            width: 100%;
-            color: white;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
+    .login-body {
+        padding: 40px 30px;
+    }
 
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
-        }
+    .form-floating {
+        margin-bottom: 20px;
+    }
 
-        .alert {
-            border-radius: 8px;
-            border: none;
-        }
 
-        .text-muted a {
-            color: #6c757d;
-            text-decoration: none;
-        }
+    .btn-login {
+        background: linear-gradient(135deg, #007bff, #00b4d8);
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        width: 100%;
+        color: white;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
 
-        .text-muted a:hover {
-            color: #28a745;
-        }
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 123, 255, 0.35);
+    }
 
-        .api-status {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            z-index: 1000;
-        }
+    .alert {
+        border-radius: 8px;
+        border: none;
+    }
 
-        .api-status.connected {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
+    .text-muted a {
+        color: #6c757d;
+        text-decoration: none;
+    }
 
-        .api-status.disconnected {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
 
-        .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #6c757d;
-            z-index: 10;
-        }
+    .text-muted a:hover {
+        color: #007bff;
+    }
 
-        .password-toggle:hover {
-            color: #28a745;
-        }
-    </style>
+
+    .api-status {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        z-index: 1000;
+    }
+
+    .api-status.connected {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .api-status.disconnected {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #6c757d;
+        z-index: 10;
+    }
+
+    .password-toggle:hover {
+        color: #007bff;
+    }
+</style>
 </head>
 
 <body>

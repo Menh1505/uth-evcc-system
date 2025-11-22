@@ -7,85 +7,239 @@
     <title th:text="${title}">Chi tiết hợp đồng - EVCC System</title>
 
     <link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #007bfff4 0%, #00b4d8 100%);
+            --card-border-radius: 16px;
+        }
+
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            padding-bottom: 40px;
+            color: #343a40;
+        }
+
+        /* Navbar trong suốt */
+        .navbar {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+        .navbar a {
+            color: white !important;
+        }
+
+        .page-header {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            border-radius: var(--card-border-radius);
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .page-title h2 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            margin-bottom: 5px;
+        }
+
+        .card {
+            border-radius: var(--card-border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: #fff;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 15px 20px;
+            font-weight: 600;
+            color: #00b4d8;
+            font-size: 1.1rem;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* Table Styling */
+        .table-custom th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .table-custom td {
+            vertical-align: middle;
+            font-size: 0.95rem;
+        }
+
+        .badge {
+            padding: 8px 12px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 8px;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .info-label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+        .info-value {
+            font-weight: 600;
+            color: #212529;
+            text-align: right;
+        }
+
+    </style>
 </head>
 
 <body>
     <div th:replace="~{fragments/navbar :: mainNavbar}"></div>
 
-    <div class="container mt-3" th:if="${contract != null}">
-        <h2 class="mb-0">
-            <i class="fas fa-file-contract me-2"></i>
-            <span th:text="${contract.title}">Hợp đồng</span>
-        </h2>
-        <p class="text-muted mb-2">
-            Số hợp đồng:
-            <span th:text="${contract.contractNumber}">CT-001</span>
-        </p>
+    <div class="container" th:if="${contract != null}">
+        
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas fa-check-circle me-2"></i><span th:text="${successMessage}">OK</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i><span th:text="${errorMessage}">ERR</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
 
-        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}">OK</div>
-        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}">ERR</div>
+        <div class="page-header shadow-sm">
+            <div class="page-title">
+                <h2>
+                    <i class="fas fa-file-contract me-2"></i>
+                    <span th:text="${contract.title}">Chi tiết Hợp đồng</span>
+                </h2>
+                <div class="opacity-75">
+                    <i class="fas fa-hashtag me-1"></i> Số HĐ: 
+                    <span class="fw-bold" th:text="${contract.contractNumber}">CT-001</span>
+                </div>
+            </div>
+            <div class="page-actions">
+                <span class="badge bg-light text-dark shadow-sm" style="font-size: 1rem;">
+                    <i class="fas fa-circle me-1" 
+                       th:classappend="${contract.status == 'ACTIVE' ? 'text-success' : 'text-secondary'}"></i>
+                    <span th:text="${contract.status}">STATUS</span>
+                </span>
+            </div>
+        </div>
 
-        <div class="row">
-            <div class="col-lg-4 mb-3">
-                <div class="card shadow-sm">
+        <div class="row g-4"> <div class="col-lg-4">
+                <div class="card h-100">
                     <div class="card-header">
-                        <i class="fas fa-info-circle me-1"></i> Thông tin hợp đồng
+                        <i class="fas fa-info-circle me-2"></i>Thông tin chung
                     </div>
                     <div class="card-body">
-                        <p class="mb-1"><strong>Nhóm:</strong>
-                            <span th:text="${contract.group != null ? contract.group.name : '-'}">Nhóm</span>
-                        </p>
-                        <p class="mb-1"><strong>Giá thỏa thuận:</strong>
-                            <span th:text="${#numbers.formatInteger(contract.agreedPrice, 0, 'POINT')}">0</span> VND
-                        </p>
-                        <p class="mb-1"><strong>Trạng thái:</strong>
-                            <span class="badge bg-secondary" th:text="${contract.status}">DRAFT</span>
-                        </p>
-                        <p class="mb-1"><strong>Ngày ký:</strong>
-                            <span th:text="${contract.signingDate}">-</span>
-                        </p>
-                        <p class="mb-1"><strong>Hiệu lực:</strong>
-                            <span th:text="${contract.effectiveDate}">-</span>
-                            -
-                            <span th:text="${contract.expiryDate}">-</span>
-                        </p>
+                        <div class="info-item">
+                            <span class="info-label">Nhóm</span>
+                            <span class="info-value text-primary" th:text="${contract.group != null ? contract.group.name : '-'}">Nhóm A</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Giá trị</span>
+                            <span class="info-value text-success fs-5">
+                                <span th:text="${#numbers.formatInteger(contract.agreedPrice, 0, 'POINT')}">0</span> ₫
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Ngày ký</span>
+                            <span class="info-value" th:text="${contract.signingDate}">01/01/2024</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Hiệu lực từ</span>
+                            <span class="info-value" th:text="${contract.effectiveDate}">01/01/2024</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Hết hạn</span>
+                            <span class="info-value text-danger" th:text="${contract.expiryDate}">31/12/2024</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-8 mb-3">
-                <div class="card shadow-sm">
-                    <div class="card-header">
-                        <i class="fas fa-user-friends me-1"></i> Quyền sở hữu
+            <div class="col-lg-8">
+                
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-user-friends me-2"></i>Danh sách sở hữu</span>
+                        <span class="badge bg-primary rounded-pill" th:text="${contract.ownerships != null ? contract.ownerships.size() : 0}">0</span>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
+                            <table class="table table-hover table-custom mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>User</th>
-                                        <th>Tỉ lệ (%)</th>
-                                        <th>Đã góp (VND)</th>
-                                        <th>Trạng thái thanh toán</th>
-                                        <th>Đủ điều kiện sử dụng</th>
+                                        <th class="ps-4">Thành viên</th>
+                                        <th class="text-center">Tỉ lệ (%)</th>
+                                        <th class="text-end">Đã góp (VND)</th>
+                                        <th class="text-center">Trạng thái</th>
+                                        <th class="text-center">Quyền dùng</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr th:if="${contract.ownerships == null or #lists.isEmpty(contract.ownerships)}">
-                                        <td colspan="5" class="text-center text-muted py-3">
-                                            Chưa có thông tin sở hữu.
+                                        <td colspan="5" class="text-center py-4 text-muted">
+                                            <i class="fas fa-folder-open fa-2x mb-2 d-block"></i>
+                                            Chưa có dữ liệu sở hữu.
                                         </td>
                                     </tr>
                                     <tr th:each="o : ${contract.ownerships}">
-                                        <td th:text="${o.user != null ? o.user.username : 'N/A'}">user</td>
-                                        <td th:text="${o.ownershipPercentage}">0</td>
-                                        <td th:text="${#numbers.formatInteger(o.contributionAmount, 0, 'POINT')}">0</td>
-                                        <td th:text="${o.paymentStatus}">PENDING</td>
-                                        <td>
-                                            <span class="badge bg-success" th:if="${o.usageEligible}">Có</span>
-                                            <span class="badge bg-secondary" th:if="${!o.usageEligible}">Không</span>
+                                        <td class="ps-4 fw-bold text-primary" th:text="${o.user != null ? o.user.username : 'N/A'}">User A</td>
+                                        
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark border" th:text="${o.ownershipPercentage + '%'}">0%</span>
+                                        </td>
+                                        
+                                        <td class="text-end fw-bold" th:text="${#numbers.formatInteger(o.contributionAmount, 0, 'POINT')}">0</td>
+                                        
+                                        <td class="text-center">
+                                            <span class="badge" 
+                                                  th:classappend="${o.paymentStatus == 'PAID' ? 'bg-success-subtle text-success' : (o.paymentStatus == 'PENDING' ? 'bg-warning-subtle text-warning-emphasis' : 'bg-danger-subtle text-danger')}"
+                                                  th:text="${o.paymentStatus}">
+                                                PENDING
+                                            </span>
+                                        </td>
+                                        
+                                        <td class="text-center">
+                                            <i class="fas fa-check-circle text-success fa-lg" th:if="${o.usageEligible}" title="Đủ điều kiện"></i>
+                                            <i class="fas fa-times-circle text-secondary fa-lg opacity-25" th:if="${!o.usageEligible}" title="Không đủ điều kiện"></i>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -94,23 +248,33 @@
                     </div>
                 </div>
 
-                <div class="card shadow-sm mt-3">
+                <div class="card">
                     <div class="card-header">
-                        <i class="fas fa-align-left me-1"></i> Điều khoản & ghi chú
+                        <i class="fas fa-align-left me-2"></i>Điều khoản & Ghi chú
                     </div>
                     <div class="card-body">
-                        <p><strong>Điều khoản:</strong></p>
-                        <p th:text="${contract.termsAndConditions}">-</p>
-                        <p class="mb-1"><strong>Ghi chú:</strong></p>
-                        <p th:text="${contract.notes}">-</p>
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-dark mb-2"><i class="fas fa-gavel me-2 text-secondary"></i>Điều khoản hợp đồng</h6>
+                            <div class="p-3 bg-light rounded border border-light-subtle text-secondary" 
+                                 style="font-size: 0.95rem; min-height: 80px;"
+                                 th:text="${contract.termsAndConditions != null && contract.termsAndConditions != '' ? contract.termsAndConditions : 'Không có điều khoản cụ thể.'}">
+                                Nội dung điều khoản...
+                            </div>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-2"><i class="fas fa-sticky-note me-2 text-secondary"></i>Ghi chú bổ sung</h6>
+                             <div class="text-muted fst-italic" 
+                                  th:text="${contract.notes != null && contract.notes != '' ? contract.notes : 'Không có ghi chú.'}">
+                                -
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 
     <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
 </body>
-
 </html>
-
