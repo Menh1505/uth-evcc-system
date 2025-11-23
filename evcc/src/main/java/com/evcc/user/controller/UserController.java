@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,11 +15,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.evcc.user.dto.AdminStatusResponse;
 import com.evcc.user.dto.UpdateUserProfileRequest;
 import com.evcc.user.dto.UserProfileResponse;
 import com.evcc.user.dto.UserStatsResponse;
 import com.evcc.user.entity.User;
 import com.evcc.user.repository.UserRepository;
+import com.evcc.user.service.AdminInitializationService;
 import com.evcc.user.service.UserService;
 
 import jakarta.validation.Valid;
@@ -26,18 +29,22 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+
     private final UserService userService;
     private final UserRepository userRepository;
+    private final AdminInitializationService adminInitializationService;
 
-    public UserController(UserService userService, UserRepository userRepository) {
+    public UserController(UserService userService, UserRepository userRepository, AdminInitializationService adminInitializationService) {
         this.userService = userService;
         this.userRepository = userRepository;
+        this.adminInitializationService = adminInitializationService;
     }
 
     /**
      * Lấy danh sách tất cả users (chỉ admin)
      */
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserProfileResponse>> getAllUsers() {
         UUID adminId = getCurrentUserId();
         List<UserProfileResponse> users = userService.getAllUserProfiles(adminId);
@@ -53,8 +60,7 @@ public class UserController {
     }
 
     /**
-     * Lấy thông tin profile của user hiện tại
-     * GET /api/users/profile
+     * Lấy thông tin profile của user hiện tại GET /api/users/profile
      */
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponse> getMyProfile() {
@@ -64,23 +70,22 @@ public class UserController {
     }
 
     /**
-     * Cập nhật thông tin profile của user hiện tại
-     * PUT /api/users/profile
+     * Cập nhật thông tin profile của user hiện tại PUT /api/users/profile
      */
     @PutMapping("/profile")
     public ResponseEntity<UserProfileResponse> updateMyProfile(
             @Valid @RequestBody UpdateUserProfileRequest request) {
-        
+
         UUID userId = getCurrentUserId();
         UserProfileResponse updatedProfile = userService.updateUserProfile(userId, request);
         return ResponseEntity.ok(updatedProfile);
     }
 
     /**
-     * Xác minh user (chỉ admin mới được gọi)
-     * PUT /api/users/{userId}/verify
+     * Xác minh user (chỉ admin mới được gọi) PUT /api/users/{userId}/verify
      */
     @PutMapping("/{userId}/verify")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserProfileResponse> verifyUser(@PathVariable UUID userId) {
         UUID adminId = getCurrentUserId();
         UserProfileResponse verifiedUser = userService.verifyUser(userId, adminId);
@@ -88,10 +93,10 @@ public class UserController {
     }
 
     /**
-     * Lấy danh sách user chưa xác minh (chỉ admin)
-     * GET /api/users/unverified
+     * Lấy danh sách user chưa xác minh (chỉ admin) GET /api/users/unverified
      */
     @GetMapping("/unverified")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserProfileResponse>> getUnverifiedUsers() {
         UUID adminId = getCurrentUserId();
         List<UserProfileResponse> unverifiedUsers = userService.getUnverifiedUsers(adminId);
@@ -99,10 +104,11 @@ public class UserController {
     }
 
     /**
-     * Lấy thông tin profile của user khác (chỉ admin)
-     * GET /api/users/{userId}/profile
+     * Lấy thông tin profile của user khác (chỉ admin) GET
+     * /api/users/{userId}/profile
      */
     @GetMapping("/{userId}/profile")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserProfileResponse> getUserProfile(@PathVariable UUID userId) {
         UUID adminId = getCurrentUserId();
         UserProfileResponse profile = userService.getUserProfileByAdmin(userId, adminId);
@@ -110,10 +116,10 @@ public class UserController {
     }
 
     /**
-     * Lấy thống kê user (chỉ admin)
-     * GET /api/users/stats
+     * Lấy thống kê user (chỉ admin) GET /api/users/stats
      */
     @GetMapping("/stats")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserStatsResponse> getUserStats() {
         UUID adminId = getCurrentUserId();
         UserStatsResponse stats = userService.getUserStats(adminId);
@@ -121,19 +127,64 @@ public class UserController {
     }
 
     /**
+     * Reset mật khẩu admin về mặc định (chỉ dành cho development) POST
+     * /api/users/admin/reset-password
+     */
+    @PostMapping("/admin/reset-password")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> resetAdminPassword() {
+        try {
+            adminInitializationService.resetAdminPassword();
+            return ResponseEntity.ok("Đã reset mật khẩu admin về mặc định: admin/admin");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi khi reset mật khẩu: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Kiểm tra tình trạng admin account GET /api/users/admin/status
+     */
+    @GetMapping("/admin/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AdminStatusResponse> getAdminStatus() {
+        try {
+            var adminUser = adminInitializationService.getAdminUser();
+
+            if (adminUser.isPresent()) {
+                User admin = adminUser.get();
+                AdminStatusResponse response = AdminStatusResponse.success(
+                        admin.getUsername(),
+                        admin.getIsVerified(),
+                        admin.getCreatedAt().toString(),
+                        admin.getRoles() != null ? admin.getRoles().size() : 0
+                );
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.ok(AdminStatusResponse.notFound());
+            }
+        } catch (Exception e) {
+            AdminStatusResponse errorResponse = AdminStatusResponse.builder()
+                    .exists(false)
+                    .message("Lỗi khi kiểm tra admin status: " + e.getMessage())
+                    .build();
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    /**
      * Lấy User ID từ Spring Security Authentication
      */
     private UUID getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        
+
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new SecurityException("User chưa đăng nhập");
         }
-        
+
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new SecurityException("Không tìm thấy user: " + username));
-        
+
         return user.getId();
     }
 }

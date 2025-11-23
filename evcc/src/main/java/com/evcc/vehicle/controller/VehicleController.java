@@ -55,13 +55,24 @@ public class VehicleController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<VehicleResponse> updateVehicle(@PathVariable Long id, @Valid @RequestBody VehicleCreateRequest req) {
         return ResponseEntity.ok(vehicleService.updateVehicle(id, req));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
         vehicleService.deleteVehicle(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Lấy danh sách xe chưa được gán cho hợp đồng nào (available vehicles) GET
+     * /api/vehicles/available
+     */
+    @GetMapping("/available")
+    public ResponseEntity<List<VehicleResponse>> getAvailableVehicles() {
+        return ResponseEntity.ok(vehicleService.listAvailableVehicles());
     }
 }

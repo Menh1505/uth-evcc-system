@@ -69,6 +69,10 @@ public class VehicleService {
         return vehicleRepository.findByGroup(g).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
+    public List<VehicleResponse> listAvailableVehicles() {
+        return vehicleRepository.findAvailableVehicles().stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
     public void deleteVehicle(Long id) {
         if (!vehicleRepository.existsById(id)) {
             throw new IllegalArgumentException("Vehicle not found: " + id);
@@ -92,23 +96,45 @@ public class VehicleService {
         }
 
         // update fields if present
-        if (req.getName() != null) v.setName(req.getName());
-        if (req.getLicensePlate() != null) v.setLicensePlate(req.getLicensePlate());
-        if (req.getMake() != null) v.setMake(req.getMake());
-        if (req.getModel() != null) v.setModel(req.getModel());
-        if (req.getYear() != null) v.setYear(req.getYear());
-        if (req.getPurchasePrice() != null) v.setPurchasePrice(req.getPurchasePrice());
-        if (req.getPurchaseDate() != null) v.setPurchaseDate(req.getPurchaseDate());
-        if (req.getBatteryCapacity() != null) v.setBatteryCapacity(req.getBatteryCapacity());
-        if (req.getInitialOdometer() != null) v.setInitialOdometer(req.getInitialOdometer());
-        if (req.getStatus() != null) v.setStatus(parseStatus(req.getStatus()));
+        if (req.getName() != null) {
+            v.setName(req.getName());
+        }
+        if (req.getLicensePlate() != null) {
+            v.setLicensePlate(req.getLicensePlate());
+        }
+        if (req.getMake() != null) {
+            v.setMake(req.getMake());
+        }
+        if (req.getModel() != null) {
+            v.setModel(req.getModel());
+        }
+        if (req.getYear() != null) {
+            v.setYear(req.getYear());
+        }
+        if (req.getPurchasePrice() != null) {
+            v.setPurchasePrice(req.getPurchasePrice());
+        }
+        if (req.getPurchaseDate() != null) {
+            v.setPurchaseDate(req.getPurchaseDate());
+        }
+        if (req.getBatteryCapacity() != null) {
+            v.setBatteryCapacity(req.getBatteryCapacity());
+        }
+        if (req.getInitialOdometer() != null) {
+            v.setInitialOdometer(req.getInitialOdometer());
+        }
+        if (req.getStatus() != null) {
+            v.setStatus(parseStatus(req.getStatus()));
+        }
 
         Vehicle saved = vehicleRepository.save(v);
         return toResponse(saved);
     }
 
     private VehicleStatus parseStatus(String s) {
-        if (s == null) return VehicleStatus.AVAILABLE;
+        if (s == null) {
+            return VehicleStatus.AVAILABLE;
+        }
         try {
             return VehicleStatus.valueOf(s.toUpperCase());
         } catch (Exception ex) {
