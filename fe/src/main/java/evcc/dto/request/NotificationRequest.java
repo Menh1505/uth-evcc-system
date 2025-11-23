@@ -5,6 +5,7 @@ package evcc.dto.request;
  */
 public class NotificationRequest {
     private String title;
+    private String label;
     private String message;
     private String type;
     private String priority;
@@ -13,6 +14,7 @@ public class NotificationRequest {
     
     public NotificationRequest(String title, String message, String type, String priority) {
         this.title = title;
+        this.label= label;
         this.message = message;
         this.type = type;
         this.priority = priority;
@@ -26,6 +28,14 @@ public class NotificationRequest {
         this.title = title;
     }
     
+        
+    public String getLabel() {
+        return label;
+    }
+    
+    public void setLabel(String label) {
+        this.label = label;
+    }
     public String getMessage() {
         return message;
     }

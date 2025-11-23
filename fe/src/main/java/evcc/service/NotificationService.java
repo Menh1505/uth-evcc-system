@@ -15,7 +15,7 @@ public class NotificationService {
      */
     public List<String> getAllNotifications() {
         List<String> notifications = new ArrayList<>();
-        notifications.add("Notification 1");
+        notifications.add("Notification 1");// tạo notification chứ ko phải lấy từ db 
         notifications.add("Notification 2");
         notifications.add("Notification 3");
         return notifications;
@@ -38,10 +38,8 @@ public class NotificationService {
         return true;
     }
     
-    /**
-     * Delete notification
-     */
-    public boolean deleteNotification(String notificationId) {
+   //xóa thông báo 
+    public boolean deleteNotification(String notificationId) {// trạng thái true false
         return true;
     }
 }

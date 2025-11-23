@@ -29,12 +29,12 @@
                 <h2 class="mb-0">
                     <i class="fas fa-users-cog me-2"></i>Quản trị người dùng
                 </h2>
-                <p class="text-muted mb-0">Xem và xác minh thông tin tài khoản người dùng.</p>
+                <p class="text-muted mb-0">Xem và xác minh thông tin tài khoản người dùng xem có đúng ko.</p>
 
                 <div th:if="${successMessage}" class="alert alert-success mt-2 mb-0" role="alert"
-                     th:text="${successMessage}">Thao tác thành công</div>
+                     th:text="${successMessage}">Thao tác thành công thì ok</div>
                 <div th:if="${errorMessage}" class="alert alert-danger mt-2 mb-0" role="alert"
-                     th:text="${errorMessage}">Có lỗi xảy ra</div>
+                     th:text="${errorMessage}">Có lỗi xảy ra thì lo mà fix lại đi </div>
             </div>
         </div>
 
@@ -50,7 +50,7 @@
             <div class="col-md-3 mb-3">
                 <div class="card stat-card shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Đã xác minh</h6>
+                        <h6 class="text-muted">Đã xác minh tài khoản</h6>
                         <h3 th:text="${stats.verifiedUsers}">0</h3>
                     </div>
                 </div>
@@ -58,7 +58,7 @@
             <div class="col-md-3 mb-3">
                 <div class="card stat-card shadow-sm">
                     <div class="card-body">
-                        <h6 class="text-muted">Chưa xác minh</h6>
+                        <h6 class="text-muted">Chưa xác minh được tài khoản</h6>
                         <h3 th:text="${stats.unverifiedUsers}">0</h3>
                     </div>
                 </div>
