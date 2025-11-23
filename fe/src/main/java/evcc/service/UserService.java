@@ -366,7 +366,7 @@ public class UserService {
                 }
 
                 result.add(dto);
-            }
+            }// chán 
 
             return result;
         } catch (HttpClientErrorException e) {
@@ -379,7 +379,7 @@ public class UserService {
     }
 
     public ContractResponseDto getContract(String jwtToken, Long contractId) throws ApiException {
-        logger.info("Lấy chi tiết hợp đồng {}", contractId);
+        logger.info("Lấy chi tiết hợp đồng từ {}", contractId);
         HttpEntity<Void> entity = createAuthorizedRequest(jwtToken);
         String url = restTemplateConfig.getBaseUrl() + "/api/contracts/" + contractId;
         try {
@@ -406,7 +406,7 @@ public class UserService {
      * @throws ApiException khi cập nhật thất bại
      */
     public UserProfileResponseDto updateUserProfile(String jwtToken, UpdateUserProfileRequest request) throws ApiException {
-        logger.info("Cập nhật profile user hiện tại");
+        logger.info("Cập nhật profile user hiện tại liên tục");
         
         HttpEntity<UpdateUserProfileRequest> entity = createAuthorizedJsonRequest(jwtToken, request);
         String url = restTemplateConfig.getBaseUrl() + "/api/users/profile";
@@ -615,23 +615,6 @@ public class UserService {
         return new HttpEntity<>(headers);
     }
 
-    private <T> HttpEntity<T> createAuthorizedJsonRequest(String jwtToken, T body) throws ApiException {
-        if (jwtToken == null || jwtToken.isBlank()) {
-            throw new ApiException(401, "Thiếu token xác thực");
-        }
-        
-        String tokenValue = jwtToken.trim();
-        if (tokenValue.toLowerCase().startsWith("bearer ")) {
-            tokenValue = tokenValue.substring(7).trim();
-        }
-        
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(tokenValue);
-        
-        return new HttpEntity<>(body, headers);
-    }
-    
     /**
      * Kiểm tra kết nối đến API server
      * 

@@ -4,6 +4,7 @@ public class CreateGroupRequest {
 
     private String name;
     private String description;
+    private String text;
 
     public CreateGroupRequest() {
     }
