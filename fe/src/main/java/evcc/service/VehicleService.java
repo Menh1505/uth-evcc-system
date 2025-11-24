@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import evcc.config.RestTemplateConfig;
 import evcc.dto.request.CreateVehicleRequest;
 import evcc.dto.response.GroupResponseDto;
+import evcc.dto.response.VoteResponseDto;
 import evcc.dto.response.VehicleResponseDto;
 import evcc.exception.ApiException;
 
@@ -168,6 +168,31 @@ public class VehicleService {
             throw new ApiException(e.getStatusCode().value(), "Không thể lấy danh sách nhóm");
         } catch (RestClientException e) {
             logger.error("Lỗi kết nối khi lấy danh sách nhóm: {}", e.getMessage());
+            throw new ApiException(503, "Không thể kết nối đến server API");
+        }
+    }
+
+    /**
+     * Tạo proposal mua xe mới với voting (đề xuất mua xe cho nhóm)
+     */
+    public VoteResponseDto proposeVehiclePurchase(String jwtToken, evcc.dto.request.VehiclePurchaseProposalRequest request) throws ApiException {
+        logger.info("Tạo proposal mua xe: {}", request.getName());
+        HttpEntity<evcc.dto.request.VehiclePurchaseProposalRequest> entity = createAuthorizedJsonRequest(jwtToken, request);
+        String url = restTemplateConfig.getBaseUrl() + "/api/vehicles/propose";
+        try {
+            ResponseEntity<VoteResponseDto> response = restTemplate.exchange(
+                    url, HttpMethod.POST, entity, VoteResponseDto.class
+            );
+            VoteResponseDto body = response.getBody();
+            if (body != null) {
+                return body;
+            }
+            throw new ApiException(500, "Không nhận được response từ server");
+        } catch (HttpClientErrorException e) {
+            logger.error("Lỗi HTTP khi tạo proposal: {}", e.getMessage());
+            throw new ApiException(e.getStatusCode().value(), "Không thể tạo đề xuất mua xe: " + e.getMessage());
+        } catch (RestClientException e) {
+            logger.error("Lỗi kết nối khi tạo proposal: {}", e.getMessage());
             throw new ApiException(503, "Không thể kết nối đến server API");
         }
     }

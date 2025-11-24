@@ -24,13 +24,10 @@
                 <p class="text-muted">Quản lý danh sách xe đồng sở hữu trong nhóm</p>
             </div>
             <div class="col-md-4 text-end">
-                <!-- Admin only: Add vehicle button -->
-                <div th:if="${currentUser.roles != null and currentUser.roles.contains('ADMIN')}">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#addVehicleModal">
-                        <i class="fas fa-plus me-2"></i>Đăng ký xe đồng sở hữu
-                    </button>
-                </div>
+                <!-- Any user can propose vehicle purchase -->
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVehicleModal">
+                    <i class="fas fa-plus me-2"></i>Đề xuất mua xe mới
+                </button>
             </div>
         </div>
 
@@ -114,12 +111,10 @@
                 <div th:if="${#lists.isEmpty(vehicles)}" class="text-center py-5 text-muted">
                     <i class="fas fa-car fa-3x mb-3"></i>
                     <p class="fs-5">Chưa có xe đồng sở hữu nào</p>
-                    <div th:if="${currentUser.roles != null and currentUser.roles.contains('ADMIN')}">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#addVehicleModal">
-                            <i class="fas fa-plus me-2"></i>Đăng ký xe đầu tiên
-                        </button>
-                    </div>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#addVehicleModal">
+                        <i class="fas fa-plus me-2"></i>Đề xuất mua xe đầu tiên
+                    </button>
                 </div>
 
                 <div th:if="${!#lists.isEmpty(vehicles)}" class="table-responsive">
@@ -207,14 +202,13 @@
         </div>
     </div>
 
-    <!-- Add Vehicle Modal (Admin Only) -->
-    <div th:if="${currentUser.roles != null and currentUser.roles.contains('ADMIN')}" class="modal fade"
-        id="addVehicleModal" tabindex="-1">
+    <!-- Vehicle Purchase Proposal Modal -->
+    <div class="modal fade" id="addVehicleModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <i class="fas fa-plus me-2"></i>Đăng ký xe đồng sở hữu
+                        <i class="fas fa-plus me-2"></i>Đề xuất mua xe mới
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
