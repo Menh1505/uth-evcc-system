@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.evcc.vehicle.dto.VehicleCreateRequest;
 import com.evcc.vehicle.dto.VehicleResponse;
+import com.evcc.vehicle.dto.VehiclePurchaseProposalRequest;
 import com.evcc.vehicle.service.VehicleService;
+import com.evcc.voting.dto.response.VoteResponse;
 
 import jakarta.validation.Valid;
 
@@ -35,7 +37,7 @@ public class VehicleController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<VehicleResponse> createVehicle(@Valid @RequestBody VehicleCreateRequest req) {
         VehicleResponse resp = vehicleService.createVehicle(req);
         return ResponseEntity.status(HttpStatus.CREATED).body(resp);
@@ -74,5 +76,16 @@ public class VehicleController {
     @GetMapping("/available")
     public ResponseEntity<List<VehicleResponse>> getAvailableVehicles() {
         return ResponseEntity.ok(vehicleService.listAvailableVehicles());
+    }
+
+    /**
+     * Tạo proposal mua xe mới với voting (chỉ GROUP ADMIN)
+     */
+    @PostMapping("/propose")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<VoteResponse> proposeVehiclePurchase(
+            @Valid @RequestBody VehiclePurchaseProposalRequest req) {
+        VoteResponse voteResponse = vehicleService.proposeVehiclePurchase(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(voteResponse);
     }
 }
