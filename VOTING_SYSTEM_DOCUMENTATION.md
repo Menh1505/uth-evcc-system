@@ -1,4 +1,5 @@
 # HỆ THỐNG BỎ PHIẾU CHO ĐỒNG SỞ HỮU XE ĐIỆN
+
 ## EVCC VOTING SYSTEM DOCUMENTATION
 
 ---
@@ -6,19 +7,24 @@
 ## 📋 **TỔNG QUAN HỆ THỐNG**
 
 ### Mục tiêu
+
 Xây dựng hệ thống bỏ phiếu toàn diện cho các nhóm đồng sở hữu xe điện, cho phép thành viên tham gia quyết định về các vấn đề tài chính và quản lý nhóm thông qua cơ chế voting dân chủ.
 
 ### Phạm vi ứng dụng
+
 - **Phê duyệt chi phí**: Sửa chữa, nâng cấp, bảo trì xe
 - **Quản lý quỹ tài chính**: Phân bổ ngân sách nhóm
+- **Đề xuất mua xe**: Trưởng nhóm đề xuất xe mới, thành viên vote và góp tiền
 - **Quyết định chiến lược**: Mua/bán xe, thay đổi quy định nhóm
 - **Quản lý thành viên**: Thêm/xóa thành viên
 
 ### Tính năng chính
+
 ✅ **Voting thời gian thực** với multiple options
-✅ **Anonymous/Public voting** tùy chọn
+✅ **Anonymous/Public voting** tùy chọn  
 ✅ **Vote percentage requirements** có thể cấu hình
 ✅ **Automatic expense approval workflow**
+✅ **Vehicle purchase proposal workflow** - Trưởng nhóm đề xuất, thành viên vote + góp tiền
 ✅ **Real-time result calculation**
 ✅ **Vote change allowance**
 ✅ **IP tracking và audit trail**
@@ -28,6 +34,7 @@ Xây dựng hệ thống bỏ phiếu toàn diện cho các nhóm đồng sở h
 ## 🏗️ **KIẾN TRÚC TECHNICAL**
 
 ### Technology Stack
+
 - **Backend**: Spring Boot 3.1.5, Java 17
 - **Database**: PostgreSQL với JPA/Hibernate
 - **Security**: Spring Security with JWT
@@ -36,10 +43,11 @@ Xây dựng hệ thống bỏ phiếu toàn diện cho các nhóm đồng sở h
 - **Dependencies**: Lombok, Jackson, Spring Validation
 
 ### Cấu trúc module
+
 ```
 voting/
 ├── controller/          # REST API endpoints
-├── service/            # Business logic layer  
+├── service/            # Business logic layer
 ├── repository/         # Data access layer
 ├── entity/             # JPA entities
 ├── dto/                # Data Transfer Objects
@@ -54,6 +62,7 @@ voting/
 ### Core Tables
 
 #### 1. `group_votes` (Vote chính)
+
 ```sql
 CREATE TABLE group_votes (
     id BIGSERIAL PRIMARY KEY,
@@ -79,6 +88,7 @@ CREATE TABLE group_votes (
 ```
 
 #### 2. `vote_options` (Lựa chọn trong vote)
+
 ```sql
 CREATE TABLE vote_options (
     id BIGSERIAL PRIMARY KEY,
@@ -92,6 +102,7 @@ CREATE TABLE vote_options (
 ```
 
 #### 3. `vote_records` (Phiếu bầu cụ thể)
+
 ```sql
 CREATE TABLE vote_records (
     id BIGSERIAL PRIMARY KEY,
@@ -107,6 +118,7 @@ CREATE TABLE vote_records (
 ```
 
 ### Database Indexes
+
 ```sql
 -- Performance indexes
 CREATE INDEX idx_votes_group_status ON group_votes(group_id, status);
@@ -141,20 +153,23 @@ stateDiagram-v2
 ### 2. Vote Types và Use Cases
 
 #### EXPENSE_APPROVAL (Phê duyệt chi phí)
+
 - **Mô tả**: Vote để phê duyệt các khoản chi phí xe (sửa chữa, nâng cấp)
 - **Requirement**: 50% đồng ý
 - **Auto-trigger**: Khi có expense status PENDING_APPROVAL
 - **Result action**: Cập nhật expense status → APPROVED/CANCELLED
 
 #### FUND_ALLOCATION (Phân bổ quỹ)
+
 - **Mô tả**: Quyết định sử dụng quỹ nhóm cho mục đích cụ thể
 - **Requirement**: 66.67% đồng ý (2/3 thành viên)
 - **Manual trigger**: Admin tạo vote
 - **Result action**: Execute fund allocation
 
 #### Các loại vote khác
+
 - **VEHICLE_PURCHASE**: Mua xe mới (75% required)
-- **VEHICLE_SALE**: Bán xe (75% required)  
+- **VEHICLE_SALE**: Bán xe (75% required)
 - **GROUP_POLICY**: Thay đổi quy định (60% required)
 - **MEMBER_MANAGEMENT**: Thêm/xóa thành viên (60% required)
 
@@ -162,19 +177,19 @@ stateDiagram-v2
 
 ```java
 public class VoteResultCalculator {
-    
+
     public boolean isApproved(Vote vote) {
         long totalVotes = vote.getTotalVotes();
-        
+
         // Check minimum votes
         if (totalVotes < vote.getMinimumVotes()) {
             return false;
         }
-        
+
         // Calculate approval percentage
         long approvalVotes = getApprovalVotes(vote);
         double approvalPercentage = (double) approvalVotes / totalVotes * 100;
-        
+
         return approvalPercentage >= vote.getRequiredPercentage().doubleValue();
     }
 }
@@ -187,29 +202,30 @@ public class VoteResultCalculator {
 ### 1. VotingService (Core Business Logic)
 
 #### Chức năng chính
+
 ```java
 @Service
 @Transactional
 public class VotingService {
-    
+
     // Tạo vote mới
     public VoteResponse createVote(CreateVoteRequest request, UUID createdById);
-    
+
     // Bắt đầu vote (DRAFT → ACTIVE)
     public VoteResponse startVote(Long voteId, UUID userId);
-    
+
     // Cast vote
     public VoteResponse castVote(CastVoteRequest request, UUID userId, String ipAddress);
-    
+
     // Đóng vote và tính kết quả
     public VoteResponse closeVote(Long voteId, UUID userId);
-    
+
     // Lấy vote theo nhóm
     public List<VoteResponse> getGroupVotes(Long groupId, UUID userId);
-    
+
     // Lấy pending votes cho user
     public List<VoteResponse> getPendingVotes(Long groupId, UUID userId);
-    
+
     // Process expired votes (scheduler)
     @Scheduled(fixedRate = 300000) // 5 minutes
     public void processExpiredVotes();
@@ -217,6 +233,7 @@ public class VotingService {
 ```
 
 #### Vote Validation Rules
+
 - User phải là thành viên của nhóm
 - Vote phải ở trạng thái ACTIVE
 - Trong thời gian cho phép (start_time ≤ now ≤ end_time)
@@ -226,14 +243,15 @@ public class VotingService {
 ### 2. GroupFundVotingService (Integration Layer)
 
 #### Auto Expense Approval Workflow
+
 ```java
 @Service
 public class GroupFundVotingService {
-    
+
     // Tự động tạo vote khi có expense cần approval
     public VoteResponse createExpenseApprovalVote(Long expenseId, UUID createdById) {
         VehicleExpense expense = getExpense(expenseId);
-        
+
         CreateVoteRequest request = CreateVoteRequest.builder()
             .title("Phê duyệt chi phí: " + expense.getDescription())
             .description(buildExpenseDescription(expense))
@@ -248,14 +266,14 @@ public class GroupFundVotingService {
             .relatedEntityType("EXPENSE")
             .options(createDefaultApprovalOptions())
             .build();
-            
+
         return votingService.createVote(request, createdById);
     }
-    
+
     // Xử lý kết quả vote và cập nhật expense
     public void processVoteResult(Long voteId) {
         Vote vote = getVote(voteId);
-        
+
         if (vote.getVoteType() == VoteType.EXPENSE_APPROVAL) {
             processExpenseApprovalResult(vote);
         } else if (vote.getVoteType() == VoteType.FUND_ALLOCATION) {
@@ -272,6 +290,7 @@ public class GroupFundVotingService {
 ### Vote Management APIs
 
 #### 1. Tạo vote mới
+
 ```http
 POST /api/votes
 Authorization: Bearer {token}
@@ -295,7 +314,7 @@ Content-Type: application/json
             "displayOrder": 1
         },
         {
-            "optionText": "Không đồng ý", 
+            "optionText": "Không đồng ý",
             "description": "Không đồng ý phê duyệt",
             "displayOrder": 2
         }
@@ -304,6 +323,7 @@ Content-Type: application/json
 ```
 
 #### 2. Cast vote
+
 ```http
 POST /api/votes/cast
 Authorization: Bearer {token}
@@ -316,6 +336,7 @@ Authorization: Bearer {token}
 ```
 
 #### 3. Lấy danh sách vote của nhóm
+
 ```http
 GET /api/votes/group/{groupId}
 Authorization: Bearer {token}
@@ -356,6 +377,7 @@ Response:
 ```
 
 #### 4. Lấy pending votes
+
 ```http
 GET /api/votes/group/{groupId}/pending
 Authorization: Bearer {token}
@@ -366,6 +388,7 @@ Authorization: Bearer {token}
 ### Vote Control APIs
 
 #### 5. Bắt đầu vote
+
 ```http
 PUT /api/votes/{voteId}/start
 Authorization: Bearer {token}
@@ -374,6 +397,7 @@ Authorization: Bearer {token}
 ```
 
 #### 6. Đóng vote
+
 ```http
 PUT /api/votes/{voteId}/close
 Authorization: Bearer {token}
@@ -388,23 +412,24 @@ Authorization: Bearer {token}
 ### 1. VotingPageController (MVC)
 
 #### Routing Structure
+
 ```java
 @Controller
 @RequestMapping("/votes")
 public class VotingPageController {
-    
+
     @GetMapping("/group/{groupId}")
     public String listGroupVotes(); // Danh sách vote của nhóm
-    
-    @GetMapping("/{voteId}")  
+
+    @GetMapping("/{voteId}")
     public String voteDetail(); // Chi tiết vote + form voting
-    
+
     @GetMapping("/group/{groupId}/create")
     public String createVotePage(); // Form tạo vote mới
-    
+
     @PostMapping("/group/{groupId}/create")
     public String handleCreateVote(); // Xử lý tạo vote
-    
+
     @PostMapping("/cast")
     public String handleCastVote(); // Xử lý cast vote
 }
@@ -413,17 +438,18 @@ public class VotingPageController {
 ### 2. Frontend Service Integration
 
 #### VotingService (Frontend)
+
 ```java
 @Service
 public class VotingService {
     @Value("${backend.base.url}")
     private String BASE_URL;
-    
+
     @Autowired
     private RestTemplate restTemplate;
-    
+
     public List<VoteResponseDto> getGroupVotes(Long groupId, String token);
-    public VoteResponseDto getVoteDetail(Long voteId, String token); 
+    public VoteResponseDto getVoteDetail(Long voteId, String token);
     public VoteResponseDto castVote(CastVoteRequest request, String token);
     public VoteResponseDto startVote(Long voteId, String token);
     public VoteResponseDto closeVote(Long voteId, String token);
@@ -442,48 +468,47 @@ templates/votes/
 ```
 
 #### Vote Detail Page Example
+
 ```html
 <!-- vote-detail.html -->
 <div class="vote-container">
-    <div class="vote-header">
-        <h2 th:text="${vote.title}"></h2>
-        <span class="badge" th:classappend="${vote.status}" th:text="${vote.status}"></span>
-        <p th:text="${vote.description}"></p>
+  <div class="vote-header">
+    <h2 th:text="${vote.title}"></h2>
+    <span class="badge" th:classappend="${vote.status}" th:text="${vote.status}"></span>
+    <p th:text="${vote.description}"></p>
+  </div>
+
+  <div class="vote-stats">
+    <div class="progress-bar">
+      <div class="progress" th:style="'width: ' + ${vote.currentApprovalRate} + '%'"></div>
     </div>
-    
-    <div class="vote-stats">
-        <div class="progress-bar">
-            <div class="progress" th:style="'width: ' + ${vote.currentApprovalRate} + '%'"></div>
-        </div>
-        <p>Tỷ lệ đồng ý: <span th:text="${vote.currentApprovalRate}"></span>% 
-           (Cần: <span th:text="${vote.requiredPercentage}"></span>%)</p>
+    <p>Tỷ lệ đồng ý: <span th:text="${vote.currentApprovalRate}"></span>% (Cần: <span th:text="${vote.requiredPercentage}"></span>%)</p>
+  </div>
+
+  <form th:if="${!vote.userVoted}" th:action="@{/votes/cast}" method="post">
+    <input type="hidden" name="voteId" th:value="${vote.id}" />
+    <div class="vote-options">
+      <div th:each="option : ${vote.options}" class="option-item">
+        <input type="radio" name="voteOptionId" th:id="'option-' + ${option.id}" th:value="${option.id}" required />
+        <label th:for="'option-' + ${option.id}" th:text="${option.optionText}"></label>
+        <small th:text="${option.description}"></small>
+      </div>
     </div>
-    
-    <form th:if="${!vote.userVoted}" th:action="@{/votes/cast}" method="post">
-        <input type="hidden" name="voteId" th:value="${vote.id}">
-        <div class="vote-options">
-            <div th:each="option : ${vote.options}" class="option-item">
-                <input type="radio" name="voteOptionId" th:id="'option-' + ${option.id}" 
-                       th:value="${option.id}" required>
-                <label th:for="'option-' + ${option.id}" th:text="${option.optionText}"></label>
-                <small th:text="${option.description}"></small>
-            </div>
-        </div>
-        
-        <div class="form-group">
-            <label for="comment">Ghi chú (tùy chọn):</label>
-            <textarea name="comment" id="comment" rows="3"></textarea>
-        </div>
-        
-        <button type="submit" class="btn btn-primary">Bỏ phiếu</button>
-    </form>
-    
-    <div th:if="${vote.userVoted}" class="user-vote-info">
-        <p>Bạn đã bỏ phiếu: <strong th:text="${vote.userVoteOption}"></strong></p>
-        <p th:if="${vote.allowVoteChange}">
-            <a href="#" onclick="changeVote()">Thay đổi lựa chọn</a>
-        </p>
+
+    <div class="form-group">
+      <label for="comment">Ghi chú (tùy chọn):</label>
+      <textarea name="comment" id="comment" rows="3"></textarea>
     </div>
+
+    <button type="submit" class="btn btn-primary">Bỏ phiếu</button>
+  </form>
+
+  <div th:if="${vote.userVoted}" class="user-vote-info">
+    <p>Bạn đã bỏ phiếu: <strong th:text="${vote.userVoteOption}"></strong></p>
+    <p th:if="${vote.allowVoteChange}">
+      <a href="#" onclick="changeVote()">Thay đổi lựa chọn</a>
+    </p>
+  </div>
 </div>
 ```
 
@@ -494,6 +519,7 @@ templates/votes/
 ### 1. Database Optimizations
 
 #### Query Optimization
+
 ```java
 // Efficient vote loading with joins
 @Query("SELECT v FROM Vote v " +
@@ -512,16 +538,17 @@ long countByGroupAndStatus(@Param("groupId") Long groupId, @Param("status") Vote
 ```
 
 #### Caching Strategy
+
 ```java
 @Service
 public class VotingService {
-    
+
     @Cacheable(value = "vote-results", key = "#voteId")
     public VoteResponse getVoteDetail(Long voteId, UUID userId) {
         // Cache vote results để giảm database load
     }
-    
-    @CacheEvict(value = "vote-results", key = "#voteId") 
+
+    @CacheEvict(value = "vote-results", key = "#voteId")
     public VoteResponse castVote(Long voteId, ...) {
         // Invalidate cache khi có vote mới
     }
@@ -531,10 +558,11 @@ public class VotingService {
 ### 2. Real-time Updates
 
 #### WebSocket Integration (Optional)
+
 ```java
 @Controller
 public class VoteWebSocketController {
-    
+
     @MessageMapping("/vote/cast")
     @SendTo("/topic/vote-updates/{voteId}")
     public VoteUpdateMessage handleVoteCast(CastVoteMessage message) {
@@ -547,20 +575,21 @@ public class VoteWebSocketController {
 ### 3. Background Processing
 
 #### Scheduled Tasks
+
 ```java
 @Component
 public class VoteScheduler {
-    
+
     @Scheduled(fixedRate = 300000) // 5 minutes
     public void processExpiredVotes() {
         List<Vote> expiredVotes = voteRepository.findExpiredActiveVotes(LocalDateTime.now());
-        
+
         for (Vote vote : expiredVotes) {
             votingService.closeVote(vote.getId(), vote.getCreatedBy().getId());
             groupFundVotingService.processVoteResult(vote.getId());
         }
     }
-    
+
     @Scheduled(cron = "0 0 1 * * ?") // Daily cleanup
     public void cleanupOldVoteRecords() {
         // Archive old votes, cleanup temporary data
@@ -575,19 +604,20 @@ public class VoteScheduler {
 ### 1. Authentication & Authorization
 
 #### Role-based Access Control
+
 ```java
 @RestController
 @RequestMapping("/api/votes")
 public class VotingController {
-    
+
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<VoteResponse> createVote(@Valid @RequestBody CreateVoteRequest request) {
         // Chỉ thành viên mới tạo vote được
     }
-    
+
     @PutMapping("/{voteId}/close")
-    @PreAuthorize("hasRole('USER')")  
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<VoteResponse> closeVote(@PathVariable Long voteId) {
         // Kiểm tra creator permission trong service layer
         UUID userId = getCurrentUserId();
@@ -597,25 +627,26 @@ public class VotingController {
 ```
 
 #### Group Membership Validation
+
 ```java
 @Service
 public class VotingSecurityService {
-    
+
     public void validateGroupAccess(Long groupId, UUID userId) {
         boolean isMember = groupMembershipRepository
             .existsByGroup_IdAndUser_Id(groupId, userId);
-            
+
         if (!isMember) {
             throw new AccessDeniedException("User không phải thành viên của nhóm");
         }
     }
-    
+
     public void validateVotePermission(Long voteId, UUID userId, String action) {
         Vote vote = voteRepository.findById(voteId).orElseThrow();
-        
+
         // Validate group membership
         validateGroupAccess(vote.getGroup().getId(), userId);
-        
+
         // Validate specific permissions
         if ("CLOSE".equals(action) && !vote.getCreatedBy().getId().equals(userId)) {
             throw new AccessDeniedException("Chỉ người tạo vote mới có thể đóng vote");
@@ -627,32 +658,33 @@ public class VotingSecurityService {
 ### 2. Input Validation
 
 #### DTO Validation
+
 ```java
 public class CreateVoteRequest {
-    
+
     @NotBlank(message = "Tiêu đề không được trống")
     @Size(max = 255, message = "Tiêu đề tối đa 255 ký tự")
     private String title;
-    
+
     @NotNull(message = "Loại vote không được trống")
     private VoteType voteType;
-    
+
     @NotNull(message = "ID nhóm không được trống")
     private Long groupId;
-    
+
     @Future(message = "Thời gian bắt đầu phải trong tương lai")
     private LocalDateTime startTime;
-    
+
     @Future(message = "Thời gian kết thúc phải trong tương lai")
     private LocalDateTime endTime;
-    
+
     @Min(value = 1, message = "Số phiếu tối thiểu phải >= 1")
     private Integer minimumVotes;
-    
+
     @DecimalMin(value = "0.01", message = "Tỷ lệ yêu cầu phải > 0")
     @DecimalMax(value = "100.00", message = "Tỷ lệ yêu cầu phải <= 100")
     private BigDecimal requiredPercentage;
-    
+
     @Valid
     @NotEmpty(message = "Phải có ít nhất 1 lựa chọn")
     private List<VoteOptionRequest> options;
@@ -662,11 +694,12 @@ public class CreateVoteRequest {
 ### 3. Audit & Logging
 
 #### Vote Audit Trail
+
 ```java
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class VoteAuditLog {
-    
+
     private Long voteId;
     private UUID userId;
     private String action; // CREATE, START, CAST, CLOSE
@@ -674,14 +707,14 @@ public class VoteAuditLog {
     private String userAgent;
     private String oldValue;
     private String newValue;
-    
+
     @CreatedDate
     private LocalDateTime timestamp;
 }
 
 @Component
 public class VoteAuditService {
-    
+
     @EventListener
     public void handleVoteCast(VoteCastEvent event) {
         VoteAuditLog log = new VoteAuditLog();
@@ -690,7 +723,7 @@ public class VoteAuditService {
         log.setAction("CAST");
         log.setIpAddress(event.getIpAddress());
         log.setNewValue("Option: " + event.getOptionId());
-        
+
         auditLogRepository.save(log);
     }
 }
@@ -703,16 +736,17 @@ public class VoteAuditService {
 ### 1. Unit Tests
 
 #### Service Layer Tests
+
 ```java
 @ExtendWith(MockitoExtension.class)
 class VotingServiceTest {
-    
+
     @Mock VoteRepository voteRepository;
     @Mock GroupRepository groupRepository;
     @Mock UserRepository userRepository;
-    
+
     @InjectMocks VotingService votingService;
-    
+
     @Test
     void createVote_WithValidRequest_ShouldReturnVoteResponse() {
         // Given
@@ -720,23 +754,23 @@ class VotingServiceTest {
         UUID createdById = UUID.randomUUID();
         when(groupRepository.findById(any())).thenReturn(Optional.of(mockGroup));
         when(userRepository.findById(any())).thenReturn(Optional.of(mockUser));
-        
+
         // When
         VoteResponse result = votingService.createVote(request, createdById);
-        
+
         // Then
         assertThat(result.getTitle()).isEqualTo(request.getTitle());
         assertThat(result.getStatus()).isEqualTo(VoteStatus.DRAFT);
         verify(voteRepository).save(any(Vote.class));
     }
-    
+
     @Test
     void castVote_WithDuplicateVote_ShouldThrowException() {
         // Given
         CastVoteRequest request = new CastVoteRequest(voteId, optionId, "comment");
         when(voteRecordRepository.existsByVote_IdAndUser_Id(voteId, userId))
             .thenReturn(true);
-            
+
         // When/Then
         assertThatThrownBy(() -> votingService.castVote(request, userId, "ip"))
             .isInstanceOf(IllegalArgumentException.class)
@@ -748,28 +782,29 @@ class VotingServiceTest {
 ### 2. Integration Tests
 
 #### API Integration Tests
+
 ```java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = "spring.datasource.url=jdbc:h2:mem:testdb")
 class VotingControllerIntegrationTest {
-    
+
     @Autowired TestRestTemplate restTemplate;
     @Autowired TestEntityManager entityManager;
-    
+
     @Test
     void createVote_WithValidData_ShouldReturn201() {
         // Given
         String authToken = generateValidJwtToken();
         CreateVoteRequest request = createValidVoteRequest();
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authToken);
         HttpEntity<CreateVoteRequest> entity = new HttpEntity<>(request, headers);
-        
+
         // When
         ResponseEntity<VoteResponse> response = restTemplate.exchange(
             "/api/votes", HttpMethod.POST, entity, VoteResponse.class);
-            
+
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody().getTitle()).isEqualTo(request.getTitle());
@@ -780,6 +815,7 @@ class VotingControllerIntegrationTest {
 ### 3. Performance Tests
 
 #### Load Testing Scenarios
+
 ```java
 @Test
 @LoadTest(threadCount = 50, duration = 60) // 50 users, 60 seconds
@@ -804,38 +840,39 @@ void massiveVoteCreation_ShouldNotCauseDatabaseBottleneck() {
 ### 1. Business Metrics
 
 #### Key Performance Indicators
+
 ```java
 @Component
 public class VotingMetricsCollector {
-    
+
     private final MeterRegistry meterRegistry;
-    
+
     // Vote creation rate
     @EventListener
     public void onVoteCreated(VoteCreatedEvent event) {
         meterRegistry.counter("vote.created", "type", event.getVoteType().toString())
                     .increment();
     }
-    
+
     // Vote participation rate
-    @EventListener  
+    @EventListener
     public void onVoteCast(VoteCastEvent event) {
         meterRegistry.counter("vote.cast", "anonymous", event.isAnonymous().toString())
                     .increment();
-                    
+
         // Track time to vote (from vote start to user cast)
         Timer.Sample sample = Timer.start(meterRegistry);
         sample.stop(Timer.builder("vote.time_to_participate")
                    .register(meterRegistry));
     }
-    
+
     // Vote completion metrics
     @Scheduled(fixedRate = 300000)
     public void collectVoteCompletionStats() {
         long activeVotes = voteRepository.countByStatus(VoteStatus.ACTIVE);
         long completedToday = voteRepository.countCompletedToday();
         double avgParticipationRate = calculateAverageParticipation();
-        
+
         meterRegistry.gauge("vote.active.count", activeVotes);
         meterRegistry.gauge("vote.completed.today", completedToday);
         meterRegistry.gauge("vote.participation.rate", avgParticipationRate);
@@ -846,34 +883,35 @@ public class VotingMetricsCollector {
 ### 2. System Health Monitoring
 
 #### Health Checks
+
 ```java
 @Component
 public class VotingSystemHealthIndicator implements HealthIndicator {
-    
+
     @Override
     public Health health() {
         try {
             // Check database connectivity
             long voteCount = voteRepository.count();
-            
+
             // Check for stuck votes
             long stuckVotes = voteRepository.countStuckActiveVotes();
-            
+
             // Check recent system errors
             long recentErrors = auditLogRepository.countRecentErrors();
-            
+
             if (stuckVotes > 10 || recentErrors > 50) {
                 return Health.down()
                     .withDetail("stuckVotes", stuckVotes)
                     .withDetail("recentErrors", recentErrors)
                     .build();
             }
-            
+
             return Health.up()
                 .withDetail("totalVotes", voteCount)
                 .withDetail("stuckVotes", stuckVotes)
                 .build();
-                
+
         } catch (Exception e) {
             return Health.down(e).build();
         }
@@ -884,30 +922,31 @@ public class VotingSystemHealthIndicator implements HealthIndicator {
 ### 3. Logging Strategy
 
 #### Structured Logging
+
 ```java
 @Service
 public class VotingService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(VotingService.class);
-    
+
     public VoteResponse castVote(CastVoteRequest request, UUID userId, String ipAddress) {
         MDC.put("voteId", request.getVoteId().toString());
         MDC.put("userId", userId.toString());
         MDC.put("ipAddress", ipAddress);
-        
+
         try {
-            logger.info("User attempting to cast vote", 
+            logger.info("User attempting to cast vote",
                 kv("optionId", request.getVoteOptionId()),
                 kv("hasComment", request.getComment() != null));
-                
+
             VoteResponse result = processVoteCast(request, userId, ipAddress);
-            
+
             logger.info("Vote cast successfully",
                 kv("resultStatus", result.getStatus()),
                 kv("newApprovalRate", result.getCurrentApprovalRate()));
-                
+
             return result;
-            
+
         } catch (IllegalArgumentException e) {
             logger.warn("Vote cast failed due to validation",
                 kv("error", e.getMessage()));
@@ -926,6 +965,7 @@ public class VotingService {
 ### 1. Environment Configuration
 
 #### Application Properties
+
 ```yaml
 # application-prod.yml
 spring:
@@ -935,7 +975,7 @@ spring:
       maximum-pool-size: 20
       minimum-idle: 5
       connection-timeout: 30000
-      
+
   jpa:
     hibernate:
       ddl-auto: validate
@@ -944,16 +984,16 @@ spring:
         jdbc.batch_size: 20
         order_inserts: true
         order_updates: true
-        
+
 voting:
   auto-close:
     enabled: true
     check-interval: 300000 # 5 minutes
-  
+
   audit:
     enabled: true
     retention-days: 365
-    
+
   performance:
     max-options-per-vote: 50
     max-concurrent-votes-per-group: 10
@@ -962,6 +1002,7 @@ voting:
 ### 2. Database Migration
 
 #### Flyway Scripts
+
 ```sql
 -- V1__Create_voting_tables.sql
 CREATE TABLE group_votes (
@@ -989,26 +1030,28 @@ CREATE TABLE group_votes (
 -- Add indexes and constraints
 CREATE INDEX idx_votes_group_status ON group_votes(group_id, status);
 CREATE INDEX idx_votes_time_range ON group_votes(start_time, end_time);
-ALTER TABLE group_votes ADD CONSTRAINT fk_votes_group 
+ALTER TABLE group_votes ADD CONSTRAINT fk_votes_group
     FOREIGN KEY (group_id) REFERENCES groups(id);
 ```
 
 ### 3. Monitoring Setup
 
 #### Prometheus Metrics
+
 ```yaml
 # prometheus.yml
 global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'evcc-voting'
-    metrics_path: '/actuator/prometheus'
+  - job_name: "evcc-voting"
+    metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ['localhost:8080']
+      - targets: ["localhost:8080"]
 ```
 
 #### Grafana Dashboard
+
 ```json
 {
   "dashboard": {
@@ -1026,7 +1069,7 @@ scrape_configs:
       },
       {
         "title": "Active Votes by Group",
-        "type": "stat", 
+        "type": "stat",
         "targets": [
           {
             "expr": "vote_active_count"
@@ -1054,23 +1097,25 @@ scrape_configs:
 ### 1. Quantifiable Benefits
 
 #### Before vs After Implementation
-| Metric | Before | After | Improvement |
-|--------|---------|--------|-------------|
-| **Decision Time** | 3-7 days (manual) | 1-3 days (automated) | **60% faster** |
-| **Participation Rate** | 40% (phone/email) | 85% (digital) | **+45% engagement** |
-| **Process Transparency** | Low (offline) | High (real-time) | **Full visibility** |
-| **Approval Accuracy** | Manual errors | Automated calculation | **100% accuracy** |
-| **Audit Trail** | Paper-based | Digital logs | **Complete traceability** |
+
+| Metric                   | Before            | After                 | Improvement               |
+| ------------------------ | ----------------- | --------------------- | ------------------------- |
+| **Decision Time**        | 3-7 days (manual) | 1-3 days (automated)  | **60% faster**            |
+| **Participation Rate**   | 40% (phone/email) | 85% (digital)         | **+45% engagement**       |
+| **Process Transparency** | Low (offline)     | High (real-time)      | **Full visibility**       |
+| **Approval Accuracy**    | Manual errors     | Automated calculation | **100% accuracy**         |
+| **Audit Trail**          | Paper-based       | Digital logs          | **Complete traceability** |
 
 ### 2. Use Case Examples
 
 #### Expense Approval Workflow
+
 ```
 Scenario: Thay lốp xe khẩn cấp (2,000,000 VNĐ)
 
 Traditional Process:
 - Admin gọi điện thông báo → 2 hours
-- Members discuss via phone → 4-6 hours  
+- Members discuss via phone → 4-6 hours
 - Manual vote counting → 30 minutes
 - Decision notification → 1 hour
 Total: 8-9 hours
@@ -1079,13 +1124,14 @@ Digital Voting Process:
 - Auto-create vote từ expense → 1 minute
 - Members vote via app → 15 minutes
 - Auto result calculation → instant
-- Expense auto-approved → instant  
+- Expense auto-approved → instant
 Total: 16 minutes
 
 🎯 Result: 97% time reduction
 ```
 
 #### Fund Allocation Decision
+
 ```
 Scenario: Phân bổ 50,000,000 VNĐ từ quỹ dự trữ
 
@@ -1109,6 +1155,7 @@ Total: Decision within 7 days with full transparency
 ### 3. ROI Analysis
 
 #### Cost-Benefit Calculation
+
 ```
 Development Cost: 80 developer hours × $50/hour = $4,000
 Annual Maintenance: $1,000
@@ -1125,8 +1172,9 @@ ROI = ($25,000 - $1,000) / $5,000 = 480% first year ROI
 ### 4. Risk Mitigation
 
 #### Business Risk Reduction
+
 - **Legal Compliance**: Digital audit trail đáp ứng yêu cầu pháp lý
-- **Financial Transparency**: Real-time tracking ngăn ngừa tranh chấp  
+- **Financial Transparency**: Real-time tracking ngăn ngừa tranh chấp
 - **Decision Quality**: Structured voting process cải thiện quality
 - **Member Retention**: Democratic process tăng satisfaction
 
@@ -1135,27 +1183,31 @@ ROI = ($25,000 - $1,000) / $5,000 = 480% first year ROI
 ## 📈 **FUTURE ROADMAP**
 
 ### Phase 1: Core Enhancements (Q1 2025)
+
 - **Mobile App Integration**: React Native app cho voting
 - **Push Notifications**: Real-time alerts cho pending votes
 - **Advanced Analytics**: Vote pattern analysis & reporting
 - **Multi-language Support**: English/Vietnamese interface
 
-### Phase 2: Advanced Features (Q2 2025)  
+### Phase 2: Advanced Features (Q2 2025)
+
 - **Weighted Voting**: Vote power theo ownership percentage
 - **Conditional Voting**: Logic-based vote dependencies
 - **Document Attachments**: Upload files với vote proposals
 - **Video Conferencing**: Integrated discussion platform
 
 ### Phase 3: AI Integration (Q3 2025)
+
 - **Smart Recommendations**: AI suggest optimal vote options
 - **Predictive Analytics**: Forecast vote outcomes
 - **Automated Moderation**: AI detect spam/inappropriate content
 - **Sentiment Analysis**: Analyze comment sentiment
 
 ### Phase 4: Ecosystem Integration (Q4 2025)
+
 - **Blockchain Voting**: Immutable vote records
 - **External API**: Third-party system integration
-- **Advanced Governance**: Multi-tier approval workflows  
+- **Advanced Governance**: Multi-tier approval workflows
 - **IoT Integration**: Vote on vehicle telemetry data
 
 ---
@@ -1163,6 +1215,7 @@ ROI = ($25,000 - $1,000) / $5,000 = 480% first year ROI
 ## 📋 **CONCLUSION**
 
 ### Technical Achievement Summary
+
 ✅ **Complete Voting System**: Full-featured democratic decision making
 ✅ **Seamless Integration**: Tight coupling với expense management
 ✅ **Real-time Processing**: Instant vote counting và result calculation
@@ -1170,7 +1223,8 @@ ROI = ($25,000 - $1,000) / $5,000 = 480% first year ROI
 ✅ **Scalable Architecture**: Supports multiple groups và concurrent votes
 ✅ **Performance Optimized**: Efficient database queries và caching
 
-### Business Impact Summary  
+### Business Impact Summary
+
 ✅ **Decision Speed**: 97% faster approval process
 ✅ **Participation**: 85% member engagement rate
 ✅ **Transparency**: Complete visibility into decision making
@@ -1179,8 +1233,9 @@ ROI = ($25,000 - $1,000) / $5,000 = 480% first year ROI
 ✅ **User Experience**: Intuitive web interface với mobile responsiveness
 
 ### Technical Metrics
+
 - **Backend**: 43 compiled Java files, zero errors
-- **Frontend**: Full MVC integration với Thymeleaf templates  
+- **Frontend**: Full MVC integration với Thymeleaf templates
 - **Database**: 3 core tables với optimized indexes
 - **Security**: JWT-based auth với role-based access control
 - **Performance**: Sub-500ms API response times
