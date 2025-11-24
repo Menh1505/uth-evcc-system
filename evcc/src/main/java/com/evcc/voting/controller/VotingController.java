@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.evcc.security.service.AuthenticationService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.evcc.voting.dto.request.CastVoteRequest;
 import com.evcc.voting.dto.request.CreateVoteRequest;
 import com.evcc.voting.dto.response.VoteResponse;
@@ -38,7 +39,6 @@ public class VotingController {
     private static final Logger logger = LoggerFactory.getLogger(VotingController.class);
 
     private final VotingService votingService;
-    private final AuthenticationService authenticationService;
 
     /**
      * Tạo vote mới
@@ -48,7 +48,7 @@ public class VotingController {
     public ResponseEntity<VoteResponse> createVote(
             @Valid @RequestBody CreateVoteRequest request) {
         try {
-            UUID userId = authenticationService.getCurrentUserId();
+            UUID userId = getCurrentUserId();
             VoteResponse response = votingService.createVote(request, userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
@@ -67,7 +67,7 @@ public class VotingController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<VoteResponse>> getGroupVotes(@PathVariable Long groupId) {
         try {
-            UUID userId = authenticationService.getCurrentUserId();
+            UUID userId = getCurrentUserId();
             List<VoteResponse> votes = votingService.getGroupVotes(groupId, userId);
             return ResponseEntity.ok(votes);
         } catch (Exception e) {
@@ -83,7 +83,7 @@ public class VotingController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<VoteResponse>> getPendingVotes(@PathVariable Long groupId) {
         try {
-            UUID userId = authenticationService.getCurrentUserId();
+            UUID userId = getCurrentUserId();
             List<VoteResponse> votes = votingService.getPendingVotes(groupId, userId);
             return ResponseEntity.ok(votes);
         } catch (Exception e) {
@@ -99,7 +99,7 @@ public class VotingController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<VoteResponse> getVoteDetail(@PathVariable Long voteId) {
         try {
-            UUID userId = authenticationService.getCurrentUserId();
+            UUID userId = getCurrentUserId();
             VoteResponse vote = votingService.getVoteDetail(voteId, userId);
             return ResponseEntity.ok(vote);
         } catch (IllegalArgumentException e) {
@@ -118,7 +118,7 @@ public class VotingController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<VoteResponse> startVote(@PathVariable Long voteId) {
         try {
-            UUID userId = authenticationService.getCurrentUserId();
+            UUID userId = getCurrentUserId();
             VoteResponse vote = votingService.startVote(voteId, userId);
             return ResponseEntity.ok(vote);
         } catch (IllegalArgumentException e) {
@@ -139,7 +139,7 @@ public class VotingController {
             @Valid @RequestBody CastVoteRequest request,
             HttpServletRequest httpRequest) {
         try {
-            UUID userId = authenticationService.getCurrentUserId();
+            UUID userId = getCurrentUserId();
             String ipAddress = getClientIpAddress(httpRequest);
             VoteResponse vote = votingService.castVote(request, userId, ipAddress);
             return ResponseEntity.ok(vote);
@@ -159,7 +159,7 @@ public class VotingController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<VoteResponse> closeVote(@PathVariable Long voteId) {
         try {
-            UUID userId = authenticationService.getCurrentUserId();
+            UUID userId = getCurrentUserId();
             VoteResponse vote = votingService.closeVote(voteId, userId);
             return ResponseEntity.ok(vote);
         } catch (IllegalArgumentException e) {
@@ -180,6 +180,27 @@ public class VotingController {
             return request.getRemoteAddr();
         } else {
             return xForwardedForHeader.split(",")[0].trim();
+        }
+    }
+
+    /**
+     * Lấy User ID từ Spring Security Authentication
+     */
+    private UUID getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
+        }
+
+        String username = authentication.getName();
+        // TODO: Get user from UserService if needed
+        // For now, return a dummy UUID or implement proper user lookup
+        try {
+            return UUID.fromString(username);
+        } catch (IllegalArgumentException e) {
+            // If username is not UUID, we need to lookup user by username
+            throw new RuntimeException("Cannot determine user ID from authentication");
         }
     }
 }

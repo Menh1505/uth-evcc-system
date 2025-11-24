@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.evcc.expense.entity.VehicleExpense;
+import com.evcc.expense.enums.ExpenseStatus;
 import com.evcc.expense.repository.VehicleExpenseRepository;
 import com.evcc.voting.dto.request.CreateVoteRequest;
 import com.evcc.voting.dto.response.VoteResponse;
@@ -121,12 +122,12 @@ public class GroupFundVotingService {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khoản chi phí"));
 
         if (vote.getStatus() == VoteStatus.APPROVED) {
-            expense.setStatus("APPROVED");
+            expense.setStatus(ExpenseStatus.APPROVED);
             expense.setApprovedAt(LocalDateTime.now());
-            expense.setApprovedBy("VOTING_SYSTEM");
+            expense.setApprovedBy(vote.getCreatedBy().getId());
             logger.info("Expense {} approved via voting", expenseId);
         } else {
-            expense.setStatus("REJECTED");
+            expense.setStatus(ExpenseStatus.CANCELLED);
             logger.info("Expense {} rejected via voting", expenseId);
         }
 
