@@ -47,11 +47,11 @@ public class VotingService {
             return response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                throw new ApiException("Không tìm thấy nhóm");
+                throw new ApiException(404, "Không tìm thấy nhóm");
             } else if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
-                throw new ApiException("Bạn không có quyền truy cập nhóm này");
+                throw new ApiException(403, "Bạn không có quyền truy cập nhóm này");
             }
-            throw new ApiException("Lỗi khi lấy danh sách vote: " + e.getMessage());
+            throw new ApiException(500, "Lỗi khi lấy danh sách vote: " + e.getMessage());
         }
     }
 
@@ -74,9 +74,9 @@ public class VotingService {
             return response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                throw new ApiException("Không tìm thấy nhóm");
+                throw new ApiException(404, "Không tìm thấy nhóm");
             }
-            throw new ApiException("Lỗi khi lấy vote đang chờ: " + e.getMessage());
+            throw new ApiException(500, "Lỗi khi lấy vote đang chờ: " + e.getMessage());
         }
     }
 
@@ -98,11 +98,11 @@ public class VotingService {
             return response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                throw new ApiException("Không tìm thấy vote");
+                throw new ApiException(404, "Không tìm thấy vote");
             } else if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
-                throw new ApiException("Bạn không có quyền xem vote này");
+                throw new ApiException(403, "Bạn không có quyền truy cập vote này");
             }
-            throw new ApiException("Lỗi khi lấy chi tiết vote: " + e.getMessage());
+            throw new ApiException(500, "Lỗi khi lấy chi tiết vote: " + e.getMessage());
         }
     }
 
@@ -131,11 +131,11 @@ public class VotingService {
             return response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
-                throw new ApiException("Yêu cầu không hợp lệ hoặc bạn đã vote");
+                throw new ApiException(400, "Yêu cầu không hợp lệ hoặc bạn đã vote");
             } else if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
-                throw new ApiException("Bạn không có quyền vote");
+                throw new ApiException(403, "Bạn không có quyền vote");
             }
-            throw new ApiException("Lỗi khi bỏ phiếu: " + e.getMessage());
+            throw new ApiException(500, "Lỗi khi bỏ phiếu: " + e.getMessage());
         }
     }
 
@@ -157,11 +157,11 @@ public class VotingService {
             return response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
-                throw new ApiException("Không thể bắt đầu vote - vote đã được bắt đầu hoặc kết thúc");
+                throw new ApiException(400, "Không thể bắt đầu vote - vote đã được bắt đầu hoặc kết thúc");
             } else if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
-                throw new ApiException("Chỉ người tạo vote mới có thể bắt đầu vote");
+                throw new ApiException(403, "Chỉ người tạo vote mới có thể bắt đầu vote");
             }
-            throw new ApiException("Lỗi khi bắt đầu vote: " + e.getMessage());
+            throw new ApiException(500, "Lỗi khi bắt đầu vote: " + e.getMessage());
         }
     }
 
@@ -183,11 +183,11 @@ public class VotingService {
             return response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
-                throw new ApiException("Không thể kết thúc vote - vote không đang hoạt động");
+                throw new ApiException(400, "Không thể kết thúc vote - vote không đang hoạt động");
             } else if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
-                throw new ApiException("Chỉ người tạo vote mới có thể kết thúc vote");
+                throw new ApiException(403, "Chỉ người tạo vote mới có thể kết thúc vote");
             }
-            throw new ApiException("Lỗi khi kết thúc vote: " + e.getMessage());
+            throw new ApiException(500, "Lỗi khi kết thúc vote: " + e.getMessage());
         }
     }
 
