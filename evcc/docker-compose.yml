@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: evcc_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: evcc_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data/pgdata
+    networks:
+      - evcc_network
+
+  adminer:
+    image: adminer:latest
+    container_name: evcc_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - evcc_network
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+
+networks:
+  evcc_network:
+    driver: bridge

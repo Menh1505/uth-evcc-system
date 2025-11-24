@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Đồng sở hữu xe - EVCC System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+    <!-- Navigation -->
+    <div th:replace="fragments/navbar :: mainNavbar"></div>
+
+    <div class="container mt-4">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h2 class="fw-bold text-primary">
+                    <i class="fas fa-car me-2"></i>Đồng sở hữu xe
+                </h2>
+                <p class="text-muted">Quản lý danh sách xe đồng sở hữu trong nhóm</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <!-- Any user can propose vehicle purchase -->
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVehicleModal">
+                    <i class="fas fa-plus me-2"></i>Đề xuất mua xe mới
+                </button>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Tổng số xe</h6>
+                                <h3 th:text="${#lists.size(vehicles)}">0</h3>
+                            </div>
+                            <i class="fas fa-car fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Xe sẵn sàng</h6>
+                                <h3 th:text="${#lists.size(availableVehicles)}">0</h3>
+                            </div>
+                            <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Xe đang hoạt động</h6>
+                                <h3 th:text="${#lists.size(vehicles) - #lists.size(availableVehicles)}">0</h3>
+                            </div>
+                            <i class="fas fa-clock fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Nhóm đồng sở hữu</h6>
+                                <h3 th:text="${#lists.size(myGroups)}">0</h3>
+                            </div>
+                            <i class="fas fa-users fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vehicle List -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-list me-2"></i>Danh sách xe đồng sở hữu
+                </h5>
+            </div>
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(vehicles)}" class="text-center py-5 text-muted">
+                    <i class="fas fa-car fa-3x mb-3"></i>
+                    <p class="fs-5">Chưa có xe đồng sở hữu nào</p>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#addVehicleModal">
+                        <i class="fas fa-plus me-2"></i>Đề xuất mua xe đầu tiên
+                    </button>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(vehicles)}" class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Xe</th>
+                                <th>Biển số</th>
+                                <th>Hãng/Dòng</th>
+                                <th>Năm</th>
+                                <th>Trạng thái</th>
+                                <th>Nhóm sở hữu</th>
+                                <th class="text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="vehicle : ${vehicles}">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-car me-2 text-primary"></i>
+                                        <strong th:text="${vehicle.name}">Tên xe</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary" th:text="${vehicle.licensePlate}">Biển số</span>
+                                </td>
+                                <td th:text="${vehicle.make + ' ' + vehicle.model}">Hãng Model</td>
+                                <td th:text="${vehicle.year}">2023</td>
+                                <td>
+                                    <span class="badge"
+                                        th:classappend="${vehicle.status == 'AVAILABLE'} ? 'bg-success' : 
+                                                         (${vehicle.status == 'IN_USE'} ? 'bg-warning' : 'bg-secondary')"
+                                        th:text="${vehicle.status == 'AVAILABLE'} ? 'Sẵn sàng' : 
+                                                   (${vehicle.status == 'IN_USE'} ? 'Đang hoạt động' : vehicle.status)">
+                                        Trạng thái
+                                    </span>
+                                </td>
+                                <td th:text="${vehicle.groupName ?: 'Chưa có nhóm sở hữu'}">Nhóm</td>
+                                <td class="text-center">
+                                    <a th:href="@{/vehicles/{id}(id=${vehicle.id})}"
+                                        class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <div th:if="${currentUser.roles != null and currentUser.roles.contains('ADMIN')}">
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal" th:data-bs-target="'#deleteModal' + ${vehicle.id}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" th:id="'deleteModal' + ${vehicle.id}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Xác nhận xóa xe</h5>
+                                                        <button type="button" class="btn-close"
+                                                            data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Bạn có chắc chắn muốn xóa xe <strong
+                                                                th:text="${vehicle.name}"></strong>?</p>
+                                                        <p class="text-danger">
+                                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                                            Hành động này không thể hoàn tác!
+                                                        </p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Hủy</button>
+                                                        <form th:action="@{/vehicles/{id}/delete(id=${vehicle.id})}"
+                                                            method="post" class="d-inline">
+                                                            <button type="submit" class="btn btn-danger">Xóa xe</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vehicle Purchase Proposal Modal -->
+    <div class="modal fade" id="addVehicleModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus me-2"></i>Đề xuất mua xe mới
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/vehicles/create}" method="post" th:object="${createVehicleRequest}">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Tên xe <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="licensePlate" class="form-label">Biển số <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="licensePlate" th:field="*{licensePlate}"
+                                    required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('licensePlate')}"
+                                    th:errors="*{licensePlate}"></div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="make" class="form-label">Hãng xe <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="make" th:field="*{make}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('make')}" th:errors="*{make}">
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="model" class="form-label">Dòng xe <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="model" th:field="*{model}" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('model')}"
+                                    th:errors="*{model}"></div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="year" class="form-label">Năm sản xuất <span
+                                        class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="year" th:field="*{year}" min="2000"
+                                    max="2030" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('year')}" th:errors="*{year}">
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="groupId" class="form-label">Nhóm đồng sở hữu <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" id="groupId" th:field="*{groupId}" required>
+                                    <option value="">-- Chọn nhóm đồng sở hữu --</option>
+                                    <option th:each="group : ${myGroups}" th:value="${group.id}"
+                                        th:text="${group.name}">Nhóm</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('groupId')}"
+                                    th:errors="*{groupId}"></div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="purchasePrice" class="form-label">Vốn đầu tư (VNĐ)</label>
+                                <input type="number" class="form-control" id="purchasePrice" th:field="*{purchasePrice}"
+                                    min="0" step="1000">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('purchasePrice')}"
+                                    th:errors="*{purchasePrice}"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="purchaseDate" class="form-label">Ngày đầu tư</label>
+                                <input type="date" class="form-control" id="purchaseDate" th:field="*{purchaseDate}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="batteryCapacity" class="form-label">Dung lượng pin (kWh)</label>
+                                <input type="number" class="form-control" id="batteryCapacity"
+                                    th:field="*{batteryCapacity}" min="0">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('batteryCapacity')}"
+                                    th:errors="*{batteryCapacity}"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="initialOdometer" class="form-label">Số km ban đầu</label>
+                                <input type="number" class="form-control" id="initialOdometer"
+                                    th:field="*{initialOdometer}" min="0">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('initialOdometer')}"
+                                    th:errors="*{initialOdometer}"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Đăng ký xe
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

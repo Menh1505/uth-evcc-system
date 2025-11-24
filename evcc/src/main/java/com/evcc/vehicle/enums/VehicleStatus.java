@@ -1,12 +1,12 @@
 package com.evcc.vehicle.enums;
 
 /**
- * Trạng thái của xe điện
+ * Trạng thái của xe đồng sở hữu
  */
 public enum VehicleStatus {
-    AVAILABLE,
-    IN_USE,
-    CHARGING,
-    MAINTENANCE,
-    DECOMMISSIONED
+    AVAILABLE, // Sẵn sàng sử dụng
+    IN_USE, // Đang hoạt động
+    CHARGING, // Đang sạc
+    MAINTENANCE, // Đang bảo trì
+    DECOMMISSIONED  // Đã ngừng hoạt động
 }

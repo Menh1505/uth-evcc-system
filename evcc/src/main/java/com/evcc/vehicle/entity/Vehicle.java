@@ -24,6 +24,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Entity đại diện cho một xe điện trong hệ thống đồng sở hữu. Mỗi xe thuộc về
+ * một nhóm và có thể được các thành viên trong nhóm sử dụng.
+ *
+ * Mô hình đồng sở hữu: - Nhóm góp vốn để mua xe - Xe thuộc sở hữu chung của
+ * nhóm - Các thành viên có quyền sử dụng theo lịch trình - Theo dõi chi phí vận
+ * hành và bảo trì chung
+ */
 @Entity
 @Table(name = "vehicles")
 @Getter
@@ -51,16 +59,18 @@ public class Vehicle {
 
     private Integer year;
 
-    // Ownership: many vehicles can belong to one group
+    // Co-ownership: many vehicles can belong to one group
+    // Mỗi xe thuộc về một nhóm đồng sở hữu
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private Group group;
 
-    // Financial
+    // Financial - Investment tracking
+    // Thông tin tài chính - theo dõi đầu tư
     @Column(precision = 19, scale = 2)
-    private BigDecimal purchasePrice;
+    private BigDecimal purchasePrice; // Vốn đầu tư ban đầu
 
-    private LocalDate purchaseDate;
+    private LocalDate purchaseDate; // Ngày đầu tư
 
     // EV specific
     private Double batteryCapacity; // kWh

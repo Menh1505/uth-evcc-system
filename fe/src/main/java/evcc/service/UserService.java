@@ -22,11 +22,11 @@ import org.springframework.web.client.RestTemplate;
 
 import evcc.config.RestTemplateConfig;
 import evcc.dto.request.AddGroupMemberRequest;
+import evcc.dto.request.CreateContractRequestDto;
 import evcc.dto.request.CreateGroupRequest;
 import evcc.dto.request.UpdateUserProfileRequest;
 import evcc.dto.request.UserLoginRequest;
 import evcc.dto.request.UserRegisterRequest;
-import evcc.dto.request.CreateContractRequestDto;
 import evcc.dto.response.ContractResponseDto;
 import evcc.dto.response.ContractSummaryResponseDto;
 import evcc.dto.response.GroupResponseDto;
@@ -38,17 +38,17 @@ import evcc.exception.ApiException;
 
 @Service
 public class UserService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-    
+
     private final RestTemplate restTemplate;
     private final RestTemplateConfig restTemplateConfig;
-    
+
     public UserService(RestTemplate restTemplate, RestTemplateConfig restTemplateConfig) {
         this.restTemplate = restTemplate;
         this.restTemplateConfig = restTemplateConfig;
     }
-    
+
     /**
      * Lấy thông tin profile cá nhân của user từ API
      *
@@ -58,22 +58,22 @@ public class UserService {
      */
     public UserProfileResponseDto getUserProfile(String jwtToken) throws ApiException {
         logger.info("Lấy thông tin profile user hiện tại");
-        
+
         HttpEntity<Void> entity = createAuthorizedRequest(jwtToken);
         String url = restTemplateConfig.getBaseUrl() + "/api/users/profile";
-        
+
         try {
             ResponseEntity<UserProfileResponseDto> response = restTemplate.exchange(
-                url, HttpMethod.GET, entity, UserProfileResponseDto.class
+                    url, HttpMethod.GET, entity, UserProfileResponseDto.class
             );
-            
+
             UserProfileResponseDto responseBody = response.getBody();
             if (responseBody != null) {
                 logger.debug("Nhận được profile cho user: {}", responseBody.getUsername());
                 return responseBody;
             }
             throw new ApiException(500, "Không nhận được response từ server");
-            
+
         } catch (HttpClientErrorException e) {
             logger.error("Lỗi HTTP khi lấy profile user: {}", e.getMessage());
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
@@ -93,7 +93,7 @@ public class UserService {
             throw new ApiException(500, "Lỗi hệ thống: " + e.getMessage());
         }
     }
-    
+
     /**
      * Lấy danh sách tất cả user (dùng cho admin)
      */
@@ -103,7 +103,7 @@ public class UserService {
         String url = restTemplateConfig.getBaseUrl() + "/api/users";
         try {
             ResponseEntity<UserProfileResponseDto[]> response = restTemplate.exchange(
-                url, HttpMethod.GET, entity, UserProfileResponseDto[].class
+                    url, HttpMethod.GET, entity, UserProfileResponseDto[].class
             );
             UserProfileResponseDto[] body = response.getBody();
             return body != null ? Arrays.asList(body) : List.of();
@@ -125,7 +125,7 @@ public class UserService {
         String url = restTemplateConfig.getBaseUrl() + "/api/users/unverified";
         try {
             ResponseEntity<UserProfileResponseDto[]> response = restTemplate.exchange(
-                url, HttpMethod.GET, entity, UserProfileResponseDto[].class
+                    url, HttpMethod.GET, entity, UserProfileResponseDto[].class
             );
             UserProfileResponseDto[] body = response.getBody();
             return body != null ? Arrays.asList(body) : List.of();
@@ -147,7 +147,7 @@ public class UserService {
         String url = restTemplateConfig.getBaseUrl() + "/api/users/" + userId + "/verify";
         try {
             ResponseEntity<UserProfileResponseDto> response = restTemplate.exchange(
-                url, HttpMethod.PUT, entity, UserProfileResponseDto.class
+                    url, HttpMethod.PUT, entity, UserProfileResponseDto.class
             );
             UserProfileResponseDto body = response.getBody();
             if (body != null) {
@@ -172,7 +172,7 @@ public class UserService {
         String url = restTemplateConfig.getBaseUrl() + "/api/users/stats";
         try {
             ResponseEntity<UserStatsResponseDto> response = restTemplate.exchange(
-                url, HttpMethod.GET, entity, UserStatsResponseDto.class
+                    url, HttpMethod.GET, entity, UserStatsResponseDto.class
             );
             UserStatsResponseDto body = response.getBody();
             if (body != null) {
@@ -189,17 +189,18 @@ public class UserService {
     }
 
     // ===== Group Management (frontend client cho /api/groups) =====
-
     public GroupResponseDto createGroup(String jwtToken, CreateGroupRequest request) throws ApiException {
         logger.info("Tạo nhóm mới: {}", request.getName());
         HttpEntity<CreateGroupRequest> entity = createAuthorizedJsonRequest(jwtToken, request);
         String url = restTemplateConfig.getBaseUrl() + "/api/groups";
         try {
             ResponseEntity<GroupResponseDto> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, GroupResponseDto.class
+                    url, HttpMethod.POST, entity, GroupResponseDto.class
             );
             GroupResponseDto body = response.getBody();
-            if (body != null) return body;
+            if (body != null) {
+                return body;
+            }
             throw new ApiException(500, "Không nhận được response từ server");
         } catch (HttpClientErrorException e) {
             logger.error("Lỗi HTTP khi tạo nhóm: {}", e.getMessage());
@@ -216,7 +217,7 @@ public class UserService {
         String url = restTemplateConfig.getBaseUrl() + "/api/groups/my-groups";
         try {
             ResponseEntity<GroupResponseDto[]> response = restTemplate.exchange(
-                url, HttpMethod.GET, entity, GroupResponseDto[].class
+                    url, HttpMethod.GET, entity, GroupResponseDto[].class
             );
             GroupResponseDto[] body = response.getBody();
             return body != null ? Arrays.asList(body) : List.of();
@@ -235,10 +236,12 @@ public class UserService {
         String url = restTemplateConfig.getBaseUrl() + "/api/groups/" + groupId;
         try {
             ResponseEntity<GroupResponseDto> response = restTemplate.exchange(
-                url, HttpMethod.GET, entity, GroupResponseDto.class
+                    url, HttpMethod.GET, entity, GroupResponseDto.class
             );
             GroupResponseDto body = response.getBody();
-            if (body != null) return body;
+            if (body != null) {
+                return body;
+            }
             throw new ApiException(500, "Không nhận được response từ server");
         } catch (HttpClientErrorException e) {
             logger.error("Lỗi HTTP khi lấy chi tiết nhóm: {}", e.getMessage());
@@ -280,17 +283,18 @@ public class UserService {
     }
 
     // ===== Contract Management (frontend client cho /api/contracts) =====
-
     public ContractResponseDto createContract(String jwtToken, CreateContractRequestDto request) throws ApiException {
         logger.info("Tạo hợp đồng mới cho nhóm {}", request.getGroupId());
         HttpEntity<CreateContractRequestDto> entity = createAuthorizedJsonRequest(jwtToken, request);
         String url = restTemplateConfig.getBaseUrl() + "/api/contracts";
         try {
             ResponseEntity<ContractResponseDto> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, ContractResponseDto.class
+                    url, HttpMethod.POST, entity, ContractResponseDto.class
             );
             ContractResponseDto body = response.getBody();
-            if (body != null) return body;
+            if (body != null) {
+                return body;
+            }
             throw new ApiException(500, "Không nhận được response từ server");
         } catch (HttpClientErrorException e) {
             logger.error("Lỗi HTTP khi tạo hợp đồng: {}", e.getMessage());
@@ -308,7 +312,7 @@ public class UserService {
         try {
             // Backend trả Page<ContractSummaryResponse>, đọc field "content"
             ResponseEntity<Map> response = restTemplate.exchange(
-                url, HttpMethod.GET, entity, Map.class
+                    url, HttpMethod.GET, entity, Map.class
             );
             Map<?, ?> body = response.getBody();
             if (body == null || body.get("content") == null) {
@@ -384,10 +388,12 @@ public class UserService {
         String url = restTemplateConfig.getBaseUrl() + "/api/contracts/" + contractId;
         try {
             ResponseEntity<ContractResponseDto> response = restTemplate.exchange(
-                url, HttpMethod.GET, entity, ContractResponseDto.class
+                    url, HttpMethod.GET, entity, ContractResponseDto.class
             );
             ContractResponseDto body = response.getBody();
-            if (body != null) return body;
+            if (body != null) {
+                return body;
+            }
             throw new ApiException(500, "Không nhận được response từ server");
         } catch (HttpClientErrorException e) {
             logger.error("Lỗi HTTP khi lấy chi tiết hợp đồng: {}", e.getMessage());
@@ -397,32 +403,33 @@ public class UserService {
             throw new ApiException(503, "Không thể kết nối đến server API");
         }
     }
+
     /**
      * Cập nhật thông tin profile (citizenId, driverLicense) của user hiện tại
      *
      * @param jwtToken token xác thực dạng JWT
-     * @param request  dữ liệu cập nhật profile
+     * @param request dữ liệu cập nhật profile
      * @return profile sau khi cập nhật
      * @throws ApiException khi cập nhật thất bại
      */
     public UserProfileResponseDto updateUserProfile(String jwtToken, UpdateUserProfileRequest request) throws ApiException {
         logger.info("Cập nhật profile user hiện tại liên tục");
-        
+
         HttpEntity<UpdateUserProfileRequest> entity = createAuthorizedJsonRequest(jwtToken, request);
         String url = restTemplateConfig.getBaseUrl() + "/api/users/profile";
-        
+
         try {
             ResponseEntity<UserProfileResponseDto> response = restTemplate.exchange(
-                url, HttpMethod.PUT, entity, UserProfileResponseDto.class
+                    url, HttpMethod.PUT, entity, UserProfileResponseDto.class
             );
-            
+
             UserProfileResponseDto responseBody = response.getBody();
             if (responseBody != null) {
                 logger.debug("Cập nhật profile thành công cho user: {}", responseBody.getUsername());
                 return responseBody;
             }
             throw new ApiException(500, "Không nhận được response từ server");
-            
+
         } catch (HttpClientErrorException e) {
             logger.error("Lỗi HTTP khi cập nhật profile user: {}", e.getMessage());
             if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
@@ -442,26 +449,27 @@ public class UserService {
             throw new ApiException(500, "Lỗi hệ thống: " + e.getMessage());
         }
     }
+
     /**
      * Đăng ký user mới
-     * 
+     *
      * @param request thông tin đăng ký
      * @return response từ API
      * @throws ApiException khi có lỗi từ API
      */
     public UserRegisterResponse registerUser(UserRegisterRequest request) throws ApiException {
         logger.info("Đăng ký user mới: {}", request);
-        
+
         String url = restTemplateConfig.getBaseUrl() + "/api/auth/register";
         HttpEntity<UserRegisterRequest> entity = createRequestEntity(request);
-        
+
         try {
             ResponseEntity<UserRegisterResponse> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, UserRegisterResponse.class
+                    url, HttpMethod.POST, entity, UserRegisterResponse.class
             );
-            
+
             return handleSuccessResponse(response);
-            
+
         } catch (HttpClientErrorException e) {
             throw handleHttpClientError(e);
         } catch (RestClientException e) {
@@ -472,16 +480,16 @@ public class UserService {
             throw new ApiException(500, "Lỗi hệ thống: " + e.getMessage());
         }
     }
-    
+
     private HttpEntity<UserRegisterRequest> createRequestEntity(UserRegisterRequest request) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<>(request, headers);
     }
-    
+
     private UserRegisterResponse handleSuccessResponse(ResponseEntity<UserRegisterResponse> response) throws ApiException {
         UserRegisterResponse responseBody = response.getBody();
-        
+
         if (responseBody != null) {
             logger.info("Đăng ký thành công cho user: {}", responseBody.getUsername());
             return responseBody;
@@ -489,10 +497,10 @@ public class UserService {
             throw new ApiException(500, "Không nhận được response từ server");
         }
     }
-    
+
     private ApiException handleHttpClientError(HttpClientErrorException e) {
         logger.error("Lỗi HTTP khi đăng ký user: {}", e.getMessage());
-        
+
         if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
             return handleBadRequestError(e);
         } else if (e.getStatusCode() == HttpStatus.CONFLICT) {
@@ -501,7 +509,7 @@ public class UserService {
             return new ApiException(e.getStatusCode().value(), "Lỗi từ server: " + e.getMessage());
         }
     }
-    
+
     private ApiException handleBadRequestError(HttpClientErrorException e) {
         try {
             UserRegisterResponse errorResponse = e.getResponseBodyAs(UserRegisterResponse.class);
@@ -513,27 +521,27 @@ public class UserService {
         }
         return new ApiException(400, "Username đã tồn tại hoặc dữ liệu không hợp lệ");
     }
-    
+
     /**
      * Đăng nhập user
-     * 
+     *
      * @param request thông tin đăng nhập
      * @return response từ API
      * @throws ApiException khi có lỗi từ API
      */
     public UserLoginResponse loginUser(UserLoginRequest request) throws ApiException {
         logger.info("Đăng nhập user: {}", request);
-        
+
         String url = restTemplateConfig.getBaseUrl() + "/api/auth/login";
         HttpEntity<UserLoginRequest> entity = createLoginRequestEntity(request);
-        
+
         try {
             ResponseEntity<UserLoginResponse> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, UserLoginResponse.class
+                    url, HttpMethod.POST, entity, UserLoginResponse.class
             );
-            
+
             return handleLoginSuccessResponse(response);
-            
+
         } catch (HttpClientErrorException e) {
             throw handleLoginHttpClientError(e);
         } catch (RestClientException e) {
@@ -544,16 +552,16 @@ public class UserService {
             throw new ApiException(500, "Lỗi hệ thống: " + e.getMessage());
         }
     }
-    
+
     private HttpEntity<UserLoginRequest> createLoginRequestEntity(UserLoginRequest request) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<>(request, headers);
     }
-    
+
     private UserLoginResponse handleLoginSuccessResponse(ResponseEntity<UserLoginResponse> response) throws ApiException {
         UserLoginResponse responseBody = response.getBody();
-        
+
         if (responseBody != null) {
             logger.info("Đăng nhập thành công cho user: {}", responseBody.getUsername());
             return responseBody;
@@ -561,10 +569,10 @@ public class UserService {
             throw new ApiException(500, "Không nhận được response từ server");
         }
     }
-    
+
     private ApiException handleLoginHttpClientError(HttpClientErrorException e) {
         logger.error("Lỗi HTTP khi đăng nhập user: {}", e.getMessage());
-        
+
         if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
             return handleUnauthorizedError(e);
         } else if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
@@ -573,7 +581,7 @@ public class UserService {
             return new ApiException(e.getStatusCode().value(), "Lỗi từ server: " + e.getMessage());
         }
     }
-    
+
     private ApiException handleUnauthorizedError(HttpClientErrorException e) {
         try {
             UserLoginResponse errorResponse = e.getResponseBodyAs(UserLoginResponse.class);
@@ -585,7 +593,7 @@ public class UserService {
         }
         return new ApiException(401, "Username hoặc password không đúng");
     }
-    
+
     private ApiException handleLoginBadRequestError(HttpClientErrorException e) {
         try {
             UserLoginResponse errorResponse = e.getResponseBodyAs(UserLoginResponse.class);
@@ -597,27 +605,47 @@ public class UserService {
         }
         return new ApiException(400, "Dữ liệu đăng nhập không hợp lệ");
     }
-    
+
     private HttpEntity<Void> createAuthorizedRequest(String jwtToken) throws ApiException {
         if (jwtToken == null || jwtToken.isBlank()) {
             throw new ApiException(401, "Thiếu token xác thực");
         }
-        
+
         String tokenValue = jwtToken.trim();
         if (tokenValue.toLowerCase().startsWith("bearer ")) {
             tokenValue = tokenValue.substring(7).trim();
         }
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(tokenValue);
-        
+
         return new HttpEntity<>(headers);
     }
 
     /**
+     * Tạo HTTP Entity với JWT token và request body
+     */
+    private <T> HttpEntity<T> createAuthorizedJsonRequest(String jwtToken, T requestBody) throws ApiException {
+        if (jwtToken == null || jwtToken.isBlank()) {
+            throw new ApiException(401, "Thiếu token xác thực");
+        }
+
+        String tokenValue = jwtToken.trim();
+        if (tokenValue.toLowerCase().startsWith("bearer ")) {
+            tokenValue = tokenValue.substring(7).trim();
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(tokenValue);
+
+        return new HttpEntity<>(requestBody, headers);
+    }
+
+    /**
      * Kiểm tra kết nối đến API server
-     * 
+     *
      * @return true nếu server có thể kết nối
      */
     public boolean isApiServerAvailable() {

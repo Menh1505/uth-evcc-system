@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.evcc.vehicle.dto.VehicleCreateRequest;
 import com.evcc.vehicle.dto.VehicleResponse;
+import com.evcc.vehicle.dto.VehiclePurchaseProposalRequest;
 import com.evcc.vehicle.service.VehicleService;
+import com.evcc.voting.dto.response.VoteResponse;
 
 import jakarta.validation.Valid;
 
@@ -35,7 +37,7 @@ public class VehicleController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<VehicleResponse> createVehicle(@Valid @RequestBody VehicleCreateRequest req) {
         VehicleResponse resp = vehicleService.createVehicle(req);
         return ResponseEntity.status(HttpStatus.CREATED).body(resp);
@@ -55,13 +57,35 @@ public class VehicleController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<VehicleResponse> updateVehicle(@PathVariable Long id, @Valid @RequestBody VehicleCreateRequest req) {
         return ResponseEntity.ok(vehicleService.updateVehicle(id, req));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteVehicle(@PathVariable Long id) {
         vehicleService.deleteVehicle(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Lấy danh sách xe chưa được gán cho hợp đồng nào (available vehicles) GET
+     * /api/vehicles/available
+     */
+    @GetMapping("/available")
+    public ResponseEntity<List<VehicleResponse>> getAvailableVehicles() {
+        return ResponseEntity.ok(vehicleService.listAvailableVehicles());
+    }
+
+    /**
+     * Tạo proposal mua xe mới với voting (chỉ GROUP ADMIN)
+     */
+    @PostMapping("/propose")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<VoteResponse> proposeVehiclePurchase(
+            @Valid @RequestBody VehiclePurchaseProposalRequest req) {
+        VoteResponse voteResponse = vehicleService.proposeVehiclePurchase(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(voteResponse);
     }
 }

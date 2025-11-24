@@ -1,68 +1,77 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark" th:fragment="mainNavbar">
-    <div class="container">
-        <a class="navbar-brand fw-bold" th:href="@{/}">EVCC System</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" th:fragment="mainNavbar">
+        <div class="container">
+            <a class="navbar-brand fw-bold" th:href="@{/}">EVCC System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
                 aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <div class="collapse navbar-collapse" id="mainNavbar">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}">Trang chủ</a>
-                </li>
-                <li class="nav-item" th:if="${session.currentUser != null and (session.currentUser.roles == null or !session.currentUser.roles.contains('ADMIN'))}">
-                    <a class="nav-link" th:href="@{/groups}">Nhóm</a>
-                </li>
-                <li class="nav-item" th:if="${session.currentUser != null and (session.currentUser.roles == null or !session.currentUser.roles.contains('ADMIN'))}">
-                    <a class="nav-link" th:href="@{/contracts}">Hợp đồng</a>
-                </li>
-                <li class="nav-item" th:if="${session.currentUser != null and session.currentUser.roles != null and session.currentUser.roles.contains('ADMIN')}">
-                    <a class="nav-link" th:href="@{/admin/users}">Quản trị người dùng</a>
-                </li>
-                <li class="nav-item" th:if="${session.currentUser != null and session.currentUser.roles != null and session.currentUser.roles.contains('ADMIN')}">
-                    <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
-                </li>
-            </ul>
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">Trang chủ</a>
+                    </li>
+                    <li class="nav-item"
+                        th:if="${session.currentUser != null and (session.currentUser.roles == null or !session.currentUser.roles.contains('ADMIN'))}">
+                        <a class="nav-link" th:href="@{/groups}">Nhóm</a>
+                    </li>
+                    <li class="nav-item"
+                        th:if="${session.currentUser != null and (session.currentUser.roles == null or !session.currentUser.roles.contains('ADMIN'))}">
+                        <a class="nav-link" th:href="@{/contracts}">Hợp đồng</a>
+                    </li>
+                    <li class="nav-item" th:if="${session.currentUser != null}">
+                        <a class="nav-link" th:href="@{/vehicles}">Đồng sở hữu xe</a>
+                    </li>
+                    <li class="nav-item"
+                        th:if="${session.currentUser != null and session.currentUser.roles != null and session.currentUser.roles.contains('ADMIN')}">
+                        <a class="nav-link" th:href="@{/admin/users}">Quản trị người dùng</a>
+                    </li>
+                    <li class="nav-item"
+                        th:if="${session.currentUser != null and session.currentUser.roles != null and session.currentUser.roles.contains('ADMIN')}">
+                        <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
+                    </li>
+                </ul>
 
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item" th:if="${session.currentUser == null}">
-                    <a class="btn btn-outline-light btn-sm me-2" th:href="@{/auth/login}">
-                        Đăng nhập
-                    </a>
-                </li>
-                <li class="nav-item" th:if="${session.currentUser == null}">
-                    <a class="btn btn-primary btn-sm" th:href="@{/auth/register}">
-                        Đăng ký
-                    </a>
-                </li>
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item" th:if="${session.currentUser == null}">
+                        <a class="btn btn-outline-light btn-sm me-2" th:href="@{/auth/login}">
+                            Đăng nhập
+                        </a>
+                    </li>
+                    <li class="nav-item" th:if="${session.currentUser == null}">
+                        <a class="btn btn-primary btn-sm" th:href="@{/auth/register}">
+                            Đăng ký
+                        </a>
+                    </li>
 
-                <li class="nav-item dropdown" th:if="${session.currentUser != null}">
-                    <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-user-circle"></i>
-                        <span class="ms-1" th:text="${session.currentUser.username}">User</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                        <li>
-                            <a class="dropdown-item" th:href="@{/user/profile}">
-                                <i class="fas fa-id-badge me-2"></i>Hồ sơ cá nhân
-                            </a>
-                        </li>
-                        <li>
-                            <form th:action="@{/auth/logout}" method="post" class="px-3">
-                                <button type="submit" class="btn btn-link dropdown-item text-danger p-0">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+                    <li class="nav-item dropdown" th:if="${session.currentUser != null}">
+                        <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="ms-1" th:text="${session.currentUser.username}">User</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li>
+                                <a class="dropdown-item" th:href="@{/user/profile}">
+                                    <i class="fas fa-id-badge me-2"></i>Hồ sơ cá nhân
+                                </a>
+                            </li>
+                            <li>
+                                <form th:action="@{/auth/logout}" method="post" class="px-3">
+                                    <button type="submit" class="btn btn-link dropdown-item text-danger p-0">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 </body>
+
 </html>
