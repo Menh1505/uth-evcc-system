@@ -43,6 +43,41 @@ public interface VehicleBookingRepository extends JpaRepository<VehicleBooking, 
      */
     List<VehicleBooking> findByContract_IdOrderByCreatedAtDesc(Long contractId);
 
+    List<VehicleBooking> findByContractId(Long contractId);
+
+    /**
+     * Tìm booking theo user và contract trong khoảng thời gian
+     */
+    @Query("SELECT b FROM VehicleBooking b WHERE b.user.id = :userId "
+            + "AND b.contract.id = :contractId "
+            + "AND b.startTime >= :startTime")
+    List<VehicleBooking> findByUserIdAndContractIdAndStartTimeAfter(@Param("userId") UUID userId,
+            @Param("contractId") Long contractId,
+            @Param("startTime") LocalDateTime startTime);
+
+    /**
+     * Tìm booking theo user và contract trong khoảng thời gian cụ thể
+     */
+    @Query("SELECT b FROM VehicleBooking b WHERE b.user.id = :userId "
+            + "AND b.contract.id = :contractId "
+            + "AND b.startTime >= :startTime "
+            + "AND b.startTime <= :endTime")
+    List<VehicleBooking> findByUserIdAndContractIdAndStartTimeBetween(@Param("userId") UUID userId,
+            @Param("contractId") Long contractId,
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime);
+
+    /**
+     * Tìm booking conflict theo contract
+     */
+    @Query("SELECT b FROM VehicleBooking b WHERE b.contract.id = :contractId "
+            + "AND ((b.startTime BETWEEN :startTime AND :endTime) "
+            + "OR (b.endTime BETWEEN :startTime AND :endTime) "
+            + "OR (b.startTime <= :startTime AND b.endTime >= :endTime))")
+    List<VehicleBooking> findConflictingBookings(@Param("contractId") Long contractId,
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime);
+
     /**
      * Tìm booking theo status
      */

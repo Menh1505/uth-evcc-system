@@ -29,14 +29,11 @@ import com.evcc.user.repository.UserRepository;
 import com.evcc.vehicle.entity.Vehicle;
 import com.evcc.vehicle.repository.VehicleRepository;
 
-import lombok.RequiredArgsConstructor;
-
 /**
  * Implementation cho BookingService
  */
 @Service
 @Transactional
-@RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
 
     private static final Logger logger = LoggerFactory.getLogger(BookingServiceImpl.class);
@@ -46,6 +43,18 @@ public class BookingServiceImpl implements BookingService {
     private final ContractRepository contractRepository;
     private final VehicleRepository vehicleRepository;
     private final BookingPriorityService priorityService;
+
+    public BookingServiceImpl(VehicleBookingRepository bookingRepository,
+            UserRepository userRepository,
+            ContractRepository contractRepository,
+            VehicleRepository vehicleRepository,
+            BookingPriorityService priorityService) {
+        this.bookingRepository = bookingRepository;
+        this.userRepository = userRepository;
+        this.contractRepository = contractRepository;
+        this.vehicleRepository = vehicleRepository;
+        this.priorityService = priorityService;
+    }
 
     @Override
     public BookingResponse createBooking(BookingCreateRequest request) {

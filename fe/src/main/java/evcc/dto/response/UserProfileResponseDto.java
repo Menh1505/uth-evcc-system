@@ -1,6 +1,5 @@
 package evcc.dto.response;
 
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -9,24 +8,29 @@ public class UserProfileResponseDto {
 
     private UUID id;
     private String username;
+    private String email;
     private String citizenId;
     private String driverLicense;
+    private String status;
     private Boolean isVerified;
     private List<String> roles;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     // Constructors
-    public UserProfileResponseDto() {}
+    public UserProfileResponseDto() {
+    }
 
-    public UserProfileResponseDto(UUID id, String username, String citizenId,
-                                  String driverLicense, Boolean isVerified,
-                                  List<String> roles,
-                                  LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public UserProfileResponseDto(UUID id, String username, String email, String citizenId,
+            String driverLicense, String status, Boolean isVerified,
+            List<String> roles,
+            LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.username = username;
+        this.email = email;
         this.citizenId = citizenId;
         this.driverLicense = driverLicense;
+        this.status = status;
         this.isVerified = isVerified;
         this.roles = roles;
         this.createdAt = createdAt;
@@ -34,7 +38,6 @@ public class UserProfileResponseDto {
     }
 
     // Getters & Setters
-
     public UUID getId() {
         return id;
     }
@@ -51,6 +54,14 @@ public class UserProfileResponseDto {
         this.username = username;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getCitizenId() {
         return citizenId;
     }
@@ -65,6 +76,14 @@ public class UserProfileResponseDto {
 
     public void setDriverLicense(String driverLicense) {
         this.driverLicense = driverLicense;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public Boolean getIsVerified() {

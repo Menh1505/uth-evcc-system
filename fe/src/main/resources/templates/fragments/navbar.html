@@ -18,12 +18,24 @@
                         th:if="${session.currentUser != null and (session.currentUser.roles == null or !session.currentUser.roles.contains('ADMIN'))}">
                         <a class="nav-link" th:href="@{/groups}">Nhóm</a>
                     </li>
-                    <li class="nav-item"
-                        th:if="${session.currentUser != null and (session.currentUser.roles == null or !session.currentUser.roles.contains('ADMIN'))}">
-                        <a class="nav-link" th:href="@{/contracts}">Hợp đồng</a>
-                    </li>
-                    <li class="nav-item" th:if="${session.currentUser != null}">
-                        <a class="nav-link" th:href="@{/vehicles}">Đồng sở hữu xe</a>
+                    <!-- Contract & Voting Navigation -->
+                    <li class="nav-item dropdown" th:if="${session.currentUser != null}">
+                        <a class="nav-link dropdown-toggle" href="#" id="contractMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-file-contract"></i> Hợp đồng
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="contractMenu">
+                            <li>
+                                <a class="dropdown-item" th:href="@{/contracts}">
+                                    <i class="fas fa-list me-2"></i>Hợp đồng của tôi
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/contracts/voting}">
+                                    <i class="fas fa-vote-yea me-2"></i>Phiếu bầu chờ xử lý
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <!-- Booking System Navigation -->
                     <li class="nav-item dropdown" th:if="${session.currentUser != null}">
@@ -33,17 +45,17 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="bookingMenu">
                             <li>
-                                <a class="dropdown-item" th:href="@{/bookings}">
+                                <a class="dropdown-item" th:href="@{/bookings/local}">
                                     <i class="fas fa-list me-2"></i>Lịch của tôi
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" th:href="@{/bookings/create}">
+                                <a class="dropdown-item" th:href="@{/bookings/local/create}">
                                     <i class="fas fa-plus me-2"></i>Đặt lịch mới
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" th:href="@{/bookings/calendar}">
+                                <a class="dropdown-item" th:href="@{/bookings/local/calendar}">
                                     <i class="fas fa-calendar me-2"></i>Lịch chung
                                 </a>
                             </li>

@@ -7,8 +7,7 @@
     <title th:text="${title}">Chi tiết nhóm - EVCC System</title>
 
     <link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
@@ -43,7 +42,8 @@
                         <p class="mb-1"><strong>ID:</strong> <span th:text="${group.id}">1</span></p>
                         <p class="mb-1"><strong>Tên nhóm:</strong> <span th:text="${group.name}">Tên nhóm</span></p>
                         <p class="mb-1"><strong>Mô tả:</strong> <span th:text="${group.description}">Mô tả</span></p>
-                        <p class="mb-1"><strong>Số thành viên:</strong> <span th:text="${group.memberCount}">0</span></p>
+                        <p class="mb-1"><strong>Số thành viên:</strong> <span th:text="${group.memberCount}">0</span>
+                        </p>
                     </div>
                 </div>
 
@@ -52,11 +52,11 @@
                         <i class="fas fa-user-plus me-1"></i> Thêm thành viên
                     </div>
                     <div class="card-body">
-                        <form th:action="@{'/groups/' + ${group.id} + '/members'}" method="post">
+                        <form th:action="@{'/groups/' + ${group.id} + '/members/add'}" method="post">
                             <div class="mb-3">
                                 <label for="userId" class="form-label">User ID</label>
                                 <input type="text" id="userId" name="userId" class="form-control" required
-                                       placeholder="Nhập UUID của user">
+                                    placeholder="Nhập UUID của user">
                             </div>
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-plus me-1"></i> Thêm thành viên
@@ -96,8 +96,9 @@
                                         </td>
                                         <td th:text="${m.joinedAt}">time</td>
                                         <td class="text-end">
-                                            <form th:action="@{'/groups/' + ${group.id} + '/members/' + ${m.membershipId} + '/remove'}"
-                                                  method="post" th:if="${m.role != 'ADMIN'}">
+                                            <form
+                                                th:action="@{'/groups/' + ${group.id} + '/members/' + ${m.membershipId} + '/remove'}"
+                                                method="post" th:if="${m.role != 'ADMIN'}">
                                                 <button type="submit" class="btn btn-sm btn-outline-danger">
                                                     <i class="fas fa-user-times me-1"></i> Xóa
                                                 </button>
@@ -138,12 +139,13 @@
                                     <tr th:each="c : ${groupContracts}">
                                         <td th:text="${c.contractNumber}">CT-001</td>
                                         <td th:text="${c.title}">Hợp đồng</td>
-                                        <td th:text="${c.vehicleName != null ? c.vehicleName : '-'}">Xe</td>
+                                        <td th:text="${c.vehicle != null ? c.vehicle.name : '-'}">Xe</td>
                                         <td>
                                             <span class="badge bg-secondary" th:text="${c.status}">DRAFT</span>
                                         </td>
                                         <td class="text-end">
-                                            <a th:href="@{'/contracts/' + ${c.id}}" class="btn btn-sm btn-outline-primary">
+                                            <a th:href="@{'/contracts/' + ${c.id}}"
+                                                class="btn btn-sm btn-outline-primary">
                                                 <i class="fas fa-eye me-1"></i> Chi tiết
                                             </a>
                                         </td>

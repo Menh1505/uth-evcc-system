@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Phiếu bầu chờ xử lý - EVCC System</title>
+
+    <link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div th:replace="~{fragments/navbar :: mainNavbar}"></div>
+
+    <div class="container mt-3">
+        <h2 class="mb-0">
+            <i class="fas fa-vote-yea me-2"></i>Phiếu bầu chờ xử lý
+        </h2>
+        <p class="text-muted">Các hợp đồng đang chờ bạn bỏ phiếu chấp nhận hoặc từ chối.</p>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}">OK</div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}">ERR</div>
+
+        <div th:if="${votingSessions.empty}" class="alert alert-info">
+            <i class="fas fa-info-circle me-1"></i>
+            Hiện tại không có phiếu bầu nào chờ xử lý.
+        </div>
+
+        <div th:if="${!votingSessions.empty}">
+            <div class="row">
+                <div th:each="session : ${votingSessions}" class="col-md-6 col-lg-4 mb-4">
+                    <div class="card border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-file-contract me-1"></i>
+                                <span th:text="${session.title}">Vote cho contract: Mua Tesla</span>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text small text-muted" th:text="${session.description}">Mô tả hợp đồng...</p>
+
+                            <div class="row text-center mb-3">
+                                <div class="col-4">
+                                    <div class="text-success fw-bold" th:text="${session.approveCount}">2</div>
+                                    <small class="text-muted">Chấp nhận</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-danger fw-bold" th:text="${session.rejectCount}">0</div>
+                                    <small class="text-muted">Từ chối</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-warning fw-bold" th:text="${session.requiredVotes}">3</div>
+                                    <small class="text-muted">Cần thiết</small>
+                                </div>
+                            </div>
+
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-success"
+                                    th:style="'width: ' + (${session.approveCount} * 100.0 / ${session.totalMembers}) + '%'">
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <a th:href="@{'/contracts/' + ${session.contractId}}"
+                                    class="btn btn-outline-primary btn-sm flex-fill">
+                                    <i class="fas fa-eye me-1"></i>Xem chi tiết
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                Kết thúc: <span
+                                    th:text="${#temporals.format(session.endsAt, 'dd/MM/yyyy HH:mm')}">01/01/2024
+                                    12:00</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+</body>
+
+</html>

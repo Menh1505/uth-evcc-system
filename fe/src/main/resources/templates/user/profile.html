@@ -7,8 +7,7 @@
     <title th:text="${title}">User Profile - EVCC System</title>
 
     <link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             background-color: #f8f9fa;
@@ -39,15 +38,15 @@
 
     <div class="container mt-3">
         <div class="row justify-content-center mb-3">
-                    <div class="col-lg-10">
+            <div class="col-lg-10">
                 <h2 class="mb-0">
                     <i class="fas fa-id-badge me-2"></i>Hồ sơ cá nhân
                 </h2>
                 <p class="text-muted mb-0">Thông tin tài khoản hiện tại của bạn.</p>
                 <div th:if="${successMessage}" class="alert alert-success mt-2 mb-0" role="alert"
-                     th:text="${successMessage}">Cập nhật thành công</div>
+                    th:text="${successMessage}">Cập nhật thành công</div>
                 <div th:if="${errorMessage}" class="alert alert-danger mt-2 mb-0" role="alert"
-                     th:text="${errorMessage}">Có lỗi xảy ra</div>
+                    th:text="${errorMessage}">Có lỗi xảy ra</div>
             </div>
         </div>
 
@@ -59,7 +58,7 @@
                             <div class="card-body text-center">
                                 <div class="profile-avatar">
                                     <span th:if="${profile != null and profile.username != null}"
-                                          th:text="${#strings.toUpperCase(#strings.substring(profile.username,0,2))}">U</span>
+                                        th:text="${#strings.toUpperCase(#strings.substring(profile.username,0,2))}">U</span>
                                     <span th:if="${profile == null or profile.username == null}">U</span>
                                 </div>
                                 <h5 class="mb-1" th:if="${profile != null and profile.username != null}"
@@ -70,19 +69,20 @@
                                     Chưa có dữ liệu
                                 </h5>
                                 <hr>
-                                <div th:if="${profile == null or profile.roles == null or !#lists.contains(profile.roles,'ADMIN')}">
+                                <div
+                                    th:if="${profile == null or profile.roles == null or !#lists.contains(profile.roles,'ADMIN')}">
                                     <p class="mb-1 text-muted">
                                         <i class="fas fa-id-card me-1"></i>
                                         CCCD:
                                         <span th:if="${profile != null and profile.citizenId != null}"
-                                              th:text="${profile.citizenId}">-</span>
+                                            th:text="${profile.citizenId}">-</span>
                                         <span th:if="${profile == null or profile.citizenId == null}">-</span>
                                     </p>
                                     <p class="mb-1 text-muted">
                                         <i class="fas fa-car-side me-1"></i>
                                         Bằng lái:
                                         <span th:if="${profile != null and profile.driverLicense != null}"
-                                              th:text="${profile.driverLicense}">-</span>
+                                            th:text="${profile.driverLicense}">-</span>
                                         <span th:if="${profile == null or profile.driverLicense == null}">-</span>
                                     </p>
                                 </div>
@@ -102,36 +102,40 @@
                                 <div class="row mb-2">
                                     <div class="col-sm-4 text-muted">User ID</div>
                                     <div class="col-sm-8" th:if="${profile != null and profile.id != null}"
-                                         th:text="${profile.id}">-</div>
+                                        th:text="${profile.id}">-</div>
                                     <div class="col-sm-8" th:if="${profile == null or profile.id == null}">-</div>
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col-sm-4 text-muted">Username</div>
                                     <div class="col-sm-8" th:if="${profile != null and profile.username != null}"
-                                         th:text="${profile.username}">-</div>
+                                        th:text="${profile.username}">-</div>
                                     <div class="col-sm-8" th:if="${profile == null or profile.username == null}">-</div>
                                 </div>
                                 <div class="row mb-2"
-                                     th:if="${profile == null or profile.roles == null or !#lists.contains(profile.roles,'ADMIN')}">
+                                    th:if="${profile == null or profile.roles == null or !#lists.contains(profile.roles,'ADMIN')}">
                                     <div class="col-sm-4 text-muted">Trạng thái</div>
                                     <div class="col-sm-8">
                                         <span class="badge bg-success"
-                                              th:if="${profile != null and profile.isVerified}">Đã xác minh</span>
+                                            th:if="${profile != null and profile.isVerified != null and profile.isVerified}">Đã
+                                            xác minh</span>
                                         <span class="badge bg-warning text-dark"
-                                              th:if="${profile == null or !profile.isVerified}">Chưa xác minh</span>
+                                            th:if="${profile == null or profile.isVerified == null or !profile.isVerified}">Chưa
+                                            xác minh</span>
                                     </div>
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col-sm-4 text-muted">Ngày tạo</div>
                                     <div class="col-sm-8" th:if="${profile != null and profile.createdAt != null}"
-                                         th:text="${profile.createdAt}">-</div>
-                                    <div class="col-sm-8" th:if="${profile == null or profile.createdAt == null}">-</div>
+                                        th:text="${profile.createdAt}">-</div>
+                                    <div class="col-sm-8" th:if="${profile == null or profile.createdAt == null}">-
+                                    </div>
                                 </div>
                                 <div class="row mb-0">
                                     <div class="col-sm-4 text-muted">Cập nhật lần cuối</div>
                                     <div class="col-sm-8" th:if="${profile != null and profile.updatedAt != null}"
-                                         th:text="${profile.updatedAt}">-</div>
-                                    <div class="col-sm-8" th:if="${profile == null or profile.updatedAt == null}">-</div>
+                                        th:text="${profile.updatedAt}">-</div>
+                                    <div class="col-sm-8" th:if="${profile == null or profile.updatedAt == null}">-
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -139,23 +143,25 @@
                         <div class="card shadow-sm">
                             <div class="card-header">
                                 <i class="fas fa-edit me-1"></i>
-                                <span th:if="${profile != null and profile.roles != null and #lists.contains(profile.roles,'ADMIN')}">
+                                <span
+                                    th:if="${profile != null and profile.roles != null and #lists.contains(profile.roles,'ADMIN')}">
                                     Thông tin cá nhân (Admin)
                                 </span>
-                                <span th:if="${profile == null or profile.roles == null or !#lists.contains(profile.roles,'ADMIN')}">
+                                <span
+                                    th:if="${profile == null or profile.roles == null or !#lists.contains(profile.roles,'ADMIN')}">
                                     Thông báo xác thực thông tin cá nhân
                                 </span>
                             </div>
                             <div class="card-body">
                                 <div th:if="${profile != null and profile.roles != null and #lists.contains(profile.roles,'ADMIN')}"
-                                     class="text-muted">
+                                    class="text-muted">
                                     Admin không cần xác thực thông tin cá nhân tại đây.
                                 </div>
 
-                                <div th:if="${profile == null or profile.roles == null or !#lists.contains(profile.roles,'ADMIN')}">
-                                    <button class="btn btn-outline-primary mb-3" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#verifyForm"
-                                            aria-expanded="false" aria-controls="verifyForm">
+                                <div
+                                    th:if="${profile == null or profile.roles == null or !#lists.contains(profile.roles,'ADMIN')}">
+                                    <button class="btn btn-outline-primary mb-3" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#verifyForm" aria-expanded="false" aria-controls="verifyForm">
                                         <i class="fas fa-id-card me-1"></i> Yêu cầu xác thực / cập nhật thông tin
                                     </button>
 
@@ -164,19 +170,17 @@
                                             <div class="mb-3">
                                                 <label for="citizenId" class="form-label">Số CCCD</label>
                                                 <input type="text" id="citizenId" name="citizenId" maxlength="20"
-                                                       pattern="^[0-9]*$"
-                                                       class="form-control"
-                                                       th:value="${profile != null and profile.citizenId != null} ? profile.citizenId : ''"
-                                                       placeholder="Nhập số căn cước công dân">
+                                                    pattern="^[0-9]*$" class="form-control"
+                                                    th:value="${profile != null and profile.citizenId != null} ? profile.citizenId : ''"
+                                                    placeholder="Nhập số căn cước công dân">
                                                 <div class="form-text">Tối đa 20 ký tự, chỉ chứa số.</div>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="driverLicense" class="form-label">Số bằng lái</label>
-                                                <input type="text" id="driverLicense" name="driverLicense" maxlength="20"
-                                                       pattern="^[A-Za-z0-9]*$"
-                                                       class="form-control"
-                                                       th:value="${profile != null and profile.driverLicense != null} ? profile.driverLicense : ''"
-                                                       placeholder="Nhập số bằng lái xe">
+                                                <input type="text" id="driverLicense" name="driverLicense"
+                                                    maxlength="20" pattern="^[A-Za-z0-9]*$" class="form-control"
+                                                    th:value="${profile != null and profile.driverLicense != null} ? profile.driverLicense : ''"
+                                                    placeholder="Nhập số bằng lái xe">
                                                 <div class="form-text">Tối đa 20 ký tự, chỉ chứa chữ và số.</div>
                                             </div>
                                             <button type="submit" class="btn btn-primary">

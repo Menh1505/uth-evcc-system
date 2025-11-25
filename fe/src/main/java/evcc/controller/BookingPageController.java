@@ -20,8 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import evcc.dto.booking.BookingCreateRequestDto;
 import evcc.service.BookingService;
 
-@Controller
-@RequestMapping("/bookings")
+// @Controller - Temporarily disabled to avoid conflicts with new BookingController
+// @RequestMapping("/bookings")
 public class BookingPageController {
 
     @Autowired

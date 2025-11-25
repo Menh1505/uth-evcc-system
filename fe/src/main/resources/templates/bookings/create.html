@@ -1,190 +1,468 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Booking - EVCC</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/style.css" rel="stylesheet" th:href="@{/css/style.css}">
+    <title th:text="${title}">Đặt lịch xe mới - EVCC System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .vehicle-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .vehicle-card:hover {
+            border-color: #0d6efd;
+            transform: translateY(-2px);
+        }
+
+        .vehicle-card.selected {
+            border-color: #0d6efd;
+            background-color: #e7f1ff;
+        }
+
+        .usage-stats {
+            font-size: 0.875rem;
+        }
+
+        .progress-custom {
+            height: 8px;
+        }
+    </style>
 </head>
 
 <body>
-    <div th:replace="fragments/navbar :: navbar"></div>
+    <div th:replace="~{fragments/navbar :: mainNavbar}"></div>
 
     <div class="container mt-4">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="mb-0">Create New Booking</h4>
-                    </div>
-                    <div class="card-body">
-                        <!-- Error Messages -->
-                        <div th:if="${error}" class="alert alert-danger" role="alert">
-                            <span th:text="${error}"></span>
-                        </div>
-
-                        <form th:action="@{/bookings/create}" th:object="${booking}" method="post">
-                            <div class="row">
-                                <!-- Vehicle Selection -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="vehicleId" class="form-label">Vehicle *</label>
-                                    <select class="form-select" id="vehicleId" th:field="*{vehicleId}" required>
-                                        <option value="">Select a vehicle</option>
-                                        <!-- TODO: Populate with actual vehicles -->
-                                        <option value="1">Vehicle 1 (ABC-123)</option>
-                                        <option value="2">Vehicle 2 (XYZ-789)</option>
-                                    </select>
-                                    <div th:if="${#fields.hasErrors('vehicleId')}" class="invalid-feedback d-block">
-                                        <span th:errors="*{vehicleId}"></span>
-                                    </div>
-                                </div>
-
-                                <!-- Contract Selection -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="contractId" class="form-label">Contract *</label>
-                                    <select class="form-select" id="contractId" th:field="*{contractId}" required>
-                                        <option value="">Select a contract</option>
-                                        <!-- TODO: Populate with actual contracts -->
-                                        <option value="1">Contract 1</option>
-                                        <option value="2">Contract 2</option>
-                                    </select>
-                                    <div th:if="${#fields.hasErrors('contractId')}" class="invalid-feedback d-block">
-                                        <span th:errors="*{contractId}"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <!-- Start Date & Time -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="startDate" class="form-label">Start Date *</label>
-                                    <input type="date" class="form-control" id="startDate" required>
-                                    <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('startTime')}">
-                                        <span th:errors="*{startTime}"></span>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label for="startTime" class="form-label">Start Time *</label>
-                                    <input type="time" class="form-control" id="startTime" required>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <!-- End Date & Time -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="endDate" class="form-label">End Date *</label>
-                                    <input type="date" class="form-control" id="endDate" required>
-                                    <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('endTime')}">
-                                        <span th:errors="*{endTime}"></span>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label for="endTime" class="form-label">End Time *</label>
-                                    <input type="time" class="form-control" id="endTime" required>
-                                </div>
-                            </div>
-
-                            <!-- Purpose -->
-                            <div class="mb-3">
-                                <label for="purpose" class="form-label">Purpose *</label>
-                                <input type="text" class="form-control" id="purpose" th:field="*{purpose}"
-                                    placeholder="e.g., Business meeting, Personal trip, etc." required>
-                                <div th:if="${#fields.hasErrors('purpose')}" class="invalid-feedback d-block">
-                                    <span th:errors="*{purpose}"></span>
-                                </div>
-                            </div>
-
-                            <!-- Destination -->
-                            <div class="mb-3">
-                                <label for="destination" class="form-label">Destination</label>
-                                <input type="text" class="form-control" id="destination" th:field="*{destination}"
-                                    placeholder="Where are you going?">
-                                <div th:if="${#fields.hasErrors('destination')}" class="invalid-feedback d-block">
-                                    <span th:errors="*{destination}"></span>
-                                </div>
-                            </div>
-
-                            <!-- Estimated Distance -->
-                            <div class="mb-3">
-                                <label for="estimatedDistance" class="form-label">Estimated Distance (km)</label>
-                                <input type="number" class="form-control" id="estimatedDistance"
-                                    th:field="*{estimatedDistance}" min="1" step="1"
-                                    placeholder="Estimated kilometers for this trip">
-                                <div th:if="${#fields.hasErrors('estimatedDistance')}" class="invalid-feedback d-block">
-                                    <span th:errors="*{estimatedDistance}"></span>
-                                </div>
-                            </div>
-
-                            <!-- Notes -->
-                            <div class="mb-3">
-                                <label for="notes" class="form-label">Notes</label>
-                                <textarea class="form-control" id="notes" th:field="*{notes}" rows="3"
-                                    placeholder="Additional notes or special requirements"></textarea>
-                                <div th:if="${#fields.hasErrors('notes')}" class="invalid-feedback d-block">
-                                    <span th:errors="*{notes}"></span>
-                                </div>
-                            </div>
-
-                            <!-- Hidden fields for combined datetime -->
-                            <input type="hidden" th:field="*{startTime}" id="combinedStartTime">
-                            <input type="hidden" th:field="*{endTime}" id="combinedEndTime">
-
-                            <div class="d-flex justify-content-between">
-                                <a th:href="@{/bookings}" class="btn btn-secondary">
-                                    <i class="fas fa-arrow-left"></i> Back to Bookings
-                                </a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Create Booking
-                                </button>
-                            </div>
-                        </form>
+            <div class="col-lg-10">
+                <!-- Page Header -->
+                <div class="mb-4">
+                    <div class="d-flex align-items-center">
+                        <a href="/bookings" class="btn btn-outline-secondary me-3">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        <h2><i class="fas fa-plus me-2"></i>Đặt lịch xe mới</h2>
                     </div>
                 </div>
+
+                <!-- Alert Messages -->
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${errorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${successMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Booking Form -->
+                <form id="bookingForm" action="/bookings/local/create" method="post">
+                    <div class="row">
+                        <!-- Vehicle Selection -->
+                        <div class="col-lg-8 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-car me-2"></i>Chọn xe</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row" id="vehicleSelection">
+                                        <div class="col-md-6 mb-3" th:each="contract : ${availableVehicles}">
+                                            <div class="vehicle-card card h-100"
+                                                th:data-vehicle-id="${contract.vehicle.id}">
+                                                <div class="card-body">
+                                                    <h6 class="card-title text-primary"
+                                                        th:text="${contract.vehicle.name}">Vehicle Name</h6>
+                                                    <p class="card-text small text-muted">
+                                                        <span
+                                                            th:text="${contract.vehicle.make + ' ' + contract.vehicle.model}">Make
+                                                            Model</span>
+                                                        <br>
+                                                        <span
+                                                            th:text="'Biển số: ' + ${contract.vehicle.licensePlate}">License</span>
+                                                        <br>
+                                                        <span th:text="'Nhóm: ' + ${contract.groupName}">Group</span>
+                                                    </p>
+
+                                                    <!-- Usage Stats Placeholder -->
+                                                    <div class="usage-stats"
+                                                        th:data-vehicle-id="${contract.vehicle.id}">
+                                                        <div class="d-flex justify-content-between">
+                                                            <small class="text-muted">Tỷ lệ sử dụng tuần:</small>
+                                                            <small class="usage-percentage">Đang tải...</small>
+                                                        </div>
+                                                        <div class="progress progress-custom mb-2">
+                                                            <div class="progress-bar usage-progress" role="progressbar">
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between">
+                                                            <small class="text-muted">Quyền sở hữu:</small>
+                                                            <small class="ownership-percentage">Đang tải...</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="vehicleId" id="selectedVehicleId" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Booking Details -->
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-calendar me-2"></i>Chi tiết đặt lịch</h5>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Date -->
+                                    <div class="mb-3">
+                                        <label for="bookingDate" class="form-label">Ngày đặt lịch <span
+                                                class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="bookingDate" name="bookingDate"
+                                            th:min="${minDate}" required>
+                                    </div>
+
+                                    <!-- Start Time -->
+                                    <div class="mb-3">
+                                        <label for="startTime" class="form-label">Thời gian bắt đầu <span
+                                                class="text-danger">*</span></label>
+                                        <input type="time" class="form-control" id="startTime" name="startTime"
+                                            required>
+                                    </div>
+
+                                    <!-- End Time -->
+                                    <div class="mb-3">
+                                        <label for="endTime" class="form-label">Thời gian kết thúc <span
+                                                class="text-danger">*</span></label>
+                                        <input type="time" class="form-control" id="endTime" name="endTime" required>
+                                    </div>
+
+                                    <!-- Purpose -->
+                                    <div class="mb-3">
+                                        <label for="purpose" class="form-label">Mục đích sử dụng <span
+                                                class="text-danger">*</span></label>
+                                        <select class="form-select" id="purpose" name="purpose" required>
+                                            <option value="">Chọn mục đích...</option>
+                                            <option value="Đi công tác">Đi công tác</option>
+                                            <option value="Họp khách hàng">Họp khách hàng</option>
+                                            <option value="Đi giao hàng">Đi giao hàng</option>
+                                            <option value="Đi sự kiện">Đi sự kiện</option>
+                                            <option value="Công việc cá nhân">Công việc cá nhân</option>
+                                            <option value="Khác">Khác</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Notes -->
+                                    <div class="mb-3">
+                                        <label for="notes" class="form-label">Ghi chú</label>
+                                        <textarea class="form-control" id="notes" name="notes" rows="3"
+                                            placeholder="Ghi chú thêm (nếu có)..."></textarea>
+                                    </div>
+
+                                    <!-- Validation Result -->
+                                    <div id="validationResult" class="mb-3" style="display: none;">
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <span id="validationMessage"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Submit Button -->
+                                    <button type="submit" class="btn btn-primary w-100" id="submitBtn" disabled>
+                                        <i class="fas fa-check me-2"></i>Đặt lịch
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Combine date and time fields
-        function updateDateTime() {
-            const startDate = document.getElementById('startDate').value;
-            const startTime = document.getElementById('startTime').value;
-            const endDate = document.getElementById('endDate').value;
-            const endTime = document.getElementById('endTime').value;
+        document.addEventListener('DOMContentLoaded', function () {
+            const vehicleCards = document.querySelectorAll('.vehicle-card');
+            const vehicleIdInput = document.getElementById('selectedVehicleId');
+            const submitBtn = document.getElementById('submitBtn');
+            const bookingForm = document.getElementById('bookingForm');
+            const validationResult = document.getElementById('validationResult');
+            const validationMessage = document.getElementById('validationMessage');
 
-            if (startDate && startTime) {
-                document.getElementById('combinedStartTime').value = startDate + 'T' + startTime;
+            let selectedVehicleId = null;
+
+            // Handle vehicle selection
+            vehicleCards.forEach(card => {
+                card.addEventListener('click', function () {
+                    // Remove selection from all cards
+                    vehicleCards.forEach(c => c.classList.remove('selected'));
+
+                    // Add selection to clicked card
+                    this.classList.add('selected');
+                    selectedVehicleId = this.dataset.vehicleId;
+                    vehicleIdInput.value = selectedVehicleId;
+
+                    // Load usage statistics
+                    loadUsageStats(selectedVehicleId);
+
+                    // Check validation
+                    validateBooking();
+                });
+            });
+
+            // Load usage statistics
+            function loadUsageStats(vehicleId) {
+                fetch(`/bookings/local/usage-stats?vehicleId=${vehicleId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const statsElement = document.querySelector(`[data-vehicle-id="${vehicleId}"] .usage-stats`);
+                        if (statsElement) {
+                            const usagePercent = data.usagePercentage;
+                            const ownershipPercent = data.ownershipPercentage;
+
+                            statsElement.querySelector('.usage-percentage').textContent = `${usagePercent}%`;
+                            statsElement.querySelector('.ownership-percentage').textContent = `${ownershipPercent}%`;
+
+                            const progressBar = statsElement.querySelector('.usage-progress');
+                            progressBar.style.width = `${usagePercent}%`;
+                            progressBar.classList.remove('bg-success', 'bg-warning', 'bg-danger');
+
+                            if (usagePercent <= ownershipPercent * 0.8) {
+                                progressBar.classList.add('bg-success');
+                            } else if (usagePercent <= ownershipPercent) {
+                                progressBar.classList.add('bg-warning');
+                            } else {
+                                progressBar.classList.add('bg-danger');
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading usage stats:', error);
+                    });
             }
 
-            if (endDate && endTime) {
-                document.getElementById('combinedEndTime').value = endDate + 'T' + endTime;
+            // Validate booking
+            function validateBooking() {
+                const vehicleId = vehicleIdInput.value;
+                const bookingDate = document.getElementById('bookingDate').value;
+                const startTime = document.getElementById('startTime').value;
+                const endTime = document.getElementById('endTime').value;
+
+                if (vehicleId && bookingDate && startTime && endTime) {
+                    const formData = new FormData();
+                    formData.append('vehicleId', vehicleId);
+                    formData.append('bookingDate', bookingDate);
+                    formData.append('startTime', startTime);
+                    formData.append('endTime', endTime);
+
+                    fetch('/bookings/local/validate', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.valid) {
+                                validationResult.style.display = 'none';
+                                submitBtn.disabled = false;
+                                submitBtn.className = 'btn btn-primary w-100';
+                            } else {
+                                validationMessage.textContent = data.errorMessage;
+                                validationResult.style.display = 'block';
+                                submitBtn.disabled = true;
+                                submitBtn.className = 'btn btn-secondary w-100';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error validating booking:', error);
+                            submitBtn.disabled = true;
+                        });
+                } else {
+                    submitBtn.disabled = true;
+                    submitBtn.className = 'btn btn-secondary w-100';
+                    validationResult.style.display = 'none';
+                }
             }
-        }
 
-        document.getElementById('startDate').addEventListener('change', updateDateTime);
-        document.getElementById('startTime').addEventListener('change', updateDateTime);
-        document.getElementById('endDate').addEventListener('change', updateDateTime);
-        document.getElementById('endTime').addEventListener('change', updateDateTime);
+            // Add event listeners for validation
+            ['bookingDate', 'startTime', 'endTime'].forEach(id => {
+                document.getElementById(id).addEventListener('change', validateBooking);
+            });
 
-        // Set minimum date to today
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('startDate').min = today;
-        document.getElementById('endDate').min = today;
-
-        // Auto-set end date when start date changes
-        document.getElementById('startDate').addEventListener('change', function () {
-            const endDateField = document.getElementById('endDate');
-            if (!endDateField.value || endDateField.value < this.value) {
-                endDateField.value = this.value;
-                endDateField.min = this.value;
-            }
+            // Load initial usage stats for all vehicles
+            vehicleCards.forEach(card => {
+                const vehicleId = card.dataset.vehicleId;
+                loadUsageStats(vehicleId);
+            });
         });
     </script>
+</body>
+
+</html>
+<label for="vehicleId" class="form-label">Vehicle *</label>
+<select class="form-select" id="vehicleId" th:field="*{vehicleId}" required>
+    <option value="">Select a vehicle</option>
+    <!-- TODO: Populate with actual vehicles -->
+    <option value="1">Vehicle 1 (ABC-123)</option>
+    <option value="2">Vehicle 2 (XYZ-789)</option>
+</select>
+<div th:if="${#fields.hasErrors('vehicleId')}" class="invalid-feedback d-block">
+    <span th:errors="*{vehicleId}"></span>
+</div>
+</div>
+
+<!-- Contract Selection -->
+<div class="col-md-6 mb-3">
+    <label for="contractId" class="form-label">Contract *</label>
+    <select class="form-select" id="contractId" th:field="*{contractId}" required>
+        <option value="">Select a contract</option>
+        <!-- TODO: Populate with actual contracts -->
+        <option value="1">Contract 1</option>
+        <option value="2">Contract 2</option>
+    </select>
+    <div th:if="${#fields.hasErrors('contractId')}" class="invalid-feedback d-block">
+        <span th:errors="*{contractId}"></span>
+    </div>
+</div>
+</div>
+
+<div class="row">
+    <!-- Start Date & Time -->
+    <div class="col-md-6 mb-3">
+        <label for="startDate" class="form-label">Start Date *</label>
+        <input type="date" class="form-control" id="startDate" required>
+        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('startTime')}">
+            <span th:errors="*{startTime}"></span>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <label for="startTime" class="form-label">Start Time *</label>
+        <input type="time" class="form-control" id="startTime" required>
+    </div>
+</div>
+
+<div class="row">
+    <!-- End Date & Time -->
+    <div class="col-md-6 mb-3">
+        <label for="endDate" class="form-label">End Date *</label>
+        <input type="date" class="form-control" id="endDate" required>
+        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('endTime')}">
+            <span th:errors="*{endTime}"></span>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <label for="endTime" class="form-label">End Time *</label>
+        <input type="time" class="form-control" id="endTime" required>
+    </div>
+</div>
+
+<!-- Purpose -->
+<div class="mb-3">
+    <label for="purpose" class="form-label">Purpose *</label>
+    <input type="text" class="form-control" id="purpose" th:field="*{purpose}"
+        placeholder="e.g., Business meeting, Personal trip, etc." required>
+    <div th:if="${#fields.hasErrors('purpose')}" class="invalid-feedback d-block">
+        <span th:errors="*{purpose}"></span>
+    </div>
+</div>
+
+<!-- Destination -->
+<div class="mb-3">
+    <label for="destination" class="form-label">Destination</label>
+    <input type="text" class="form-control" id="destination" th:field="*{destination}"
+        placeholder="Where are you going?">
+    <div th:if="${#fields.hasErrors('destination')}" class="invalid-feedback d-block">
+        <span th:errors="*{destination}"></span>
+    </div>
+</div>
+
+<!-- Estimated Distance -->
+<div class="mb-3">
+    <label for="estimatedDistance" class="form-label">Estimated Distance (km)</label>
+    <input type="number" class="form-control" id="estimatedDistance" th:field="*{estimatedDistance}" min="1" step="1"
+        placeholder="Estimated kilometers for this trip">
+    <div th:if="${#fields.hasErrors('estimatedDistance')}" class="invalid-feedback d-block">
+        <span th:errors="*{estimatedDistance}"></span>
+    </div>
+</div>
+
+<!-- Notes -->
+<div class="mb-3">
+    <label for="notes" class="form-label">Notes</label>
+    <textarea class="form-control" id="notes" th:field="*{notes}" rows="3"
+        placeholder="Additional notes or special requirements"></textarea>
+    <div th:if="${#fields.hasErrors('notes')}" class="invalid-feedback d-block">
+        <span th:errors="*{notes}"></span>
+    </div>
+</div>
+
+<!-- Hidden fields for combined datetime -->
+<input type="hidden" th:field="*{startTime}" id="combinedStartTime">
+<input type="hidden" th:field="*{endTime}" id="combinedEndTime">
+
+<div class="d-flex justify-content-between">
+    <a th:href="@{/bookings}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Bookings
+    </a>
+    <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save"></i> Create Booking
+    </button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Combine date and time fields
+    function updateDateTime() {
+        const startDate = document.getElementById('startDate').value;
+        const startTime = document.getElementById('startTime').value;
+        const endDate = document.getElementById('endDate').value;
+        const endTime = document.getElementById('endTime').value;
+
+        if (startDate && startTime) {
+            document.getElementById('combinedStartTime').value = startDate + 'T' + startTime;
+        }
+
+        if (endDate && endTime) {
+            document.getElementById('combinedEndTime').value = endDate + 'T' + endTime;
+        }
+    }
+
+    document.getElementById('startDate').addEventListener('change', updateDateTime);
+    document.getElementById('startTime').addEventListener('change', updateDateTime);
+    document.getElementById('endDate').addEventListener('change', updateDateTime);
+    document.getElementById('endTime').addEventListener('change', updateDateTime);
+
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('startDate').min = today;
+    document.getElementById('endDate').min = today;
+
+    // Auto-set end date when start date changes
+    document.getElementById('startDate').addEventListener('change', function () {
+        const endDateField = document.getElementById('endDate');
+        if (!endDateField.value || endDateField.value < this.value) {
+            endDateField.value = this.value;
+            endDateField.min = this.value;
+        }
+    });
+</script>
 </body>
 
 </html>

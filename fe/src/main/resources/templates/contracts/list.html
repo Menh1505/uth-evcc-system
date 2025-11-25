@@ -7,8 +7,7 @@
     <title th:text="${title}">Hợp đồng của tôi - EVCC System</title>
 
     <link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
@@ -37,15 +36,21 @@
                         <label for="groupId" class="form-label">Nhóm</label>
                         <select id="groupId" name="groupId" class="form-select" required>
                             <option value="" selected disabled>Chọn nhóm</option>
-                            <option th:each="g : ${groups}"
-                                    th:value="${g.id}"
-                                    th:text="${g.name}">Nhóm A</option>
+                            <option th:each="g : ${groups}" th:value="${g.id}" th:text="${g.name}">Nhóm A</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="vehicleId" class="form-label">Xe điện</label>
+                        <select id="vehicleId" name="vehicleId" class="form-select" required>
+                            <option value="" selected disabled>Chọn xe điện</option>
+                            <option th:each="v : ${availableVehicles}" th:value="${v.id}"
+                                th:text="${v.name + ' (' + v.licensePlate + ')'}">Tesla Model 3 (30A-12345)</option>
                         </select>
                     </div>
                     <div class="col-md-4">
                         <label for="agreedPrice" class="form-label">Giá thỏa thuận (VND)</label>
                         <input type="number" min="0" step="1000" id="agreedPrice" name="agreedPrice"
-                               class="form-control" required>
+                            class="form-control" required>
                     </div>
 
                     <div class="col-md-4">
@@ -68,8 +73,8 @@
 
                     <div class="col-md-12">
                         <label for="termsAndConditions" class="form-label">Điều khoản & điều kiện</label>
-                        <textarea id="termsAndConditions" name="termsAndConditions"
-                                  class="form-control" rows="3"></textarea>
+                        <textarea id="termsAndConditions" name="termsAndConditions" class="form-control"
+                            rows="3"></textarea>
                     </div>
 
                     <div class="col-md-12">
@@ -79,50 +84,31 @@
 
                     <div class="col-md-12">
                         <hr>
-                        <h5><i class="fas fa-user-friends me-1"></i> Quyền sở hữu (tổng = 100%)</h5>
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 30%">User ID (UUID)</th>
-                                        <th style="width: 20%">Tỉ lệ (%)</th>
-                                        <th style="width: 25%">Đóng góp (VND)</th>
-                                        <th>Ghi chú</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><input type="text" name="ownerUserId" class="form-control"
-                                                   placeholder="uuid-user-1"></td>
-                                        <td><input type="number" name="ownerPercentage" class="form-control"
-                                                   step="0.01" min="0.01" max="100"></td>
-                                        <td><input type="number" name="ownerContribution" class="form-control"
-                                                   step="1000" min="0"></td>
-                                        <td><input type="text" name="ownerNotes" class="form-control"></td>
-                                    </tr>
-                                    <tr>
-                                        <td><input type="text" name="ownerUserId" class="form-control"
-                                                   placeholder="uuid-user-2"></td>
-                                        <td><input type="number" name="ownerPercentage" class="form-control"
-                                                   step="0.01" min="0.01" max="100"></td>
-                                        <td><input type="number" name="ownerContribution" class="form-control"
-                                                   step="1000" min="0"></td>
-                                        <td><input type="text" name="ownerNotes" class="form-control"></td>
-                                    </tr>
-                                    <tr>
-                                        <td><input type="text" name="ownerUserId" class="form-control"
-                                                   placeholder="uuid-user-3"></td>
-                                        <td><input type="number" name="ownerPercentage" class="form-control"
-                                                   step="0.01" min="0.01" max="100"></td>
-                                        <td><input type="number" name="ownerContribution" class="form-control"
-                                                   step="1000" min="0"></td>
-                                        <td><input type="text" name="ownerNotes" class="form-control"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <small class="text-muted">
-                                Để trống dòng nào thì hệ thống bỏ qua dòng đó. Tổng tỉ lệ sở hữu của các dòng có user phải bằng 100%.
-                            </small>
+                        <h5><i class="fas fa-user-friends me-1"></i> Quyền sở hữu (nhập số tiền đóng góp)</h5>
+                        <div id="ownership-section" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 30%">Thành viên</th>
+                                            <th style="width: 25%">Số tiền đóng góp (VND)</th>
+                                            <th style="width: 20%">Tỉ lệ sở hữu (%)</th>
+                                            <th>Ghi chú</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ownership-tbody">
+                                        <!-- Sẽ được điền động qua JavaScript -->
+                                    </tbody>
+                                </table>
+                                <div id="ownership-summary" class="alert alert-info mt-2">
+                                    <strong>Tổng số tiền: <span id="total-amount">0</span> VND | Tổng tỉ lệ: <span
+                                            id="total-percentage">0</span>%</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="ownership-placeholder" class="alert alert-warning">
+                            <i class="fas fa-info-circle me-1"></i> Vui lòng chọn nhóm trước để hiển thị danh sách thành
+                            viên.
                         </div>
                     </div>
 
@@ -137,6 +123,253 @@
     </div>
 
     <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+    <script th:inline="javascript">
+        // Dữ liệu groups và members từ server
+        /*<![CDATA[*/
+        const groups = /*[[${groups}]]*/[];
+        /*]]>*/
+
+        let groupMembers = {}; // Cache group members
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('form');
+            const groupSelect = document.getElementById('groupId');
+            const ownershipSection = document.getElementById('ownership-section');
+            const ownershipPlaceholder = document.getElementById('ownership-placeholder');
+            const ownershipTbody = document.getElementById('ownership-tbody');
+            const totalAmountSpan = document.getElementById('total-amount');
+            const totalPercentageSpan = document.getElementById('total-percentage');
+
+            // Handle group selection change
+            groupSelect.addEventListener('change', function () {
+                const groupId = this.value;
+                if (groupId) {
+                    loadGroupMembers(groupId);
+                } else {
+                    ownershipSection.style.display = 'none';
+                    ownershipPlaceholder.style.display = 'block';
+                }
+            });
+
+            // Load group members from server
+            async function loadGroupMembers(groupId) {
+                try {
+                    if (groupMembers[groupId]) {
+                        displayMembers(groupMembers[groupId]);
+                        return;
+                    }
+
+                    const response = await fetch(`/groups/${groupId}`);
+                    if (response.ok) {
+                        const html = await response.text();
+                        // Parse HTML to extract member data
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const memberRows = doc.querySelectorAll('table tbody tr');
+
+                        const members = [];
+                        memberRows.forEach(row => {
+                            const cells = row.querySelectorAll('td');
+                            if (cells.length >= 2) {
+                                const username = cells[0]?.textContent?.trim();
+                                if (username && username !== 'Nhóm chưa có thành viên.') {
+                                    members.push({
+                                        id: generateUserId(username),
+                                        username: username
+                                    });
+                                }
+                            }
+                        });
+
+                        groupMembers[groupId] = members;
+                        displayMembers(members);
+                    } else {
+                        console.error('Failed to load group members');
+                        ownershipSection.style.display = 'none';
+                        ownershipPlaceholder.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> Không thể tải danh sách thành viên nhóm.';
+                    }
+                } catch (error) {
+                    console.error('Error loading group members:', error);
+                    ownershipSection.style.display = 'none';
+                    ownershipPlaceholder.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> Lỗi khi tải danh sách thành viên nhóm.';
+                }
+            }
+
+            // Generate UUID from username (demo purpose)
+            function generateUserId(username) {
+                const demoUserMap = {
+                    'user1@example.com': '11111111-1111-1111-1111-111111111111',
+                    'user2@example.com': '22222222-2222-2222-2222-222222222222',
+                    'user3@example.com': '33333333-3333-3333-3333-333333333333',
+                    'user4@example.com': '44444444-4444-4444-4444-444444444444',
+                    'menh@gmail.com': '55555555-5555-5555-5555-555555555555'
+                };
+                return demoUserMap[username] || 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+            }
+
+            // Display members in the ownership table
+            function displayMembers(members) {
+                if (members.length === 0) {
+                    ownershipSection.style.display = 'none';
+                    ownershipPlaceholder.innerHTML = '<i class="fas fa-info-circle me-1"></i> Nhóm này chưa có thành viên nào.';
+                    ownershipPlaceholder.style.display = 'block';
+                    return;
+                }
+
+                ownershipPlaceholder.style.display = 'none';
+                ownershipSection.style.display = 'block';
+
+                ownershipTbody.innerHTML = '';
+                members.forEach((member, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="selectedUsers" 
+                                    value="${member.id}" id="user${index}">
+                                <label class="form-check-label fw-bold" for="user${index}">
+                                    ${member.username}
+                                    <br><small class="text-muted">ID: ${member.id}</small>
+                                </label>
+                            </div>
+                            <input type="hidden" name="ownerUserId" value="${member.id}">
+                        </td>
+                        <td>
+                            <input type="number" name="ownerContribution" class="form-control contribution-input" 
+                                step="1000" min="0" placeholder="0" disabled>
+                        </td>
+                        <td>
+                            <input type="number" name="ownerPercentage" class="form-control percentage-display" 
+                                step="0.01" min="0" max="100" placeholder="0" readonly>
+                        </td>
+                        <td>
+                            <input type="text" name="ownerNotes" class="form-control" 
+                                placeholder="Ghi chú..." disabled>
+                        </td>
+                    `;
+                    ownershipTbody.appendChild(row);
+                });
+
+                setupOwnershipHandlers();
+            }
+
+            // Setup event handlers for ownership inputs
+            function setupOwnershipHandlers() {
+                const checkboxes = document.querySelectorAll('input[name="selectedUsers"]');
+                const contributionInputs = document.querySelectorAll('.contribution-input');
+                const percentageDisplays = document.querySelectorAll('.percentage-display');
+
+                // Handle checkbox changes
+                checkboxes.forEach((checkbox, index) => {
+                    checkbox.addEventListener('change', function () {
+                        const row = this.closest('tr');
+                        const inputs = row.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"])');
+                        const contributionInput = row.querySelector('.contribution-input');
+                        const percentageDisplay = row.querySelector('.percentage-display');
+                        const notesInput = row.querySelector('input[name="ownerNotes"]');
+
+                        if (this.checked) {
+                            contributionInput.disabled = false;
+                            contributionInput.required = true;
+                            notesInput.disabled = false;
+                            row.style.backgroundColor = '#f8f9fa';
+                        } else {
+                            contributionInput.disabled = true;
+                            contributionInput.required = false;
+                            contributionInput.value = '';
+                            percentageDisplay.value = '';
+                            notesInput.disabled = true;
+                            notesInput.value = '';
+                            row.style.backgroundColor = '';
+                        }
+
+                        calculatePercentages();
+                    });
+                });
+
+                // Handle contribution input changes
+                contributionInputs.forEach(input => {
+                    input.addEventListener('input', calculatePercentages);
+                });
+            }
+
+            // Calculate ownership percentages based on contributions
+            function calculatePercentages() {
+                const checkboxes = document.querySelectorAll('input[name="selectedUsers"]:checked');
+                const contributionInputs = document.querySelectorAll('.contribution-input');
+                const percentageDisplays = document.querySelectorAll('.percentage-display');
+
+                let totalAmount = 0;
+                const contributions = [];
+
+                // Collect contributions from selected users
+                checkboxes.forEach((checkbox) => {
+                    const rowIndex = Array.from(document.querySelectorAll('input[name="selectedUsers"]')).indexOf(checkbox);
+                    const contribution = parseFloat(contributionInputs[rowIndex].value) || 0;
+                    contributions.push({ index: rowIndex, amount: contribution });
+                    totalAmount += contribution;
+                });
+
+                // Calculate and display percentages
+                percentageDisplays.forEach(display => display.value = '');
+
+                if (totalAmount > 0) {
+                    contributions.forEach(({ index, amount }) => {
+                        const percentage = (amount / totalAmount * 100).toFixed(2);
+                        percentageDisplays[index].value = percentage;
+                    });
+                }
+
+                // Update summary
+                totalAmountSpan.textContent = totalAmount.toLocaleString();
+                totalPercentageSpan.textContent = checkboxes.length > 0 && totalAmount > 0 ? '100.00' : '0';
+
+                // Update summary styling
+                const summaryDiv = document.getElementById('ownership-summary');
+                if (checkboxes.length > 0 && totalAmount > 0) {
+                    summaryDiv.className = 'alert alert-success mt-2';
+                } else if (checkboxes.length > 0) {
+                    summaryDiv.className = 'alert alert-warning mt-2';
+                } else {
+                    summaryDiv.className = 'alert alert-info mt-2';
+                }
+            }
+
+            // Form submission validation
+            form.addEventListener('submit', function (e) {
+                const selectedUsers = document.querySelectorAll('input[name="selectedUsers"]:checked');
+                if (selectedUsers.length === 0) {
+                    e.preventDefault();
+                    alert('Vui lòng chọn ít nhất một thành viên để tạo hợp đồng.');
+                    return;
+                }
+
+                let totalAmount = 0;
+                let hasEmptyContribution = false;
+
+                selectedUsers.forEach((checkbox) => {
+                    const rowIndex = Array.from(document.querySelectorAll('input[name="selectedUsers"]')).indexOf(checkbox);
+                    const contributionInputs = document.querySelectorAll('.contribution-input');
+                    const contribution = parseFloat(contributionInputs[rowIndex].value) || 0;
+
+                    if (contribution <= 0) hasEmptyContribution = true;
+                    totalAmount += contribution;
+                });
+
+                if (hasEmptyContribution) {
+                    e.preventDefault();
+                    alert('Vui lòng nhập số tiền đóng góp (> 0) cho tất cả thành viên được chọn.');
+                    return;
+                }
+
+                if (totalAmount <= 0) {
+                    e.preventDefault();
+                    alert('Tổng số tiền đóng góp phải lớn hơn 0.');
+                    return;
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

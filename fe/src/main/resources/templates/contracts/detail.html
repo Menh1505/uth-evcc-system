@@ -31,6 +31,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             margin-bottom: 30px;
         }
+
         .navbar a {
             color: white !important;
         }
@@ -92,7 +93,7 @@
             color: #6c757d;
             border-bottom: 2px solid #e9ecef;
         }
-        
+
         .table-custom td {
             vertical-align: middle;
             font-size: 0.95rem;
@@ -111,20 +112,22 @@
             border-bottom: 1px dashed #eee;
             padding-bottom: 8px;
         }
+
         .info-item:last-child {
             border-bottom: none;
             margin-bottom: 0;
         }
+
         .info-label {
             color: #6c757d;
             font-weight: 500;
         }
+
         .info-value {
             font-weight: 600;
             color: #212529;
             text-align: right;
         }
-
     </style>
 </head>
 
@@ -132,7 +135,7 @@
     <div th:replace="~{fragments/navbar :: mainNavbar}"></div>
 
     <div class="container" th:if="${contract != null}">
-        
+
         <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
             <i class="fas fa-check-circle me-2"></i><span th:text="${successMessage}">OK</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -149,20 +152,22 @@
                     <span th:text="${contract.title}">Chi tiết Hợp đồng</span>
                 </h2>
                 <div class="opacity-75">
-                    <i class="fas fa-hashtag me-1"></i> Số HĐ: 
+                    <i class="fas fa-hashtag me-1"></i> Số HĐ:
                     <span class="fw-bold" th:text="${contract.contractNumber}">CT-001</span>
                 </div>
             </div>
             <div class="page-actions">
                 <span class="badge bg-light text-dark shadow-sm" style="font-size: 1rem;">
-                    <i class="fas fa-circle me-1" 
-                       th:classappend="${contract.status == 'ACTIVE' ? 'text-success' : 'text-secondary'}"></i>
+                    <i class="fas fa-circle me-1"
+                        th:classappend="${contract.status == 'ACTIVE' ? 'text-success' : 'text-secondary'}"></i>
                     <span th:text="${contract.status}">STATUS</span>
                 </span>
             </div>
         </div>
 
-        <div class="row g-4"> <div class="col-lg-4">
+        <div class="row g-4">
+            <!-- Thông tin chung -->
+            <div class="col-lg-4">
                 <div class="card h-100">
                     <div class="card-header">
                         <i class="fas fa-info-circle me-2"></i>Thông tin chung
@@ -170,7 +175,7 @@
                     <div class="card-body">
                         <div class="info-item">
                             <span class="info-label">Nhóm</span>
-                            <span class="info-value text-primary" th:text="${contract.group != null ? contract.group.name : '-'}">Nhóm A</span>
+                            <span class="info-value text-primary" th:text="${contract.groupName}">Nhóm A</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Giá trị</span>
@@ -178,28 +183,139 @@
                                 <span th:text="${#numbers.formatInteger(contract.agreedPrice, 0, 'POINT')}">0</span> ₫
                             </span>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" th:if="${contract.signingDate}">
                             <span class="info-label">Ngày ký</span>
                             <span class="info-value" th:text="${contract.signingDate}">01/01/2024</span>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" th:if="${contract.effectiveDate}">
                             <span class="info-label">Hiệu lực từ</span>
                             <span class="info-value" th:text="${contract.effectiveDate}">01/01/2024</span>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" th:if="${contract.expiryDate}">
                             <span class="info-label">Hết hạn</span>
                             <span class="info-value text-danger" th:text="${contract.expiryDate}">31/12/2024</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin Vehicle -->
+                <div class="card mt-4" th:if="${contract.vehicle}">
+                    <div class="card-header">
+                        <i class="fas fa-car me-2"></i>Thông tin xe điện
+                    </div>
+                    <div class="card-body">
+                        <div class="info-item">
+                            <span class="info-label">Tên xe</span>
+                            <span class="info-value" th:text="${contract.vehicle.name}">Tesla Model 3</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Biển số</span>
+                            <span class="info-value badge bg-light text-dark"
+                                th:text="${contract.vehicle.licensePlate}">30A-12345</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Hãng xe</span>
+                            <span class="info-value" th:text="${contract.vehicle.make}">Tesla</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Model</span>
+                            <span class="info-value" th:text="${contract.vehicle.model}">Model 3</span>
+                        </div>
+                        <div class="info-item" th:if="${contract.vehicle.year}">
+                            <span class="info-label">Năm sản xuất</span>
+                            <span class="info-value" th:text="${contract.vehicle.year}">2023</span>
+                        </div>
+                        <div class="info-item" th:if="${contract.vehicle.purchasePrice}">
+                            <span class="info-label">Giá mua</span>
+                            <span class="info-value text-success">
+                                <span
+                                    th:text="${#numbers.formatInteger(contract.vehicle.purchasePrice, 0, 'POINT')}">0</span>
+                                ₫
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-8">
-                
+                <!-- Voting Section -->
+                <div class="card mb-4" th:if="${votingSession}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-vote-yea me-2"></i>Trạng thái bỏ phiếu</span>
+                        <span class="badge"
+                            th:classappend="${votingSession.status == 'ACTIVE' ? 'bg-warning' : 'bg-secondary'}"
+                            th:text="${votingSession.status}">ACTIVE</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center mb-3">
+                            <div class="col-3">
+                                <div class="text-success fw-bold fs-4" th:text="${votingSession.approveCount}">2</div>
+                                <small class="text-muted">Chấp nhận</small>
+                            </div>
+                            <div class="col-3">
+                                <div class="text-danger fw-bold fs-4" th:text="${votingSession.rejectCount}">0</div>
+                                <small class="text-muted">Từ chối</small>
+                            </div>
+                            <div class="col-3">
+                                <div class="text-warning fw-bold fs-4" th:text="${votingSession.requiredVotes}">3</div>
+                                <small class="text-muted">Cần thiết</small>
+                            </div>
+                            <div class="col-3">
+                                <div class="text-info fw-bold fs-4" th:text="${votingSession.totalMembers}">5</div>
+                                <small class="text-muted">Tổng thành viên</small>
+                            </div>
+                        </div>
+
+                        <div class="progress mb-3" style="height: 12px;">
+                            <div class="progress-bar bg-success"
+                                th:style="'width: ' + (${votingSession.approveCount} * 100.0 / ${votingSession.totalMembers}) + '%'"
+                                th:text="${votingSession.approveCount} + '/' + ${votingSession.totalMembers}">
+                            </div>
+                        </div>
+
+                        <!-- Vote buttons nếu user chưa vote và session active -->
+                        <div
+                            th:if="${votingSession.status == 'ACTIVE' && !votingSession.hasUserVoted(T(java.util.UUID).fromString(currentUserId))}">
+                            <form th:action="@{'/contracts/' + ${contract.id} + '/vote'}" method="post" class="row g-2">
+                                <div class="col-md-8">
+                                    <textarea name="reason" class="form-control" rows="2"
+                                        placeholder="Lý do bỏ phiếu (tùy chọn)..."></textarea>
+                                </div>
+                                <div class="col-md-4 d-flex flex-column gap-1">
+                                    <button type="submit" name="vote" value="APPROVE" class="btn btn-success">
+                                        <i class="fas fa-thumbs-up me-1"></i>Chấp nhận
+                                    </button>
+                                    <button type="submit" name="vote" value="REJECT" class="btn btn-danger">
+                                        <i class="fas fa-thumbs-down me-1"></i>Từ chối
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Show vote history -->
+                        <div th:if="${!#lists.isEmpty(votingSession.votes)}" class="mt-3">
+                            <h6 class="fw-bold">Lịch sử bỏ phiếu:</h6>
+                            <div th:each="vote : ${votingSession.votes}"
+                                class="d-flex justify-content-between align-items-center border-bottom py-2">
+                                <div>
+                                    <strong th:text="${vote.username}">user1</strong>
+                                    <span class="badge ms-2"
+                                        th:classappend="${vote.vote == 'APPROVE' ? 'bg-success' : 'bg-danger'}"
+                                        th:text="${vote.vote == 'APPROVE' ? 'Chấp nhận' : 'Từ chối'}">Chấp nhận</span>
+                                </div>
+                                <small class="text-muted"
+                                    th:text="${#temporals.format(vote.votedAt, 'dd/MM/yyyy HH:mm')}">01/01/2024
+                                    10:00</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span><i class="fas fa-user-friends me-2"></i>Danh sách sở hữu</span>
-                        <span class="badge bg-primary rounded-pill" th:text="${contract.ownerships != null ? contract.ownerships.size() : 0}">0</span>
+                        <span class="badge bg-primary rounded-pill"
+                            th:text="${contract.ownerships != null ? contract.ownerships.size() : 0}">0</span>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -221,25 +337,26 @@
                                         </td>
                                     </tr>
                                     <tr th:each="o : ${contract.ownerships}">
-                                        <td class="ps-4 fw-bold text-primary" th:text="${o.user != null ? o.user.username : 'N/A'}">User A</td>
-                                        
+                                        <td class="ps-4 fw-bold text-primary" th:text="${o.username}">User A</td>
+
                                         <td class="text-center">
-                                            <span class="badge bg-light text-dark border" th:text="${o.ownershipPercentage + '%'}">0%</span>
+                                            <span class="badge bg-light text-dark border"
+                                                th:text="${o.ownershipPercentage + '%'}">0%</span>
                                         </td>
-                                        
-                                        <td class="text-end fw-bold" th:text="${#numbers.formatInteger(o.contributionAmount, 0, 'POINT')}">0</td>
-                                        
+
+                                        <td class="text-end fw-bold"
+                                            th:text="${#numbers.formatInteger(o.contributionAmount, 0, 'POINT')}">0</td>
+
                                         <td class="text-center">
-                                            <span class="badge" 
-                                                  th:classappend="${o.paymentStatus == 'PAID' ? 'bg-success-subtle text-success' : (o.paymentStatus == 'PENDING' ? 'bg-warning-subtle text-warning-emphasis' : 'bg-danger-subtle text-danger')}"
-                                                  th:text="${o.paymentStatus}">
+                                            <span class="badge"
+                                                th:classappend="${o.paymentStatus == 'PAID' ? 'bg-success-subtle text-success' : (o.paymentStatus == 'PENDING' ? 'bg-warning-subtle text-warning-emphasis' : 'bg-danger-subtle text-danger')}"
+                                                th:text="${o.paymentStatus}">
                                                 PENDING
                                             </span>
                                         </td>
-                                        
+
                                         <td class="text-center">
-                                            <i class="fas fa-check-circle text-success fa-lg" th:if="${o.usageEligible}" title="Đủ điều kiện"></i>
-                                            <i class="fas fa-times-circle text-secondary fa-lg opacity-25" th:if="${!o.usageEligible}" title="Không đủ điều kiện"></i>
+                                            <i class="fas fa-check-circle text-success fa-lg" title="Đủ điều kiện"></i>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -254,17 +371,19 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-4">
-                            <h6 class="fw-bold text-dark mb-2"><i class="fas fa-gavel me-2 text-secondary"></i>Điều khoản hợp đồng</h6>
-                            <div class="p-3 bg-light rounded border border-light-subtle text-secondary" 
-                                 style="font-size: 0.95rem; min-height: 80px;"
-                                 th:text="${contract.termsAndConditions != null && contract.termsAndConditions != '' ? contract.termsAndConditions : 'Không có điều khoản cụ thể.'}">
+                            <h6 class="fw-bold text-dark mb-2"><i class="fas fa-gavel me-2 text-secondary"></i>Điều
+                                khoản hợp đồng</h6>
+                            <div class="p-3 bg-light rounded border border-light-subtle text-secondary"
+                                style="font-size: 0.95rem; min-height: 80px;"
+                                th:text="${contract.termsAndConditions != null && contract.termsAndConditions != '' ? contract.termsAndConditions : 'Không có điều khoản cụ thể.'}">
                                 Nội dung điều khoản...
                             </div>
                         </div>
                         <div>
-                            <h6 class="fw-bold text-dark mb-2"><i class="fas fa-sticky-note me-2 text-secondary"></i>Ghi chú bổ sung</h6>
-                             <div class="text-muted fst-italic" 
-                                  th:text="${contract.notes != null && contract.notes != '' ? contract.notes : 'Không có ghi chú.'}">
+                            <h6 class="fw-bold text-dark mb-2"><i class="fas fa-sticky-note me-2 text-secondary"></i>Ghi
+                                chú bổ sung</h6>
+                            <div class="text-muted fst-italic"
+                                th:text="${contract.notes != null && contract.notes != '' ? contract.notes : 'Không có ghi chú.'}">
                                 -
                             </div>
                         </div>
@@ -277,4 +396,5 @@
 
     <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
 </body>
+
 </html>

@@ -7,8 +7,7 @@
     <title th:text="${title}">Hợp đồng của nhóm - EVCC System</title>
 
     <link th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}" rel="stylesheet">
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
@@ -55,11 +54,22 @@
                             <tr th:each="c : ${contracts}">
                                 <td th:text="${c.contractNumber}">CT-001</td>
                                 <td th:text="${c.title}">Hợp đồng</td>
-                                <td th:text="${c.vehicleName != null ? c.vehicleName : '-'}">Xe</td>
-                                <td th:text="${#numbers.formatInteger(c.agreedPrice, 0, 'POINT')}">0</td>
-                                <td th:text="${c.signingDate}">2024-01-01</td>
                                 <td>
-                                    <span class="badge bg-secondary" th:text="${c.status}">DRAFT</span>
+                                    <div th:if="${c.vehicle}">
+                                        <strong th:text="${c.vehicle.name}">Tesla Model 3</strong><br>
+                                        <small class="text-muted" th:text="${c.vehicle.licensePlate}">30A-12345</small>
+                                    </div>
+                                    <span th:if="${!c.vehicle}" class="text-muted">-</span>
+                                </td>
+                                <td>
+                                    <strong th:text="${#numbers.formatInteger(c.agreedPrice, 0, 'POINT')} + ' ₫'">0
+                                        ₫</strong>
+                                </td>
+                                <td th:text="${c.signingDate ?: '-'}">-</td>
+                                <td>
+                                    <span class="badge"
+                                        th:classappend="${c.status == 'APPROVED' ? 'bg-success' : (c.status == 'PENDING_VOTES' ? 'bg-warning' : 'bg-secondary')}"
+                                        th:text="${c.status}">DRAFT</span>
                                 </td>
                                 <td class="text-end">
                                     <a th:href="@{'/contracts/' + ${c.id}}" class="btn btn-sm btn-outline-primary">
@@ -78,4 +88,3 @@
 </body>
 
 </html>
-

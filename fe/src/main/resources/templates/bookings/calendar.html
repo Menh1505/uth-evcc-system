@@ -1,60 +1,303 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vehicle Calendar - EVCC</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/style.css" rel="stylesheet" th:href="@{/css/style.css}">
+    <title th:text="${title}">Lịch sử dụng xe - EVCC System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        .calendar-cell {
-            height: 100px;
-            border: 1px solid #ddd;
-            padding: 5px;
-            position: relative;
-        }
-
-        .booking-block {
-            background-color: #007bff;
+        .booking-item {
+            background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
-            border-radius: 3px;
-            padding: 2px 5px;
-            margin: 1px 0;
-            font-size: 0.8em;
-            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
         }
 
-        .booking-block.confirmed {
-            background-color: #28a745;
+        .booking-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
-        .booking-block.pending {
-            background-color: #ffc107;
-            color: #000;
+        .booking-item.confirmed {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
         }
 
-        .booking-block.in-progress {
-            background-color: #17a2b8;
-        }
-
-        .booking-block.cancelled {
-            background-color: #dc3545;
+        .booking-item.cancelled {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            opacity: 0.7;
         }
 
         .time-slot {
-            border-bottom: 1px solid #eee;
-            padding: 10px;
-            min-height: 50px;
+            font-weight: 600;
+            font-size: 0.875rem;
         }
 
-        .time-label {
-            font-weight: bold;
-            color: #666;
-            width: 80px;
-            display: inline-block;
+        .username {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .vehicle-selector {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .date-navigation {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
     </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/navbar :: mainNavbar}"></div>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-calendar me-2"></i>Lịch sử dụng xe</h2>
+                    <div class="btn-group">
+                        <a href="/bookings" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-2"></i>Lịch của tôi
+                        </a>
+                        <a href="/bookings/create" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Đặt lịch mới
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Alert Messages -->
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${errorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Vehicle and Date Selection -->
+                <div class="vehicle-selector mb-4">
+                    <form method="get" action="/bookings/calendar">
+                        <div class="row align-items-end">
+                            <div class="col-md-4 mb-3">
+                                <label for="vehicleId" class="form-label fw-bold">
+                                    <i class="fas fa-car me-2"></i>Chọn xe
+                                </label>
+                                <select class="form-select" id="vehicleId" name="vehicleId"
+                                    onchange="this.form.submit()">
+                                    <option value="">Chọn xe để xem lịch...</option>
+                                    <option th:each="contract : ${availableVehicles}" th:value="${contract.vehicle.id}"
+                                        th:selected="${contract.vehicle.id.toString() == selectedVehicleId}"
+                                        th:text="${contract.vehicle.name + ' (' + contract.vehicle.licensePlate + ')'}">
+                                        Vehicle Name
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="date" class="form-label fw-bold">
+                                    <i class="fas fa-calendar-day me-2"></i>Chọn ngày
+                                </label>
+                                <input type="date" class="form-control" id="date" name="date" th:value="${selectedDate}"
+                                    onchange="this.form.submit()">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <button type="submit" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-search me-2"></i>Xem lịch
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Calendar View -->
+                <div th:if="${selectedVehicleId != null and selectedDate != null}">
+                    <!-- Date Navigation -->
+                    <div class="date-navigation p-3 mb-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a th:href="@{'/bookings/calendar?vehicleId=' + ${selectedVehicleId} + '&date=' + ${#temporals.format(#temporals.parseDate(selectedDate).minusDays(1), 'yyyy-MM-dd')}}"
+                                class="btn btn-outline-secondary">
+                                <i class="fas fa-chevron-left"></i> Hôm trước
+                            </a>
+
+                            <div class="text-center">
+                                <h4 class="mb-0 text-primary"
+                                    th:text="${#temporals.format(#temporals.parseDate(selectedDate), 'EEEE, dd MMMM yyyy')}">
+                                    Date
+                                </h4>
+                                <p class="text-muted mb-0"
+                                    th:text="${availableVehicles.stream().filter(v -> v.vehicle.id.toString() == selectedVehicleId).findFirst().orElse(null)?.vehicle?.name}">
+                                    Vehicle Name
+                                </p>
+                            </div>
+
+                            <a th:href="@{'/bookings/calendar?vehicleId=' + ${selectedVehicleId} + '&date=' + ${#temporals.format(#temporals.parseDate(selectedDate).plusDays(1), 'yyyy-MM-dd')}}"
+                                class="btn btn-outline-secondary">
+                                Hôm sau <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Bookings for Selected Day -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-clock me-2"></i>Lịch đặt xe trong ngày
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div th:if="${dayBookings == null or dayBookings.empty}" class="text-center py-5">
+                                        <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+                                        <h6 class="text-muted">Chưa có lịch đặt nào trong ngày này</h6>
+                                        <p class="text-muted">Xe có thể sử dụng tự do trong ngày!</p>
+                                    </div>
+
+                                    <div th:if="${dayBookings != null and !dayBookings.empty}">
+                                        <div class="booking-item" th:each="booking : ${dayBookings}"
+                                            th:classappend="${booking.status == 'CONFIRMED' ? 'confirmed' : (booking.status == 'CANCELLED' ? 'cancelled' : '')}">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <div class="time-slot">
+                                                        <i class="fas fa-clock me-2"></i>
+                                                        <span
+                                                            th:text="${#temporals.format(booking.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(booking.endTime, 'HH:mm')}">
+                                                            Time Range
+                                                        </span>
+                                                    </div>
+                                                    <div class="username">
+                                                        <i class="fas fa-user me-1"></i>
+                                                        <span th:text="${booking.username}">Username</span>
+                                                    </div>
+                                                    <div class="username">
+                                                        <i class="fas fa-tag me-1"></i>
+                                                        <span th:text="${booking.purpose}">Purpose</span>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <span class="badge bg-white text-dark"
+                                                        th:text="${booking.status == 'CONFIRMED' ? 'Đã xác nhận' : (booking.status == 'CANCELLED' ? 'Đã hủy' : booking.status)}">
+                                                        Status
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-lightning-bolt me-2"></i>Thao tác nhanh
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <a href="/bookings/local/create" class="btn btn-primary">
+                                            <i class="fas fa-plus me-2"></i>Đặt lịch mới
+                                        </a>
+                                        <a href="/bookings" class="btn btn-outline-primary">
+                                            <i class="fas fa-list me-2"></i>Xem lịch của tôi
+                                        </a>
+                                        <a href="/contracts" class="btn btn-outline-secondary">
+                                            <i class="fas fa-file-contract me-2"></i>Hợp đồng xe
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Vehicle Info -->
+                            <div class="card mt-3"
+                                th:if="${availableVehicles.stream().filter(v -> v.vehicle.id.toString() == selectedVehicleId).findFirst().orElse(null) != null}">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-info-circle me-2"></i>Thông tin xe
+                                    </h5>
+                                </div>
+                                <div class="card-body"
+                                    th:with="selectedContract=${availableVehicles.stream().filter(v -> v.vehicle.id.toString() == selectedVehicleId).findFirst().orElse(null)}">
+                                    <div th:if="${selectedContract != null}">
+                                        <p class="mb-2">
+                                            <strong>Tên xe:</strong>
+                                            <span th:text="${selectedContract.vehicle.name}">Vehicle Name</span>
+                                        </p>
+                                        <p class="mb-2">
+                                            <strong>Biển số:</strong>
+                                            <span th:text="${selectedContract.vehicle.licensePlate}">License</span>
+                                        </p>
+                                        <p class="mb-2">
+                                            <strong>Hãng:</strong>
+                                            <span
+                                                th:text="${selectedContract.vehicle.make + ' ' + selectedContract.vehicle.model}">Make
+                                                Model</span>
+                                        </p>
+                                        <p class="mb-2">
+                                            <strong>Năm:</strong>
+                                            <span th:text="${selectedContract.vehicle.year}">Year</span>
+                                        </p>
+                                        <p class="mb-0">
+                                            <strong>Nhóm:</strong>
+                                            <span th:text="${selectedContract.groupName}">Group</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No Selection State -->
+                <div th:if="${selectedVehicleId == null or selectedDate == null}" class="text-center py-5">
+                    <i class="fas fa-car fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Chọn xe và ngày để xem lịch</h5>
+                    <p class="text-muted">Sử dụng bộ lọc bên trên để xem lịch đặt xe</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
+
+.booking-block.pending {
+background-color: #ffc107;
+color: #000;
+}
+
+.booking-block.in-progress {
+background-color: #17a2b8;
+}
+
+.booking-block.cancelled {
+background-color: #dc3545;
+}
+
+.time-slot {
+border-bottom: 1px solid #eee;
+padding: 10px;
+min-height: 50px;
+}
+
+.time-label {
+font-weight: bold;
+color: #666;
+width: 80px;
+display: inline-block;
+}
+</style>
 </head>
 
 <body>
@@ -65,7 +308,7 @@
             <div class="col-md-12">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2>Vehicle Booking Calendar</h2>
-                    <a th:href="@{/bookings/create}" class="btn btn-primary">
+                    <a th:href="@{/bookings/local/create}" class="btn btn-primary">
                         <i class="fas fa-plus"></i> New Booking
                     </a>
                 </div>

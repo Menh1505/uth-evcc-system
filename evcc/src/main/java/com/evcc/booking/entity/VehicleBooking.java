@@ -31,8 +31,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Entity đại diện cho việc đặt lịch sử dụng xe
- * Mỗi booking tương ứng với một lần sử dụng xe của một thành viên
+ * Entity đại diện cho việc đặt lịch sử dụng xe Mỗi booking tương ứng với một
+ * lần sử dụng xe của một thành viên
  */
 @Entity
 @Table(name = "vehicle_bookings")
@@ -73,6 +73,13 @@ public class VehicleBooking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    /**
+     * Recurring booking gốc (nếu booking này được tạo từ recurring booking)
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recurring_booking_id")
+    private RecurringBooking recurringBooking;
 
     /**
      * Thời gian bắt đầu sử dụng xe
@@ -207,17 +214,17 @@ public class VehicleBooking {
         LocalDateTime now = LocalDateTime.now();
         this.createdAt = now;
         this.updatedAt = now;
-        
+
         // Tự động tạo booking reference nếu chưa có
         if (this.bookingReference == null || this.bookingReference.isEmpty()) {
             this.bookingReference = generateBookingReference();
         }
-        
+
         // Mặc định là PENDING nếu chưa có status
         if (this.status == null) {
             this.status = BookingStatus.PENDING;
         }
-        
+
         // Mặc định là ONE_TIME nếu chưa có type
         if (this.bookingType == null) {
             this.bookingType = BookingType.ONE_TIME;
@@ -234,8 +241,8 @@ public class VehicleBooking {
      */
     private String generateBookingReference() {
         LocalDateTime now = LocalDateTime.now();
-        String dateStr = String.format("%04d%02d%02d", 
-            now.getYear(), now.getMonthValue(), now.getDayOfMonth());
+        String dateStr = String.format("%04d%02d%02d",
+                now.getYear(), now.getMonthValue(), now.getDayOfMonth());
         Random random = new Random();
         int randomSuffix = random.nextInt(100000);
         return "BK-" + dateStr + "-" + String.format("%05d", randomSuffix);

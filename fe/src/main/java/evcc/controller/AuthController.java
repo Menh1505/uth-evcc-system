@@ -20,7 +20,7 @@ import evcc.dto.request.UserRegisterRequest;
 import evcc.dto.response.UserLoginResponse;
 import evcc.dto.response.UserRegisterResponse;
 import evcc.exception.ApiException;
-import evcc.service.UserService;
+import evcc.service.UserLocalService;
 import jakarta.validation.Valid;
 
 import jakarta.servlet.http.HttpSession;
@@ -31,10 +31,10 @@ public class AuthController {
     
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     
-    private final UserService userService;
+    private final UserLocalService userLocalService;
     
-    public AuthController(UserService userService) {
-        this.userService = userService;
+    public AuthController(UserLocalService userLocalService) {
+        this.userLocalService = userLocalService;
     }
     
     /**
@@ -65,8 +65,8 @@ public class AuthController {
         }
         
         try {
-            // Gọi API đăng ký
-            UserRegisterResponse response = userService.registerUser(request);
+            // Gọi local service đăng ký
+            UserRegisterResponse response = userLocalService.registerUser(request);
             
             if (response.isSuccess()) {
                 redirectAttributes.addFlashAttribute("successMessage", 
@@ -97,7 +97,7 @@ public class AuthController {
         logger.info("API call đăng ký user: {}", request);
         
         try {
-            UserRegisterResponse response = userService.registerUser(request);
+            UserRegisterResponse response = userLocalService.registerUser(request);
             
             if (response.isSuccess()) {
                 return ResponseEntity.ok(response);
@@ -149,8 +149,8 @@ public class AuthController {
         }
         
         try {
-            // Gọi API đăng nhập
-            UserLoginResponse response = userService.loginUser(request);
+            // Gọi local service đăng nhập
+            UserLoginResponse response = userLocalService.loginUser(request);
             
             if (response.isSuccess()) {
                 // Lưu thông tin user vào session để dùng cho navbar / profile
@@ -185,7 +185,7 @@ public class AuthController {
         logger.info("API call đăng nhập user: {}", request);
         
         try {
-            UserLoginResponse response = userService.loginUser(request);
+            UserLoginResponse response = userLocalService.loginUser(request);
             
             if (response.isSuccess()) {
                 return ResponseEntity.ok(response);
@@ -336,7 +336,7 @@ public class AuthController {
     @GetMapping("/api/status")
     @ResponseBody
     public ResponseEntity<String> checkApiStatus() {
-        boolean isAvailable = userService.isApiServerAvailable();
+        boolean isAvailable = true; // Local service luôn available
         
         if (isAvailable) {
             return ResponseEntity.ok("{\"status\":\"connected\",\"message\":\"API server khả dụng\"}");

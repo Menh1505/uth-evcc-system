@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import evcc.dto.response.UserProfileResponseDto;
 import evcc.exception.ApiException;
-import evcc.service.UserService;
+import evcc.service.UserLocalService;
 
 @RestController
 @RequestMapping("/api/users")
@@ -19,18 +19,16 @@ public class UserProfileController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserProfileController.class);
 
-    private final UserService userService;
+    private final UserLocalService userLocalService;
 
-    public UserProfileController(UserService userService) {
-        this.userService = userService;
+    public UserProfileController(UserLocalService userLocalService) {
+        this.userLocalService = userLocalService;
     }
 
     /**
-     * Lấy thông tin profile cá nhân
-     * GET /api/users/profile
+     * Lấy thông tin profile cá nhân GET /api/users/profile
      *
-     * Header:
-     * Authorization: Bearer <JWT_TOKEN>
+     * Header: Authorization: Bearer <JWT_TOKEN>
      */
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponseDto> getMyProfile(
@@ -39,10 +37,10 @@ public class UserProfileController {
         logger.info("API call lấy thông tin profile cá nhân");
 
         try {
-            UserProfileResponseDto profile = userService.getUserProfile(authorizationHeader);
+            UserProfileResponseDto profile = userLocalService.getUserProfile(authorizationHeader);
             return ResponseEntity.ok(profile);
         } catch (ApiException e) {
-            logger.error("Lỗi khi lấy profile user: {}", e.getErrorMessage());
+            logger.error("Lỗi khi lấy profile user: {}", e.getMessage());
 
             HttpStatus status;
             try {
@@ -55,4 +53,3 @@ public class UserProfileController {
         }
     }
 }
-
