@@ -25,6 +25,30 @@
                     <li class="nav-item" th:if="${session.currentUser != null}">
                         <a class="nav-link" th:href="@{/vehicles}">Đồng sở hữu xe</a>
                     </li>
+                    <!-- Booking System Navigation -->
+                    <li class="nav-item dropdown" th:if="${session.currentUser != null}">
+                        <a class="nav-link dropdown-toggle" href="#" id="bookingMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-calendar-alt"></i> Đặt lịch xe
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="bookingMenu">
+                            <li>
+                                <a class="dropdown-item" th:href="@{/bookings}">
+                                    <i class="fas fa-list me-2"></i>Lịch của tôi
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/bookings/create}">
+                                    <i class="fas fa-plus me-2"></i>Đặt lịch mới
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/bookings/calendar}">
+                                    <i class="fas fa-calendar me-2"></i>Lịch chung
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     <li class="nav-item"
                         th:if="${session.currentUser != null and session.currentUser.roles != null and session.currentUser.roles.contains('ADMIN')}">
                         <a class="nav-link" th:href="@{/admin/users}">Quản trị người dùng</a>
